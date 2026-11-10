@@ -4,7 +4,9 @@ export interface PlanetState {
   name: string;
   next: "Earth" | "Moon" | "Mars";
   number: string;
-  portal: string;
+  portal?: string;
+  image?: string;
+  surfaceImage?: string;
   arrival: string;
   background: string;
   facts: [string, string][];
@@ -14,7 +16,10 @@ export const BASE_MEDIA_URL =
   "https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P";
 export const TO_MARS = `${BASE_MEDIA_URL}/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4`;
 export const TO_EARTH = `${BASE_MEDIA_URL}/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4`;
-export const TO_MOON = `${BASE_MEDIA_URL}/b30f64d9-1637-477a-83df-d0fc6461a422.mp4`;
+export const MARS_ORBIT = `${BASE_MEDIA_URL}/b30f64d9-1637-477a-83df-d0fc6461a422.mp4`;
+export const TO_MOON = "/assets/videos/to_moon.mp4";
+export const MOON_ORBIT = "/assets/images/moon_orbit_portal_1794350272270.jpg";
+export const MOON_SURFACE = "/assets/images/moon_surface_bg_1794350272226.jpg";
 
 export const PLANETS: readonly string[] = ["Mars", "Earth", "Moon"];
 
@@ -24,7 +29,7 @@ export const PLANET_STATES: Record<PlanetKey, PlanetState> = {
     next: "Earth",
     number: "[03]",
     portal: TO_EARTH,
-    arrival: TO_MARS,
+    arrival: MARS_ORBIT,
     background: "mars-background",
     facts: [
       ["Distance:", "About 228 million km (1.5 astronomical units)."],
@@ -38,6 +43,7 @@ export const PLANET_STATES: Record<PlanetKey, PlanetState> = {
     next: "Moon",
     number: "[02]",
     portal: TO_MOON,
+    image: MOON_ORBIT,
     arrival: TO_EARTH,
     background: "earth-background",
     facts: [
@@ -51,7 +57,8 @@ export const PLANET_STATES: Record<PlanetKey, PlanetState> = {
     name: "Moon",
     next: "Mars",
     number: "[01]",
-    portal: TO_MARS,
+    portal: MARS_ORBIT,
+    surfaceImage: MOON_SURFACE,
     arrival: TO_MOON,
     background: "moon-background",
     facts: [
