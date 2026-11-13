@@ -73,56 +73,165 @@ export const PLANET_STATES: Record<PlanetKey, PlanetState> = {
 export interface EarthLandingZone {
   id: string;
   region: string;
+  name?: string;
   coordinates: string;
+  lng: number;
+  lat: number;
+  zoom: number;
+  pitch: number;
+  bearing: number;
   video: string;
   orbitImage: string;
   aerialImage: string;
   surfaceImage: string;
   temperature: string;
+  elevation?: string;
+  atmosphere?: string;
 }
 
 export const EARTH_LANDING_ZONES: readonly EarthLandingZone[] = [
   {
     id: "sahara",
     region: "Sahara & Arabian Desert",
-    coordinates: "25.4° N, 29.8° E",
+    name: "Great Sand Sea Sector Alpha",
+    coordinates: "25.4000° N, 29.8000° E",
+    lng: 29.8,
+    lat: 25.4,
+    zoom: 12.5,
+    pitch: 58,
+    bearing: 24,
     video: "/assets/videos/to_earth_sahara.mp4",
     orbitImage: "/assets/images/earth_01.jpg",
     aerialImage: "/assets/images/earth_aerial_sahara_1794472652548.jpg",
     surfaceImage: "/assets/images/earth_sahara_desert_1794458545792.jpg",
     temperature: "Arid desert zone (~38 °C by day, 15 °C global mean).",
+    elevation: "182 m above sea level",
+    atmosphere: "Hyper-arid, high visibility, thin cloud cover",
   },
   {
     id: "amazon",
     region: "Amazon Rainforest Basin",
-    coordinates: "3.4° S, 62.2° W",
+    name: "Rio Negro Biosphere Gateway",
+    coordinates: "3.4000° S, 62.2000° W",
+    lng: -62.2,
+    lat: -3.4,
+    zoom: 12.0,
+    pitch: 60,
+    bearing: -15,
     video: "/assets/videos/to_earth_amazon.mp4",
     orbitImage: "/assets/images/earth_orbit_amazon_1794472647034.jpg",
     aerialImage: "/assets/images/earth_aerial_amazon_1794472646196.jpg",
     surfaceImage: "/assets/images/earth_amazon_jungle_1794458546185.jpg",
     temperature: "Equatorial tropical basin (~28 °C, high humidity).",
+    elevation: "64 m above sea level",
+    atmosphere: "Dense canopy transpiration, dense oxygen envelope",
   },
   {
     id: "arctic",
     region: "Arctic Glacial Fjord",
-    coordinates: "68.3° N, 14.6° E",
+    name: "Svalbard Polar Archipelago",
+    coordinates: "68.3000° N, 14.6000° E",
+    lng: 14.6,
+    lat: 68.3,
+    zoom: 12.0,
+    pitch: 64,
+    bearing: 42,
     video: "/assets/videos/to_earth_arctic.mp4",
     orbitImage: "/assets/images/earth_orbit_arctic_1794472649949.jpg",
     aerialImage: "/assets/images/earth_aerial_arctic_1794472651964.jpg",
     surfaceImage: "/assets/images/earth_arctic_fjord_1794458546932.jpg",
     temperature: "Sub-polar glacial zone (-12 °C to 4 °C).",
+    elevation: "320 m fjord elevation",
+    atmosphere: "Crisp polar air, high atmospheric transparency",
   },
   {
     id: "savanna",
     region: "East African Rift Savanna",
-    coordinates: "2.3° S, 34.8° E",
+    name: "Serengeti Caldera Approach",
+    coordinates: "2.3000° S, 34.8000° E",
+    lng: 34.8,
+    lat: -2.3,
+    zoom: 12.5,
+    pitch: 55,
+    bearing: 18,
     video: "/assets/videos/to_earth_savanna.mp4",
     orbitImage: "/assets/images/earth_01.jpg",
     aerialImage: "/assets/images/earth_savanna_surface.jpg",
     surfaceImage: "/assets/images/earth_savanna_surface.jpg",
     temperature: "Sub-tropical savanna (~24 °C, 15 °C global mean).",
+    elevation: "1,530 m rift plateau",
+    atmosphere: "Semi-arid continental airflow, open thermals",
+  },
+  {
+    id: "kennedy",
+    region: "NASA Kennedy Space Center",
+    name: "Cape Canaveral Launch Complex 39A",
+    coordinates: "28.5721° N, 80.6480° W",
+    lng: -80.648,
+    lat: 28.5721,
+    zoom: 13.5,
+    pitch: 62,
+    bearing: -32,
+    video: "/assets/videos/to_earth.mp4",
+    orbitImage: "/assets/images/earth_01.jpg",
+    aerialImage: "/assets/images/earth_aerial_sahara_1794472652548.jpg",
+    surfaceImage: "/assets/images/earth_savanna_surface.jpg",
+    temperature: "Subtropical coastal climate (~26 °C).",
+    elevation: "3 m oceanfront spaceport",
+    atmosphere: "Maritime coastal boundary layer, Atlantic trades",
+  },
+  {
+    id: "mojave",
+    region: "Mojave Air & Space Port",
+    name: "Mojave Civilian Aerospace Test Center",
+    coordinates: "35.0592° N, 118.1517° W",
+    lng: -118.1517,
+    lat: 35.0592,
+    zoom: 13.0,
+    pitch: 60,
+    bearing: 45,
+    video: "/assets/videos/to_earth.mp4",
+    orbitImage: "/assets/images/earth_01.jpg",
+    aerialImage: "/assets/images/earth_aerial_sahara_1794472652548.jpg",
+    surfaceImage: "/assets/images/earth_sahara_desert_1794458545792.jpg",
+    temperature: "High desert climate (~22 °C mean).",
+    elevation: "851 m high desert plateau",
+    atmosphere: "Low humidity, ultra-clear visual corridor",
   },
 ];
+
+export function formatCoordinates(lat: number, lng: number): string {
+  const latDir = lat >= 0 ? "N" : "S";
+  const lngDir = lng >= 0 ? "E" : "W";
+  return `${Math.abs(lat).toFixed(4)}° ${latDir}, ${Math.abs(lng).toFixed(4)}° ${lngDir}`;
+}
+
+export function createCustomLandingZone(
+  lng: number,
+  lat: number,
+  name = "Custom Targeted Coordinates",
+  options?: Partial<EarthLandingZone>,
+): EarthLandingZone {
+  const coords = formatCoordinates(lat, lng);
+  return {
+    id: `custom_${lat.toFixed(2)}_${lng.toFixed(2)}`.replace(/[^a-zA-Z0-9_]/g, ""),
+    region: options?.region || name,
+    name,
+    coordinates: coords,
+    lng,
+    lat,
+    zoom: options?.zoom ?? 12.5,
+    pitch: options?.pitch ?? 60,
+    bearing: options?.bearing ?? 20,
+    video: options?.video || "/assets/videos/to_earth.mp4",
+    orbitImage: options?.orbitImage || "/assets/images/earth_01.jpg",
+    aerialImage: options?.aerialImage || "/assets/images/earth_aerial_sahara_1794472652548.jpg",
+    surfaceImage: options?.surfaceImage || "/assets/images/earth_sahara_desert_1794458545792.jpg",
+    temperature: options?.temperature || "Monitored planetary surface (~15 °C).",
+    elevation: options?.elevation || "Sea level datum",
+    atmosphere: options?.atmosphere || "Standard Earth atmosphere (1 atm, 78% N2, 21% O2)",
+  };
+}
 
 export function pickRandomEarthLandingZone(
   previousId?: string | null,
