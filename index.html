@@ -2,842 +2,2438 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Planet Jumping — Mars Portal</title>
-    <meta name="description" content="An immersive cinematic journey from Mars through the inner Solar System." />
-    <meta property="og:title" content="Planet Jumping — Mars Portal" />
-    <meta property="og:description" content="An immersive cinematic journey from Mars through the inner Solar System." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>TerraAnalog — Planetary Analog & Exploration Platform</title>
+    <meta name="description" content="An Awwwards-grade interactive planetary analog & exploration platform comparing geological terrain, extreme regolith, and orbital coordinates across Earth, Moon, and Mars." />
+    <meta property="og:title" content="TerraAnalog — One World Reveals Three" />
+    <meta property="og:description" content="Explore geological terrain, extreme regolith, and orbital coordinates across Earth, Moon, and Mars analogs." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="/assets/vendor/maplibre-gl.css" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css" />
+
+    <!-- Typography: Inter, Syne, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:wght@400..600&family=Syne:wght@700..800&display=swap" rel="stylesheet" />
+
     <style>
-      @font-face{font-family:'SF Pro';font-style:normal;font-weight:400;src:local('SF Pro Display'),local('SF Pro Text')}
-      @font-face{font-family:'SF Pro';font-style:normal;font-weight:700;src:local('SF Pro Display Bold'),local('SF Pro Text Bold')}
-      @font-face{font-family:'SF Pro Thin';font-style:normal;font-weight:100;src:local('SF Pro Display Thin'),local('SF Pro Text Thin')}
-      @font-face{font-family:'Aalto';font-style:normal;font-weight:400;src:local('Aalto Display'),local('Aalto')}
-      :root{font-family:'SF Pro',Arial,sans-serif;color:#fff;background:#090807;font-synthesis:none}
-      *{box-sizing:border-box}
-      html,body{margin:0;width:100%;height:100%;overflow:hidden}
-      html,body,button,a,.portal{cursor:none!important}
-      button,a,input{font:inherit}
-      .experience{position:relative;width:100%;height:100%;min-height:540px;overflow:hidden;background:#0a0908}
-      .backgrounds,.background,.shade,.transition-layer,.transition-layer video{position:absolute;inset:0;width:100%;height:100%}
-      .background{object-fit:cover;opacity:0;transition:opacity .8s ease}
-      .background.is-visible{opacity:1}
-      .shade{z-index:1;background:linear-gradient(to bottom,transparent 52%,rgba(0,0,0,.88) 100%);pointer-events:none}
-      .chrome{position:absolute;z-index:4;transition:opacity .45s ease,filter .45s ease}
-      .experience.is-transitioning .chrome{opacity:0;filter:blur(8px);pointer-events:none}
-      .header{left:clamp(18px,1.95vw,28px);right:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-      .logo-slot{width:37px;height:36px;flex-shrink:0}
-      .earth-search-dock{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:min(560px,50vw);width:100%;margin:0 auto}
-      .earth-search-form{display:flex;align-items:center;width:100%;height:40px;padding:3px 4px 3px 14px;border:1px solid rgba(255,255,255,.38);background:rgba(8,11,18,.58);backdrop-filter:blur(14px);border-radius:999px;gap:8px;transition:border-color .2s,background .2s}
-      .earth-search-form:focus-within{border-color:rgba(255,255,255,.85);background:rgba(8,11,18,.78)}
-      .earth-search-input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:13.5px;direction:rtl;text-align:right;cursor:text!important}
-      .earth-search-input::placeholder{color:rgba(255,255,255,.62)}
-      .earth-search-btn{height:32px;padding:0 15px;border:0;border-radius:999px;background:#fff;color:#000;font-size:12.5px;font-weight:700;white-space:nowrap;transition:transform .15s,background .2s}
-      .earth-search-btn:hover{background:#dcebff;transform:scale(1.03)}
-      .earth-quick-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
-      .earth-chip{height:24px;padding:0 10px;border:1px solid rgba(255,255,255,.26);border-radius:999px;background:rgba(12,16,24,.52);backdrop-filter:blur(8px);color:rgba(255,255,255,.86);font-size:11.5px;line-height:22px;white-space:nowrap;transition:all .18s}
-      .earth-chip:hover,.earth-chip.active{background:#fff;color:#000;border-color:#fff}
-      .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-      .nav{display:flex;align-items:center;height:42px;padding:4px 5px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:999px}
-      .nav a{color:#fff;text-decoration:none;padding:8px 19px;border-radius:999px;line-height:1}
-      .nav a.active{background:#fff;color:#000}
-      .menu{height:42px;padding:0 20px;border:0;border-radius:999px;background:#fff;color:#000;cursor:pointer}
-      .planet-list{left:clamp(18px,1.95vw,28px);top:50%;transform:translateY(-43%);display:flex;flex-direction:column;gap:6px;font-size:16px}
-      .planet-item{display:flex;align-items:center;min-height:20px}
-      .planet-item.active{font-size:18px;font-weight:700;gap:8px}
-      .planet-item.active:before{content:'';width:16px;height:16px;border-radius:50%;background:#fff}
-      .portal-wrap{left:50%;top:50%;width:min(320px,31vw);transform:translate(-50%,-54%);perspective:none}
-      .portal-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:16px;opacity:0}
-      .portal-heading strong{font-size:18px;margin-left:8px}
-      .portal{position:relative;display:block;width:100%;aspect-ratio:320/350;padding:0;overflow:visible;border:0;border-radius:90px;background:transparent;cursor:pointer;box-shadow:none;transform:none!important}
-      .portal video,.portal img{opacity:0;position:absolute;width:1px;height:1px;pointer-events:none}
-      .portal-canvas{position:fixed;inset:0;z-index:3;width:100%;height:100%;pointer-events:none}
-      .earth-globe-stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;opacity:.001;pointer-events:none}
-      .planet-content{left:clamp(28px,4vw,58px);right:clamp(28px,3vw,44px);bottom:clamp(24px,3vh,30px);display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
-      .planet-content h1{font-family:Aalto,'Arial Narrow',sans-serif;font-stretch:condensed;font-size:clamp(128px,21.8vw,314px);font-weight:400;line-height:.72;margin:0 0 -.04em;letter-spacing:0;transform:translateX(-32px);opacity:0}
-      .planet-content dl{width:min(447px,34vw);margin:0;font-size:16px}
-      .fact{display:grid;grid-template-columns:138px 1fr;gap:18px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.48);opacity:0}
-      .fact:last-child{border-bottom:0}.fact dt{font-weight:700}.fact dd{margin:0}
-      .transition-layer{opacity:0;pointer-events:none;width:1px;height:1px;overflow:hidden}.scene-canvas{display:none}
-      .loading{position:absolute;z-index:12;left:50%;bottom:30px;transform:translateX(-50%);opacity:0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:opacity .2s}
-      .experience.is-loading .loading{opacity:.8}
-      .experience.is-transitioning .header,.experience.is-transitioning .planet-list{opacity:1;filter:none;pointer-events:auto}
-      .experience.is-transitioning .earth-search-dock{opacity:0;pointer-events:none;transition:opacity .25s}
-      .experience.is-transitioning .shade{opacity:1}
-      .experience.is-committing .background{transition:none!important}
-      .preloader{position:absolute;inset:0;z-index:20;background:#000;overflow:hidden}
-      .preloader video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-      .preloader-shade{position:absolute;inset:auto 0 0;height:35%;background:linear-gradient(to bottom,transparent,#000)}
-      .preloader.is-background{z-index:0}.preloader.is-background .preloader-shade{opacity:0}
-      .floating-logo{position:fixed;z-index:22;left:50%;top:50%;width:59px;height:58px;transform:translate(-50%,-50%);will-change:left,top,width,height,transform;transition:left 2s cubic-bezier(.16,1,.3,1),top 2s cubic-bezier(.16,1,.3,1),width 2s cubic-bezier(.16,1,.3,1),height 2s cubic-bezier(.16,1,.3,1),transform 2s cubic-bezier(.16,1,.3,1)}
-      .floating-logo.is-docked{left:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);width:37px;height:36px;transform:none}
-      .floating-logo.is-settled{z-index:5}
-      .preloader-count{position:fixed;z-index:22;left:50%;bottom:clamp(22px,3.1vh,28px);display:flex;align-items:flex-end;gap:4px;transform:translateX(-50%);font-family:'SF Pro',Arial,sans-serif;line-height:1}
-      .preloader-count>span:first-child{font-family:'SF Pro Thin','SF Pro',Arial,sans-serif;font-size:64px;font-weight:100}
-      .preloader-count .percent{font-size:24px;padding-bottom:4px}
-      .preloader-count.is-leaving{animation:preload-count-out .75s cubic-bezier(.22,1,.36,1) both}
-      @keyframes preload-count-out{to{opacity:0;filter:blur(7px);transform:translate(-50%,-34px)}}
-      body:not(.preload-complete) .custom-cursor{opacity:0!important}
-      .custom-cursor{display:block;position:fixed;left:0;top:0;z-index:100;width:1px;height:1px;pointer-events:none;opacity:0;transition:opacity .2s ease}
-      .custom-cursor.is-visible{opacity:1}
-      .cursor-dot,.cursor-orbit{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%)}
-      .cursor-dot{width:12px;height:12px;background:#fff}
-      .cursor-orbit{width:36px;height:36px;border:1px solid #fff;background:rgba(255,255,255,.4);transition:transform .3s cubic-bezier(.22,1,.36,1)}
-      .custom-cursor.is-enter .cursor-orbit{transform:translate(-50%,-50%) scale(1.16)}
-      .cursor-label{position:absolute;top:26px;left:0;transform:translateX(-50%) translateY(-4px);font:16px/1.2 'SF Pro',Arial,sans-serif;white-space:nowrap;opacity:0;transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1)}
-      .custom-cursor.is-enter .cursor-label{opacity:1;transform:translateX(-50%) translateY(0)}
-      body:not(.intro-ready) .header,body:not(.intro-ready) .planet-list,body:not(.intro-ready) .planet-content h1,body:not(.intro-ready) .planet-content .fact{opacity:0}
-      .intro-ready .header{animation:reveal-down .9s cubic-bezier(.22,1,.36,1) .1s both}
-      .intro-ready .planet-list{animation:reveal-side .9s cubic-bezier(.22,1,.36,1) .65s both}
-      .content-revealing h1{animation:title-rise 1.05s cubic-bezier(.16,1,.3,1) both}
-      .content-revealing .fact{animation:fact-rise .72s cubic-bezier(.22,1,.36,1) both}
-      .content-revealing .fact:nth-child(1){animation-delay:.52s}.content-revealing .fact:nth-child(2){animation-delay:.68s}.content-revealing .fact:nth-child(3){animation-delay:.84s}.content-revealing .fact:nth-child(4){animation-delay:1s}
-      .mask-revealing .portal-heading{animation:portal-caption .85s cubic-bezier(.22,1,.36,1) both}
-      .planet-list.is-switching .planet-item{animation:menu-row .58s cubic-bezier(.22,1,.36,1) both}
-      .planet-list.is-switching .planet-item:nth-child(1){animation-delay:.02s}.planet-list.is-switching .planet-item:nth-child(2){animation-delay:.05s}.planet-list.is-switching .planet-item:nth-child(3){animation-delay:.08s}
-      .planet-list.is-switching .planet-item.active:before{animation:active-dot .55s cubic-bezier(.22,1,.36,1) .18s both}
-      @keyframes reveal-down{from{opacity:0;filter:blur(8px);transform:translateY(-18px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes reveal-side{from{opacity:0;filter:blur(8px);transform:translate(-20px,-43%)}to{opacity:1;filter:blur(0);transform:translate(0,-43%)}}
-      @keyframes title-rise{from{opacity:0;filter:blur(12px);transform:translate(-32px,42px)}to{opacity:1;filter:blur(0);transform:translate(-32px,0)}}
-      @keyframes fact-rise{from{opacity:0;filter:blur(7px);transform:translateY(18px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes portal-caption{from{opacity:0;filter:blur(7px);transform:translateY(22px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes menu-row{from{opacity:.35;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-      @keyframes active-dot{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
-      @media(max-width:900px){.nav{display:none}.earth-search-dock{max-width:64vw}.portal-wrap{width:min(300px,48vw)}.planet-content h1{font-size:clamp(105px,24vw,190px)}.planet-content dl{width:43vw}.fact{grid-template-columns:110px 1fr}.planet-list{font-size:14px}.planet-item.active{font-size:16px}}
-      @media(max-width:640px){.experience{min-height:600px}.planet-list{display:none}.earth-quick-chips{display:none}.portal-wrap{top:44%;width:min(260px,66vw)}.planet-content{left:18px;right:18px;bottom:18px;display:block}.planet-content h1{font-size:clamp(98px,30vw,160px);margin-bottom:20px}.planet-content dl{width:100%;font-size:13px}.fact{grid-template-columns:92px 1fr;padding:5px 0}.portal-heading{font-size:14px}.portal-heading strong{font-size:16px}.menu{height:38px}.portal{border-radius:70px}}
-      @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}.portal{transform:none!important}}
+      /* ==========================================================================
+         1. TYPOGRAPHY & COLOR TOKENS
+         ========================================================================== */
+      :root {
+        /* Rigid reference scaling unit (1563x1006 reference canvas) */
+        --u: max(min(calc(100vw / 1563), calc(100vh / 900)), 0.78px);
+
+        /* Core Palette */
+        --bg-void: #030407;
+        --ink: #ffffff;
+        --ink-nav: rgba(255, 255, 255, 0.88);
+        --ink-sub: rgba(255, 255, 255, 0.54);
+        --ink-Telemetry: rgba(255, 255, 255, 0.42);
+        --glass-bg: rgba(255, 255, 255, 0.06);
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-highlight: rgba(255, 255, 255, 0.28);
+
+        /* Dynamic Planetary Accent Tokens (updated via Scroll & Hover JS) */
+        --planet-glow: #38bdf8;       /* Earth Default: Cyan/Atmo Blue */
+        --planet-secondary: #0284c7;
+        --planet-surface: #0f172a;
+
+        /* Motion Curves */
+        --e-reveal: cubic-bezier(0.18, 0.85, 0.26, 1);
+        --e-soft: cubic-bezier(0.22, 1, 0.36, 1);
+        --e-spring: cubic-bezier(0.16, 1, 0.3, 1);
+        --e-nav: cubic-bezier(0.33, 1, 0.68, 1);
+        --rise: calc(12 * var(--u));
+        --rise-lg: calc(18 * var(--u));
+
+        /* Fonts */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-display: 'Syne', var(--font-sans);
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+
+      /* Planetary Theme States */
+      body[data-planet="earth"] {
+        --planet-glow: #38bdf8;
+        --planet-secondary: #10b981;
+      }
+
+      body[data-planet="moon"] {
+        --planet-glow: #e2e8f0;
+        --planet-secondary: #94a3b8;
+      }
+
+      body[data-planet="mars"] {
+        --planet-glow: #f97316;
+        --planet-secondary: #dc2626;
+      }
+
+      /* ==========================================================================
+         RESET & BASE SETUP
+         ========================================================================== */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        background: var(--bg-void);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: calc(16 * var(--u));
+        line-height: 1.5;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: auto; /* Managed via JS Lerp */
+      }
+
+      body {
+        width: 100%;
+        min-height: 100vh;
+        background: var(--bg-void);
+        color: var(--ink);
+        overflow-x: hidden;
+        cursor: none; /* Replaced by custom orbital cursor */
+        user-select: none;
+      }
+
+      /* Native scrollbar hidden for custom luxury feel */
+      body::-webkit-scrollbar {
+        width: 4px;
+      }
+      body::-webkit-scrollbar-track {
+        background: rgba(3, 4, 7, 0.95);
+      }
+      body::-webkit-scrollbar-thumb {
+        background: var(--planet-glow);
+        border-radius: 999px;
+      }
+
+      button, input, select, a {
+        font: inherit;
+        color: inherit;
+        cursor: none;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      /* ==========================================================================
+         2. LAYER ARCHITECTURE & FIXED WEBGL/CANVAS STAGE
+         ========================================================================== */
+      .viewport-shell {
+        position: relative;
+        width: 100%;
+        background: var(--bg-void);
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      /* Canvas Layer 0: 3D interactive parallax starfield + dust */
+      canvas#starfield {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* Canvas Layer 1: Procedural 3D WebGL sphere + limb shader + clouds + craters */
+      #planet-stage {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 1.2s var(--e-reveal), opacity 0.8s ease;
+      }
+
+      canvas#globe-3d {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+
+      /* Atmosphere Veil Layer 2 */
+      .atmosphere-veil {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background: radial-gradient(circle at 50% 50%, transparent 35%, rgba(3, 4, 7, 0.45) 75%, rgba(3, 4, 7, 0.92) 100%);
+        box-shadow: inset 0 0 calc(120 * var(--u)) rgba(0, 0, 0, 0.85);
+        transition: background 0.8s ease;
+      }
+
+      /* Radial speedlines during hyper-dive */
+      .dive-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        opacity: 0;
+        background: radial-gradient(circle at center, transparent 20%, rgba(255, 255, 255, 0.08) 60%, rgba(56, 189, 248, 0.25) 100%);
+        transition: opacity 0.3s ease;
+      }
+      body.is-diving .dive-overlay {
+        opacity: 1;
+      }
+
+      /* ==========================================================================
+         3. DUAL-RING ORBITAL CURSOR (div.cursor-halo)
+         ========================================================================== */
+      .cursor-halo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: calc(36 * var(--u));
+        height: calc(36 * var(--u));
+        z-index: 9999;
+        pointer-events: none;
+        transform: translate3d(-100px, -100px, 0);
+        will-change: transform, width, height;
+        mix-blend-mode: screen;
+      }
+
+      .cursor-dot {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: calc(6 * var(--u));
+        height: calc(6 * var(--u));
+        background: #ffffff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 calc(10 * var(--u)) #ffffff;
+        transition: transform 0.15s ease;
+      }
+
+      .cursor-ring {
+        position: absolute;
+        inset: 0;
+        border: calc(1.2 * var(--u)) solid rgba(255, 255, 255, 0.38);
+        border-radius: 50%;
+        transition: border-color 0.3s, transform 0.2s;
+      }
+
+      .cursor-orbit-svg {
+        position: absolute;
+        inset: calc(-6 * var(--u));
+        width: calc(100% + calc(12 * var(--u)));
+        height: calc(100% + calc(12 * var(--u)));
+        opacity: 0;
+        color: var(--planet-glow);
+        transform: rotate(0deg);
+        transition: opacity 0.25s ease;
+      }
+
+      /* Cursor states on hover */
+      .cursor-halo.is-hovering {
+        width: calc(64 * var(--u));
+        height: calc(64 * var(--u));
+      }
+      .cursor-halo.is-hovering .cursor-ring {
+        border-color: var(--planet-glow);
+        box-shadow: 0 0 calc(16 * var(--u)) var(--planet-glow);
+      }
+      .cursor-halo.is-hovering .cursor-orbit-svg {
+        opacity: 1;
+        animation: spinOrbit 4s linear infinite;
+      }
+      .cursor-halo.is-hovering .cursor-dot {
+        transform: translate(-50%, -50%) scale(1.4);
+        background: var(--planet-glow);
+      }
+
+      @keyframes spinOrbit {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* ==========================================================================
+         4. HEADER (header.bar) & MAGNETIC NAVIGATION
+         ========================================================================== */
+      header.bar {
+        position: fixed;
+        top: calc(18 * var(--u));
+        left: 50%;
+        transform: translateX(-50%) translate3d(0, 0, 0);
+        width: calc(1240 * var(--u));
+        max-width: calc(100vw - calc(32 * var(--u)));
+        height: calc(44 * var(--u));
+        padding: 0 calc(16 * var(--u));
+        border-radius: 999px;
+        background: rgba(8, 10, 16, 0.65);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        backdrop-filter: blur(calc(18 * var(--u))) saturate(150%);
+        -webkit-backdrop-filter: blur(calc(18 * var(--u))) saturate(150%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 50;
+        box-shadow: 0 calc(12 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 0, 0.55);
+        transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.62s var(--e-nav);
+      }
+
+      header.bar:hover {
+        border-color: var(--glass-highlight);
+      }
+
+      /* Brand */
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: calc(10 * var(--u));
+        color: var(--ink);
+      }
+
+      .brand-emblem {
+        width: calc(32 * var(--u));
+        height: calc(20 * var(--u));
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .brand-emblem svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      .brand:hover .sat-1 {
+        animation: satOrbit1 1.2s linear infinite;
+      }
+      .brand:hover .sat-2 {
+        animation: satOrbit2 1.8s linear infinite reverse;
+      }
+
+      @keyframes satOrbit1 {
+        0% { transform: rotate(-22deg) translate(calc(14 * var(--u)), 0); }
+        50% { transform: rotate(-22deg) translate(calc(-14 * var(--u)), 0); }
+        100% { transform: rotate(-22deg) translate(calc(14 * var(--u)), 0); }
+      }
+      @keyframes satOrbit2 {
+        0% { transform: rotate(15deg) translate(calc(14 * var(--u)), 0); }
+        50% { transform: rotate(15deg) translate(calc(-14 * var(--u)), 0); }
+        100% { transform: rotate(15deg) translate(calc(14 * var(--u)), 0); }
+      }
+
+      .brand-text {
+        font-family: var(--font-sans);
+        font-size: calc(16.5 * var(--u));
+        font-weight: 600;
+        letter-spacing: calc(-0.3 * var(--u));
+        color: var(--ink);
+      }
+
+      /* Planetary Quick-Jump Switcher (nav.planet-pills) */
+      nav.planet-pills {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: calc(34 * var(--u));
+        padding: calc(2 * var(--u));
+        background: rgba(255, 255, 255, 0.04);
+        border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+      }
+
+      .nav-glider {
+        position: absolute;
+        top: calc(2 * var(--u));
+        bottom: calc(2 * var(--u));
+        left: 0;
+        width: 0;
+        background: rgba(255, 255, 255, 0.12);
+        border: calc(1 * var(--u)) solid var(--planet-glow);
+        border-radius: 999px;
+        box-shadow: 0 0 calc(12 * var(--u)) rgba(56, 189, 248, 0.35);
+        pointer-events: none;
+        transition: transform 0.45s var(--e-spring), width 0.45s var(--e-spring), border-color 0.4s ease, box-shadow 0.4s ease;
+      }
+
+      .nav-pill {
+        position: relative;
+        z-index: 2;
+        background: transparent;
+        border: 0;
+        padding: 0 calc(14 * var(--u));
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        font-weight: 500;
+        letter-spacing: calc(0.4 * var(--u));
+        color: var(--ink-sub);
+        transition: color 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .nav-pill:hover, .nav-pill.active {
+        color: #ffffff;
+      }
+
+      /* Right Actions & Telemetry Ticker */
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: calc(14 * var(--u));
+      }
+
+      .telemetry-ticker {
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        font-weight: 500;
+        color: var(--ink-Telemetry);
+        letter-spacing: calc(0.5 * var(--u));
+        transition: color 0.3s ease;
+        min-width: calc(180 * var(--u));
+        text-align: right;
+      }
+
+      /* ==========================================================================
+         BUTTONS & ATOMS
+         ========================================================================== */
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(32 * var(--u));
+        padding: 0 calc(16 * var(--u));
+        border-radius: 999px;
+        font-family: var(--font-sans);
+        font-size: calc(12 * var(--u));
+        font-weight: 600;
+        letter-spacing: calc(0.2 * var(--u));
+        white-space: nowrap;
+        transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.25s var(--e-spring), box-shadow 0.3s;
+      }
+
+      .btn-inner {
+        position: relative;
+        display: inline-block;
+        pointer-events: none;
+        will-change: transform;
+      }
+
+      .btn.solid {
+        background: #ffffff;
+        color: #030407;
+        border: calc(1 * var(--u)) solid #ffffff;
+        box-shadow: 0 calc(4 * var(--u)) calc(14 * var(--u)) rgba(255, 255, 255, 0.25);
+      }
+
+      .btn.solid:hover {
+        background: var(--planet-glow);
+        border-color: var(--planet-glow);
+        box-shadow: 0 calc(4 * var(--u)) calc(20 * var(--u)) var(--planet-glow);
+      }
+
+      .btn.outline {
+        background: rgba(255, 255, 255, 0.05);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        color: #ffffff;
+        backdrop-filter: blur(calc(10 * var(--u)));
+      }
+
+      .btn.outline:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: var(--glass-highlight);
+      }
+
+      /* Hero pill badge */
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: calc(8 * var(--u));
+        height: calc(28 * var(--u));
+        padding: 0 calc(14 * var(--u));
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        backdrop-filter: blur(calc(12 * var(--u)));
+        font-family: var(--font-mono);
+        font-size: calc(10.5 * var(--u));
+        font-weight: 500;
+        letter-spacing: calc(0.6 * var(--u));
+        color: var(--ink-nav);
+        margin-bottom: calc(22 * var(--u));
+        transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+      }
+
+      .pill-dot {
+        width: calc(6 * var(--u));
+        height: calc(6 * var(--u));
+        border-radius: 50%;
+        background: var(--planet-glow);
+        box-shadow: 0 0 calc(8 * var(--u)) var(--planet-glow);
+        animation: pulseDot 2s infinite ease-in-out;
+      }
+
+      @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+
+      /* ==========================================================================
+         5. SCROLL CONTAINER & SCENERY (500vh)
+         ========================================================================== */
+      main.scroll-container {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        min-height: 500vh;
+      }
+
+      /* Scroll Scenes */
+      .scene {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: calc(90 * var(--u)) calc(40 * var(--u)) calc(60 * var(--u));
+        pointer-events: none; /* Let clicks pass to stage except on interactive cards */
+      }
+
+      .scene-content {
+        position: relative;
+        width: 100%;
+        max-width: calc(1240 * var(--u));
+        pointer-events: auto;
+      }
+
+      /* --------------------------------------------------------------------------
+         SCENE 1: HERO & TRIAD DOCK (0vh - 100vh)
+         -------------------------------------------------------------------------- */
+      #scene-hero {
+        min-height: 100vh;
+        justify-content: flex-start;
+        padding-top: calc(130 * var(--u));
+        text-align: center;
+      }
+
+      .hero-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 auto;
+        max-width: calc(880 * var(--u));
+        will-change: transform, opacity;
+      }
+
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: calc(62 * var(--u));
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: calc(-1.6 * var(--u));
+        margin-bottom: calc(20 * var(--u));
+        text-transform: uppercase;
+      }
+
+      .ln {
+        display: block;
+        overflow: hidden;
+      }
+
+      .ln-i {
+        display: block;
+        will-change: transform;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #ffffff 30%, var(--planet-glow) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-sub {
+        font-size: calc(17 * var(--u));
+        line-height: 1.55;
+        color: var(--ink-sub);
+        max-width: calc(620 * var(--u));
+        margin-bottom: calc(32 * var(--u));
+      }
+
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: calc(16 * var(--u));
+        margin-bottom: calc(48 * var(--u));
+      }
+
+      .hero-actions .btn {
+        height: calc(42 * var(--u));
+        padding: 0 calc(24 * var(--u));
+        font-size: calc(13.5 * var(--u));
+      }
+
+      /* Triad Dock Cards at bottom of Scene 1 */
+      .triad-dock {
+        position: absolute;
+        bottom: calc(40 * var(--u));
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: calc(1120 * var(--u));
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: calc(20 * var(--u));
+        pointer-events: auto;
+      }
+
+      /* --------------------------------------------------------------------------
+         ANALOG CARDS & 3D TILT WITH SPECULAR GLARE (.analog-card)
+         -------------------------------------------------------------------------- */
+      .analog-card {
+        position: relative;
+        background: rgba(14, 18, 28, 0.65);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        border-radius: calc(18 * var(--u));
+        padding: calc(22 * var(--u));
+        backdrop-filter: blur(calc(20 * var(--u))) saturate(140%);
+        -webkit-backdrop-filter: blur(calc(20 * var(--u))) saturate(140%);
+        box-shadow: 0 calc(16 * var(--u)) calc(40 * var(--u)) rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        transform-style: preserve-3d;
+        will-change: transform;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+      }
+
+      .analog-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.22), transparent 60%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .analog-card:hover::after {
+        opacity: 1;
+      }
+
+      .analog-card:hover {
+        border-color: var(--planet-glow);
+        box-shadow: 0 calc(20 * var(--u)) calc(50 * var(--u)) rgba(0, 0, 0, 0.6), 0 0 calc(20 * var(--u)) rgba(56, 189, 248, 0.2);
+      }
+
+      .card-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: calc(6 * var(--u));
+        font-family: var(--font-mono);
+        font-size: calc(10 * var(--u));
+        font-weight: 600;
+        color: var(--planet-glow);
+        letter-spacing: calc(0.8 * var(--u));
+        text-transform: uppercase;
+        margin-bottom: calc(8 * var(--u));
+      }
+
+      .card-title {
+        font-family: var(--font-display);
+        font-size: calc(19 * var(--u));
+        font-weight: 700;
+        letter-spacing: calc(-0.4 * var(--u));
+        margin-bottom: calc(6 * var(--u));
+        color: #ffffff;
+      }
+
+      .card-desc {
+        font-size: calc(12.5 * var(--u));
+        line-height: 1.5;
+        color: var(--ink-sub);
+        margin-bottom: calc(14 * var(--u));
+      }
+
+      .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: calc(12 * var(--u));
+        border-top: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.08);
+        font-family: var(--font-mono);
+        font-size: calc(10.5 * var(--u));
+        color: var(--ink-Telemetry);
+      }
+
+      /* --------------------------------------------------------------------------
+         SCENE 2: EARTH ANALOGS (100vh - 220vh)
+         -------------------------------------------------------------------------- */
+      #scene-earth {
+        min-height: 120vh;
+      }
+
+      .scene-split {
+        display: grid;
+        grid-template-columns: calc(480 * var(--u)) 1fr;
+        gap: calc(40 * var(--u));
+        align-items: center;
+      }
+
+      .scene-split.reverse {
+        grid-template-columns: 1fr calc(480 * var(--u));
+      }
+
+      .hud-card {
+        background: rgba(10, 14, 24, 0.72);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        border-radius: calc(24 * var(--u));
+        padding: calc(36 * var(--u));
+        backdrop-filter: blur(calc(24 * var(--u))) saturate(160%);
+        -webkit-backdrop-filter: blur(calc(24 * var(--u))) saturate(160%);
+        box-shadow: 0 calc(24 * var(--u)) calc(60 * var(--u)) rgba(0, 0, 0, 0.6);
+        transform: perspective(1000px) rotateY(12deg);
+        transition: transform 0.8s var(--e-soft), border-color 0.4s ease;
+      }
+
+      .hud-card.is-visible {
+        transform: perspective(1000px) rotateY(0deg);
+      }
+
+      .hud-eyebrow {
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        letter-spacing: calc(1 * var(--u));
+        color: var(--planet-glow);
+        text-transform: uppercase;
+        margin-bottom: calc(8 * var(--u));
+        display: flex;
+        align-items: center;
+        gap: calc(8 * var(--u));
+      }
+
+      .hud-eyebrow::before {
+        content: '';
+        display: inline-block;
+        width: calc(6 * var(--u));
+        height: calc(6 * var(--u));
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 calc(8 * var(--u)) currentColor;
+      }
+
+      .hud-title {
+        font-family: var(--font-display);
+        font-size: calc(32 * var(--u));
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: calc(-0.8 * var(--u));
+        margin-bottom: calc(14 * var(--u));
+      }
+
+      .hud-lead {
+        font-size: calc(14 * var(--u));
+        line-height: 1.6;
+        color: var(--ink-sub);
+        margin-bottom: calc(24 * var(--u));
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: calc(14 * var(--u));
+        margin-bottom: calc(24 * var(--u));
+      }
+
+      .metric-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.07);
+        border-radius: calc(12 * var(--u));
+        padding: calc(14 * var(--u));
+      }
+
+      .metric-label {
+        font-family: var(--font-mono);
+        font-size: calc(10 * var(--u));
+        color: var(--ink-Telemetry);
+        letter-spacing: calc(0.5 * var(--u));
+        text-transform: uppercase;
+        margin-bottom: calc(4 * var(--u));
+      }
+
+      .metric-val {
+        font-family: var(--font-display);
+        font-size: calc(18 * var(--u));
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      /* --------------------------------------------------------------------------
+         SCENE 3: THE MOON & INTERACTIVE COMPARE SLIDER (220vh - 340vh)
+         -------------------------------------------------------------------------- */
+      #scene-moon {
+        min-height: 120vh;
+      }
+
+      .compare-lens-container {
+        position: relative;
+        width: 100%;
+        height: calc(320 * var(--u));
+        border-radius: calc(18 * var(--u));
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        overflow: hidden;
+        user-select: none;
+        cursor: col-resize;
+        margin-top: calc(20 * var(--u));
+      }
+
+      .compare-pane {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .compare-pane.earth-pane {
+        background-image: radial-gradient(circle at 70% 30%, #1e293b, #090d16);
+      }
+
+      .compare-pane.lunar-pane {
+        width: 50%;
+        overflow: hidden;
+        border-right: calc(2 * var(--u)) solid #ffffff;
+        background-image: radial-gradient(circle at 30% 70%, #475569, #09090b);
+        box-shadow: 0 0 calc(20 * var(--u)) rgba(0, 0, 0, 0.8);
+      }
+
+      .compare-pane-content {
+        position: absolute;
+        bottom: calc(14 * var(--u));
+        padding: calc(6 * var(--u)) calc(12 * var(--u));
+        background: rgba(0, 0, 0, 0.7);
+        border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        font-family: var(--font-mono);
+        font-size: calc(10.5 * var(--u));
+        color: #ffffff;
+        letter-spacing: calc(0.5 * var(--u));
+      }
+
+      .earth-pane .compare-pane-content {
+        right: calc(16 * var(--u));
+      }
+
+      .lunar-pane .compare-pane-content {
+        left: calc(16 * var(--u));
+      }
+
+      .compare-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: calc(32 * var(--u));
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .handle-knob {
+        width: calc(32 * var(--u));
+        height: calc(32 * var(--u));
+        border-radius: 50%;
+        background: #ffffff;
+        color: #030407;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 calc(18 * var(--u)) rgba(255, 255, 255, 0.75);
+        font-size: calc(11 * var(--u));
+        font-weight: 700;
+      }
+
+      /* --------------------------------------------------------------------------
+         SCENE 4: MARS & ROVER READINESS RADIAL GAUGES (340vh - 460vh)
+         -------------------------------------------------------------------------- */
+      #scene-mars {
+        min-height: 120vh;
+      }
+
+      .gauges-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: calc(14 * var(--u));
+        margin-top: calc(24 * var(--u));
+      }
+
+      .gauge-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.08);
+        border-radius: calc(16 * var(--u));
+        padding: calc(16 * var(--u)) calc(12 * var(--u));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .gauge-svg-wrap {
+        position: relative;
+        width: calc(72 * var(--u));
+        height: calc(72 * var(--u));
+        margin-bottom: calc(10 * var(--u));
+      }
+
+      .gauge-svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+
+      .gauge-bg-circle {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.08);
+        stroke-width: 6;
+      }
+
+      .gauge-bar-circle {
+        fill: none;
+        stroke: var(--planet-glow);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 226;
+        stroke-dashoffset: 226;
+        transition: stroke-dashoffset 1.4s var(--e-reveal);
+      }
+
+      .gauge-num {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: calc(16 * var(--u));
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .gauge-label {
+        font-family: var(--font-mono);
+        font-size: calc(10 * var(--u));
+        color: var(--ink-sub);
+        letter-spacing: calc(0.4 * var(--u));
+      }
+
+      /* --------------------------------------------------------------------------
+         SCENE 5: INTERACTIVE COORDINATE PORTAL (460vh - 500vh)
+         -------------------------------------------------------------------------- */
+      #scene-portal {
+        min-height: 100vh;
+        text-align: center;
+      }
+
+      .portal-console {
+        background: rgba(8, 12, 22, 0.85);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        border-radius: calc(28 * var(--u));
+        padding: calc(44 * var(--u)) calc(40 * var(--u));
+        max-width: calc(960 * var(--u));
+        margin: 0 auto;
+        backdrop-filter: blur(calc(30 * var(--u))) saturate(160%);
+        -webkit-backdrop-filter: blur(calc(30 * var(--u))) saturate(160%);
+        box-shadow: 0 calc(30 * var(--u)) calc(80 * var(--u)) rgba(0, 0, 0, 0.7);
+        border-top: calc(1 * var(--u)) solid var(--glass-highlight);
+      }
+
+      .portal-title {
+        font-family: var(--font-display);
+        font-size: calc(38 * var(--u));
+        font-weight: 800;
+        letter-spacing: calc(-1 * var(--u));
+        margin-bottom: calc(10 * var(--u));
+      }
+
+      .portal-sub {
+        font-size: calc(15 * var(--u));
+        color: var(--ink-sub);
+        max-width: calc(640 * var(--u));
+        margin: 0 auto calc(30 * var(--u));
+      }
+
+      /* Preset coordinates chip bar */
+      .preset-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: calc(8 * var(--u));
+        margin-bottom: calc(28 * var(--u));
+      }
+
+      .chip-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: calc(6 * var(--u)) calc(14 * var(--u));
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        color: var(--ink-nav);
+        transition: all 0.25s ease;
+      }
+
+      .chip-btn:hover, .chip-btn.active {
+        background: #ffffff;
+        color: #030407;
+        border-color: #ffffff;
+        box-shadow: 0 0 calc(14 * var(--u)) rgba(255, 255, 255, 0.4);
+      }
+
+      /* Manual inputs bar */
+      .coord-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: calc(12 * var(--u));
+        max-width: calc(720 * var(--u));
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.04);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        border-radius: 999px;
+        padding: calc(6 * var(--u)) calc(8 * var(--u)) calc(6 * var(--u)) calc(20 * var(--u));
+      }
+
+      .coord-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: calc(6 * var(--u));
+        flex: 1;
+      }
+
+      .coord-prefix {
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        color: var(--planet-glow);
+        font-weight: 600;
+      }
+
+      .coord-input {
+        background: transparent;
+        border: 0;
+        outline: 0;
+        font-family: var(--font-mono);
+        font-size: calc(13 * var(--u));
+        color: #ffffff;
+        width: 100%;
+      }
+
+      .coord-input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .dive-cta-btn {
+        height: calc(44 * var(--u));
+        padding: 0 calc(26 * var(--u));
+        font-size: calc(13 * var(--u));
+        font-weight: 700;
+        letter-spacing: calc(0.4 * var(--u));
+      }
+
+      /* --------------------------------------------------------------------------
+         6. FLOATING BOTTOM QUICK PLANET SWITCHER & DIVE TRIGGER
+         -------------------------------------------------------------------------- */
+      .bottom-dock {
+        position: fixed;
+        bottom: calc(20 * var(--u));
+        left: 50%;
+        transform: translateX(-50%) translate3d(0, 0, 0);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: calc(6 * var(--u));
+        padding: calc(4 * var(--u)) calc(6 * var(--u));
+        background: rgba(8, 10, 16, 0.72);
+        border: calc(1 * var(--u)) solid var(--glass-border);
+        border-radius: 999px;
+        backdrop-filter: blur(calc(18 * var(--u))) saturate(150%);
+        -webkit-backdrop-filter: blur(calc(18 * var(--u))) saturate(150%);
+        box-shadow: 0 calc(12 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 0, 0.6);
+        transition: transform 0.4s var(--e-spring), opacity 0.4s ease;
+      }
+
+      .dock-pill {
+        background: transparent;
+        border: 0;
+        padding: calc(6 * var(--u)) calc(14 * var(--u));
+        border-radius: 999px;
+        font-family: var(--font-mono);
+        font-size: calc(11 * var(--u));
+        font-weight: 600;
+        color: var(--ink-sub);
+        display: flex;
+        align-items: center;
+        gap: calc(6 * var(--u));
+        transition: all 0.25s ease;
+      }
+
+      .dock-pill.active {
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+        box-shadow: 0 0 calc(12 * var(--u)) var(--planet-glow);
+      }
+
+      .dock-pill:hover {
+        color: #ffffff;
+      }
+
+      .dock-dive-btn {
+        background: var(--planet-glow);
+        color: #030407;
+        font-weight: 700;
+        padding: calc(6 * var(--u)) calc(16 * var(--u));
+        border-radius: 999px;
+        margin-left: calc(6 * var(--u));
+        box-shadow: 0 0 calc(14 * var(--u)) var(--planet-glow);
+      }
+
+      .dock-dive-btn:hover {
+        transform: scale(1.05);
+      }
+
+      /* ==========================================================================
+         7. ENTRANCE TIMELINE CHOREOGRAPHY (0.00s - 1.75s)
+         ========================================================================== */
+      .viewport-shell.is-entering header.bar {
+        transform: translateX(-50%) translate3d(0, calc(-100% - calc(40 * var(--u))), 0);
+        opacity: 0;
+      }
+
+      .viewport-shell.is-entering .pill {
+        transform: translate3d(0, var(--rise), 0) scale(0.9);
+        opacity: 0;
+      }
+
+      .viewport-shell.is-entering .hero-title .ln-i {
+        transform: translate3d(0, 115%, 0);
+      }
+
+      .viewport-shell.is-entering .hero-sub,
+      .viewport-shell.is-entering .hero-actions,
+      .viewport-shell.is-entering .triad-dock,
+      .viewport-shell.is-entering .bottom-dock {
+        transform: translate3d(0, var(--rise-lg), 0);
+        opacity: 0;
+      }
+
+      .viewport-shell.is-entering #planet-stage {
+        transform: scale(0.84) translate3d(0, 15%, 0);
+        opacity: 0;
+      }
+
+      /* Active transitions when entering completes */
+      header.bar {
+        transition: transform 0.62s var(--e-nav), opacity 0.62s ease;
+      }
+      .pill {
+        transition: transform 0.62s var(--e-soft), opacity 0.62s ease;
+      }
+      .hero-title .ln-i {
+        transition: transform 0.95s var(--e-reveal);
+      }
+      .hero-sub, .hero-actions, .triad-dock, .bottom-dock {
+        transition: transform 0.75s var(--e-soft), opacity 0.75s ease;
+      }
+
+      /* ==========================================================================
+         8. ACCESSIBILITY & RESPONSIVENESS
+         ========================================================================== */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+        .cursor-halo {
+          display: none !important;
+        }
+        body {
+          cursor: auto !important;
+        }
+        button, a, input {
+          cursor: pointer !important;
+        }
+      }
+
+      @media (max-width: 900px) {
+        :root {
+          --u: max(calc(100vw / 600), 0.75px);
+        }
+        header.bar {
+          width: calc(100vw - 24px);
+          height: auto;
+          padding: 8px 14px;
+        }
+        .telemetry-ticker {
+          display: none;
+        }
+        .triad-dock {
+          grid-template-columns: 1fr;
+          position: static;
+          transform: none;
+          margin-top: calc(30 * var(--u));
+        }
+        .scene-split, .scene-split.reverse {
+          grid-template-columns: 1fr;
+        }
+        .gauges-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .coord-form {
+          flex-direction: column;
+          border-radius: calc(16 * var(--u));
+          padding: calc(14 * var(--u));
+        }
+        .dive-cta-btn {
+          width: 100%;
+        }
+      }
     </style>
   </head>
-  <body>
-    <main id="experience" class="experience" data-planet="mars">
-      <div id="earth-globe-stage" class="earth-globe-stage" aria-hidden="true"></div>
-      <div class="backgrounds" aria-hidden="true">
-        <video class="background mars-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
-        <video class="background earth-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4"></video>
-        <video class="background moon-background" src="/assets/videos/to_moon.mp4" muted playsinline preload="auto"></video>
+
+  <body data-planet="earth">
+    <div class="viewport-shell is-entering" id="shell">
+      <!-- Starfield Canvas: 3D interactive parallax starfield + cosmic dust -->
+      <canvas id="starfield"></canvas>
+
+      <!-- Fixed Planet Stage: Procedural 3D WebGL sphere + shader -->
+      <div id="planet-stage">
+        <canvas id="globe-3d"></canvas>
       </div>
-      <div class="shade"></div>
-      <header class="header chrome">
-        <div class="logo-slot" aria-hidden="true"></div>
-        <div id="earth-search-dock" class="earth-search-dock">
-          <form id="earth-search-form" class="earth-search-form" autocomplete="off">
-            <button id="earth-search-btn" class="earth-search-btn" type="submit" dir="rtl">هبوط فوري</button>
-            <input id="earth-search-input" class="earth-search-input" type="text" placeholder="اكتب أي مكان أو إحداثيات على الأرض (مثال: الصحراء الغربية، القطب الجنوبي، ألاسكا)..." aria-label="Search Earth landing location" />
-          </form>
-          <div id="earth-quick-chips" class="earth-quick-chips" role="group" aria-label="NASA Planetary Test Sites"></div>
+
+      <!-- Atmospheric Veil -->
+      <div class="atmosphere-veil"></div>
+
+      <!-- Supersonic Dive Overlay -->
+      <div class="dive-overlay"></div>
+
+      <!-- Custom Dual-Ring Orbital Cursor -->
+      <div class="cursor-halo" id="cursor-halo">
+        <div class="cursor-dot"></div>
+        <div class="cursor-ring">
+          <svg class="cursor-orbit-svg" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" />
+          </svg>
         </div>
+      </div>
+
+      <!-- Header: Triple-orbit SVG brand, Navigation glider pills, Live telemetry -->
+      <header class="bar" id="main-header">
+        <a href="#scene-hero" class="brand magnetic" data-planet="earth">
+          <span class="brand-emblem">
+            <svg viewBox="0 0 32 20" width="32" height="20">
+              <ellipse cx="16" cy="10" rx="14" ry="5" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.4" transform="rotate(-22 16 10)" />
+              <ellipse cx="16" cy="10" rx="14" ry="5" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.4" transform="rotate(15 16 10)" />
+              <ellipse cx="16" cy="10" rx="14" ry="5" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.4" transform="rotate(0 16 10)" />
+              <circle cx="16" cy="10" r="3.2" fill="var(--planet-glow)" />
+              <circle cx="6" cy="7" r="1.1" fill="#fff" class="micro-sat sat-1" />
+              <circle cx="25" cy="12" r="0.9" fill="#fff" class="micro-sat sat-2" />
+            </svg>
+          </span>
+          <span class="brand-text">TerraAnalog</span>
+        </a>
+
+        <!-- Planetary Quick-Jump Switcher -->
+        <nav class="planet-pills" id="nav-pills">
+          <div class="nav-glider" id="nav-glider"></div>
+          <button class="nav-pill magnetic active" data-planet="earth" data-target="earth">
+            <span class="btn-inner" data-scramble="[01] EARTH ANALOGS">[01] EARTH ANALOGS</span>
+          </button>
+          <button class="nav-pill magnetic" data-planet="moon" data-target="moon">
+            <span class="btn-inner" data-scramble="[02] LUNAR MARE">[02] LUNAR MARE</span>
+          </button>
+          <button class="nav-pill magnetic" data-planet="mars" data-target="mars">
+            <span class="btn-inner" data-scramble="[03] MARTIAN CRATERS">[03] MARTIAN CRATERS</span>
+          </button>
+        </nav>
+
+        <!-- Right Telemetry & CTA -->
         <div class="header-actions">
-          <nav class="nav" aria-label="Primary"><a href="#about">About</a><a class="active" href="#explore">Explore</a><a href="#planets">Planets</a></nav>
-          <button class="menu" type="button">Menu</button>
+          <span class="telemetry-ticker" id="header-ticker">29.9792° N, 31.1342° E</span>
+          <button class="btn solid magnetic" id="cta-launch">
+            <span class="btn-inner" data-scramble="Launch 3D Explorer">Launch 3D Explorer</span>
+          </button>
         </div>
       </header>
-      <aside class="planet-list chrome" aria-label="Planets"></aside>
-      <section class="portal-wrap chrome">
-        <div class="portal-heading"><span>Next:</span><strong><span id="next-number">[03]</span> <span id="next-name">Earth</span></strong></div>
-        <button id="portal" class="portal" type="button" aria-label="Travel to Earth">
-          <video id="portal-video" muted playsinline preload="auto"></video>
-          <img id="portal-image" alt="Moon seen through the portal" referrerpolicy="no-referrer" />
+
+      <!-- 500vh Scrollytelling Container -->
+      <main class="scroll-container" id="scroll-container">
+        <!-- ------------------------------------------------------------------
+             SCENE 1: ORBITAL OVERVIEW & THE TRIAD DOCK (0vh - 100vh)
+             ------------------------------------------------------------------ -->
+        <section class="scene" id="scene-hero" data-planet-scene="earth">
+          <div class="scene-content">
+            <div class="hero-center">
+              <a href="#scene-earth" class="pill magnetic">
+                <span class="pill-dot"></span>
+                <span class="btn-inner" data-scramble="NEW · NASA SPACE APPS ANALOG ENGINE v2.4">NEW · NASA SPACE APPS ANALOG ENGINE v2.4</span>
+              </a>
+
+              <h1 class="hero-title">
+                <span class="ln"><span class="ln-i">One World Reveals Three</span></span>
+                <span class="ln"><span class="ln-i gradient-text">Earth · Moon · Mars Analogs</span></span>
+              </h1>
+
+              <p class="hero-sub">
+                Compare geological terrain, extreme regolith, and orbital coordinates across Earth's most accurate Lunar and Martian analogs.
+              </p>
+
+              <div class="hero-actions">
+                <button class="btn solid magnetic" id="hero-explore-btn">
+                  <span class="btn-inner" data-scramble="Enter Planetary Journey">Enter Planetary Journey</span>
+                </button>
+                <button class="btn outline magnetic" id="hero-dive-btn">
+                  <span class="btn-inner" data-scramble="Instant LAT/LNG Dive">Instant LAT/LNG Dive</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Floating Planetary Triad Dock Cards -->
+            <div class="triad-dock">
+              <div class="analog-card magnetic" data-planet="earth" data-target="earth">
+                <div class="card-badge">Planet 01 · Terrestrial</div>
+                <div class="card-title">Danakil & Dallol Brines</div>
+                <div class="card-desc">Hydrothermal sulfur vents, acid ponds, and basalt plateaus simulating early planetary ocean chemistry.</div>
+                <div class="card-meta">
+                  <span>9.807 m/s²</span>
+                  <span>14.2417° N, 40.2989° E</span>
+                </div>
+              </div>
+
+              <div class="analog-card magnetic" data-planet="moon" data-target="moon">
+                <div class="card-badge">Planet 02 · Lunar</div>
+                <div class="card-title">Craters of the Moon</div>
+                <div class="card-desc">Basaltic lava beds, cinder cones, and jagged regolith breccia trained by Apollo astronauts.</div>
+                <div class="card-meta">
+                  <span>1.620 m/s²</span>
+                  <span>43.4617° N, 113.5628° W</span>
+                </div>
+              </div>
+
+              <div class="analog-card magnetic" data-planet="mars" data-target="mars">
+                <div class="card-badge">Planet 03 · Martian</div>
+                <div class="card-title">Wadi Rum & Atacama</div>
+                <div class="card-desc">Hyper-arid iron oxide sandstone, barchan dunes, and dry canyon systems mimicking Jezero delta.</div>
+                <div class="card-meta">
+                  <span>3.721 m/s²</span>
+                  <span>29.5734° N, 35.4206° E</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             SCENE 2: EARTH ANALOGS (100vh - 220vh)
+             ------------------------------------------------------------------ -->
+        <section class="scene" id="scene-earth" data-planet-scene="earth">
+          <div class="scene-content">
+            <div class="scene-split">
+              <div class="hud-card is-visible analog-card" id="earth-hud">
+                <div class="hud-eyebrow">Planet 01 // Terrestrial Extremes</div>
+                <h2 class="hud-title">Earth Extreme Basalt & Hydrothermal Analogs</h2>
+                <p class="hud-lead">
+                  Dallol Depression, Antarctica McMurdo Dry Valleys, and Fayoum Basalt shields serve as prime terrestrial testbeds for extreme astrobiological survival.
+                </p>
+
+                <div class="metrics-grid">
+                  <div class="metric-box">
+                    <div class="metric-label">Surface Gravity</div>
+                    <div class="metric-val">9.807 m/s²</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Atmosphere</div>
+                    <div class="metric-val">101.3 kPa</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Geomorphology Match</div>
+                    <div class="metric-val" style="color: #38bdf8;">98.4%</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Target Biome</div>
+                    <div class="metric-val">Volcanic Hydrothermal</div>
+                  </div>
+                </div>
+
+                <button class="btn solid magnetic" data-dive-lat="14.2417" data-dive-lng="40.2989">
+                  <span class="btn-inner" data-scramble="Target Dallol Crater">Target Dallol Crater</span>
+                </button>
+              </div>
+              <div class="scene-spacer"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             SCENE 3: THE MOON & INTERACTIVE COMPARE SLIDER (220vh - 340vh)
+             ------------------------------------------------------------------ -->
+        <section class="scene" id="scene-moon" data-planet-scene="moon">
+          <div class="scene-content">
+            <div class="scene-split reverse">
+              <div class="scene-spacer"></div>
+              <div class="hud-card is-visible analog-card" id="moon-hud">
+                <div class="hud-eyebrow">Planet 02 // Lunar Regolith & Highlands</div>
+                <h2 class="hud-title">Apollo 11 Mare vs. Terrestrial Basalt</h2>
+                <p class="hud-lead">
+                  Lunar maria basalt flows juxtaposed against volcanic fields in Idaho and Iceland, simulating micro-meteorite weathering and hard-vacuum radiation exposure.
+                </p>
+
+                <div class="metrics-grid">
+                  <div class="metric-box">
+                    <div class="metric-label">Lunar Gravity</div>
+                    <div class="metric-val">1.620 m/s²</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Surface Temp Range</div>
+                    <div class="metric-val">-173° to +127°C</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Hard Vacuum</div>
+                    <div class="metric-val">&lt; 10⁻¹⁰ Pa</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-label">Spectral Match</div>
+                    <div class="metric-val" style="color: #e2e8f0;">95.7%</div>
+                  </div>
+                </div>
+
+                <!-- Interactive Compare Slider -->
+                <div class="compare-lens-container" id="compare-slider">
+                  <div class="compare-pane earth-pane">
+                    <div class="compare-pane-content">Earth Analog · Idaho Basalt</div>
+                  </div>
+                  <div class="compare-pane lunar-pane" id="lunar-pane">
+                    <div class="compare-pane-content">Lunar LRO · Mare Tranquillitatis</div>
+                  </div>
+                  <div class="compare-handle" id="compare-handle">
+                    <div class="handle-knob">⇄</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             SCENE 4: MARS & ROVER READINESS RADIAL GAUGES (340vh - 460vh)
+             ------------------------------------------------------------------ -->
+        <section class="scene" id="scene-mars" data-planet-scene="mars">
+          <div class="scene-content">
+            <div class="hud-card is-visible analog-card" style="max-width: calc(980 * var(--u)); margin: 0 auto;">
+              <div class="hud-eyebrow">Planet 03 // Martian Dust & Craters</div>
+              <h2 class="hud-title">Jezero Crater Delta vs. Wadi Rum / Atacama Core</h2>
+              <p class="hud-lead">
+                Ancient river paleochannels and iron oxide sandstone dunes providing a zero-moisture testing envelope for Curiosity, Perseverance, and future human EVA suits.
+              </p>
+
+              <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="metric-box">
+                  <div class="metric-label">Gravity</div>
+                  <div class="metric-val">3.721 m/s²</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">Atmosphere</div>
+                  <div class="metric-val">0.636 kPa (95% CO₂)</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">Radiation Flux</div>
+                  <div class="metric-val">0.67 mSv/day</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">Iron Oxide (Fe₂O₃)</div>
+                  <div class="metric-val" style="color: #f97316;">18.2% Soil</div>
+                </div>
+              </div>
+
+              <!-- Rover Readiness Score Radial Gauges -->
+              <div class="gauges-grid" id="mars-gauges">
+                <div class="gauge-card">
+                  <div class="gauge-svg-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 80 80">
+                      <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                      <circle class="gauge-bar-circle" data-pct="94" cx="40" cy="40" r="36" />
+                    </svg>
+                    <span class="gauge-num">94%</span>
+                  </div>
+                  <span class="gauge-label">Wheel Traction</span>
+                </div>
+
+                <div class="gauge-card">
+                  <div class="gauge-svg-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 80 80">
+                      <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                      <circle class="gauge-bar-circle" data-pct="97" cx="40" cy="40" r="36" />
+                    </svg>
+                    <span class="gauge-num">97%</span>
+                  </div>
+                  <span class="gauge-label">Mineral Match</span>
+                </div>
+
+                <div class="gauge-card">
+                  <div class="gauge-svg-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 80 80">
+                      <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                      <circle class="gauge-bar-circle" data-pct="88" cx="40" cy="40" r="36" />
+                    </svg>
+                    <span class="gauge-num">88%</span>
+                  </div>
+                  <span class="gauge-label">Solar Insolation</span>
+                </div>
+
+                <div class="gauge-card">
+                  <div class="gauge-svg-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 80 80">
+                      <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                      <circle class="gauge-bar-circle" data-pct="91" cx="40" cy="40" r="36" />
+                    </svg>
+                    <span class="gauge-num">91%</span>
+                  </div>
+                  <span class="gauge-label">Auto-Nav Fidelity</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             SCENE 5: INTERACTIVE COORDINATE PORTAL (460vh - 500vh)
+             ------------------------------------------------------------------ -->
+        <section class="scene" id="scene-portal" data-planet-scene="portal">
+          <div class="scene-content">
+            <div class="portal-console analog-card" id="dive-portal">
+              <div class="card-badge">Orbital Command // Hyper-Dive</div>
+              <h2 class="portal-title">Fly To Any Planetary Analog LAT/LNG</h2>
+              <p class="portal-sub">
+                Select a benchmark terrestrial analog or enter manual orbital coordinates to initiate a 3-second supersonic camera dive.
+              </p>
+
+              <!-- Presets Chips -->
+              <div class="preset-chips">
+                <button class="chip-btn magnetic active" data-lat="14.2417" data-lng="40.2989" data-planet="earth">
+                  <span class="btn-inner">Dallol (14.24°N, 40.29°E)</span>
+                </button>
+                <button class="chip-btn magnetic" data-lat="29.3084" data-lng="30.8428" data-planet="earth">
+                  <span class="btn-inner">Fayoum Basalt (29.30°N, 30.84°E)</span>
+                </button>
+                <button class="chip-btn magnetic" data-lat="0.6741" data-lng="23.4730" data-planet="moon">
+                  <span class="btn-inner">Apollo 11 Tranquillity (0.67°N, 23.47°E)</span>
+                </button>
+                <button class="chip-btn magnetic" data-lat="29.5734" data-lng="35.4206" data-planet="mars">
+                  <span class="btn-inner">Wadi Rum Mars (29.57°N, 35.42°E)</span>
+                </button>
+                <button class="chip-btn magnetic" data-lat="18.3800" data-lng="77.5800" data-planet="mars">
+                  <span class="btn-inner">Jezero Crater (18.38°N, 77.58°E)</span>
+                </button>
+                <button class="chip-btn magnetic" data-lat="-77.5167" data-lng="162.8667" data-planet="earth">
+                  <span class="btn-inner">Dry Valleys (-77.51°S, 162.86°E)</span>
+                </button>
+              </div>
+
+              <!-- Manual Inputs Form -->
+              <form class="coord-form" id="dive-form">
+                <div class="coord-input-wrap">
+                  <span class="coord-prefix">LAT:</span>
+                  <input type="text" class="coord-input" id="input-lat" value="29.9792" placeholder="e.g. 29.9792" />
+                </div>
+                <div class="coord-input-wrap">
+                  <span class="coord-prefix">LNG:</span>
+                  <input type="text" class="coord-input" id="input-lng" value="31.1342" placeholder="e.g. 31.1342" />
+                </div>
+                <button type="submit" class="btn solid magnetic dive-cta-btn" id="btn-dive-run">
+                  <span class="btn-inner" data-scramble="INITIATE ORBITAL DIVE">INITIATE ORBITAL DIVE</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Floating Bottom Quick Planet Switcher + Dive Trigger -->
+      <div class="bottom-dock" id="bottom-dock">
+        <button class="dock-pill magnetic active" data-planet="earth" data-target="earth">
+          <span class="pill-dot" style="background:#38bdf8;"></span>
+          <span class="btn-inner" data-scramble="EARTH">EARTH</span>
         </button>
-      </section>
-      <section class="planet-content chrome">
-        <h1 id="planet-title">MARS</h1>
-        <dl id="facts"></dl>
-      </section>
-      <canvas id="portal-canvas" class="portal-canvas" aria-hidden="true"></canvas>
-      <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
-      <div class="transition-layer" aria-hidden="true"><video id="transition-video" muted playsinline preload="auto"></video></div>
-      <div class="loading" id="loading-label">Preparing orbit…</div>
-      <div id="preloader" class="preloader">
-        <video id="preloader-video" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
-        <div class="preloader-shade"></div>
+        <button class="dock-pill magnetic" data-planet="moon" data-target="moon">
+          <span class="pill-dot" style="background:#e2e8f0;"></span>
+          <span class="btn-inner" data-scramble="MOON">MOON</span>
+        </button>
+        <button class="dock-pill magnetic" data-planet="mars" data-target="mars">
+          <span class="pill-dot" style="background:#f97316;"></span>
+          <span class="btn-inner" data-scramble="MARS">MARS</span>
+        </button>
+        <button class="dock-dive-btn magnetic" id="bottom-dive-btn">
+          <span class="btn-inner" data-scramble="⚡ DIVE">⚡ DIVE</span>
+        </button>
       </div>
-      <img id="floating-logo" class="floating-logo" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/eb7e0f53-50cd-4af5-abc4-8b9a52cdc01b.svg" alt="Planet Jumping" />
-      <div id="preloader-count" class="preloader-count"><span id="preloader-value">0</span><span class="percent">%</span></div>
-      <div id="custom-cursor" class="custom-cursor" aria-hidden="true"><span class="cursor-orbit"></span><span class="cursor-dot"></span><span class="cursor-label">Enter</span></div>
-    </main>
-    <script type="module">
-      (async () => {
-        let ml = null;
-        try {
-          ml = await import('/assets/vendor/maplibre-gl.mjs');
-        } catch (_) {}
-        if (!ml || (!ml.Map && !(ml.default && ml.default.Map))) {
-          try {
-            await new Promise((resolve, reject) => {
-              const s = document.createElement('script');
-              s.src = 'https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js';
-              s.onload = resolve;
-              s.onerror = reject;
-              document.head.appendChild(s);
-            });
-            ml = window.maplibregl;
-          } catch (__) {}
-        }
-        if (ml) {
-          window.maplibregl = (ml.default && ml.default.Map) ? ml.default : ml;
-          window.dispatchEvent(new Event('maplibre-ready'));
-        }
-      })();
-    </script>
+    </div>
+
+    <!-- ==========================================================================
+         9. SCRIPTS: PROCEDURAL WEBGL/CANVAS ENGINE & INTERACTION PHYSICS
+         ========================================================================== -->
     <script>
-      (() => {
+      (function () {
         'use strict';
-        const BASE='https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P';
-        const TO_MARS=BASE+'/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4';
-        const TO_EARTH=BASE+'/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4';
-        const MARS_ORBIT='/assets/videos/to_mars.mp4';
-        const TO_MOON='/assets/videos/to_moon.mp4';
-        const MOON_ORBIT='/assets/images/moon_orbit_portal_1794350272270.jpg';
-        const MOON_SURFACE='/assets/images/moon_surface_bg_1794350272226.jpg';
-        const moonOrbitImg=new Image();moonOrbitImg.src=MOON_ORBIT;
-        const moonSurfaceImg=new Image();moonSurfaceImg.src=MOON_SURFACE;
 
-        const earthZones=[
-          {id:'western_desert',labelAr:'الصحراء الغربية',region:'Gilf Kebir & Black Desert, Egypt',coords:'23.62° N, 25.41° E',lat:23.62,lon:25.41,targetZoom:13.2,targetPitch:70,targetBearing:28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Hyper-arid Martian analog plateau (~36 °C day, iron-rich sandstone regolith).',keywords:['الصحراء الغربية','الجلف الكبير','الفرافرة','الصحراء السوداء','western desert','gilf kebir','farafra']},
-          {id:'eastern_desert',labelAr:'الصحراء الشرقية',region:'Red Sea Wadis & Basement Rocks, Egypt',coords:'26.08° N, 33.78° E',lat:26.08,lon:33.78,targetZoom:13.4,targetPitch:72,targetBearing:-35,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Precambrian igneous & basaltic wadi canyons (~34 °C, ancient flood channel analog).',keywords:['الصحراء الشرقية','جبال البحر الاحمر','البحر الأحمر','eastern desert','red sea']},
-          {id:'sahara',labelAr:'الصحراء الكبرى',region:'Tassili & Richat Structure, Sahara',coords:'21.12° N, 11.40° W',lat:21.124,lon:-11.402,targetZoom:12.6,targetPitch:68,targetBearing:18,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Arid desert zone (~38 °C by day, eroded sandstone & concentric regolith rings).',keywords:['الصحراء الكبرى','الصحراء الكبري','تاسيلي','صحراء','sahara','tassili','richat']},
-          {id:'antarctica',labelAr:'القطب الجنوبي',region:'McMurdo Dry Valleys, Antarctica',coords:'77.52° S, 162.53° E',lat:-77.52,lon:162.53,targetZoom:12.8,targetPitch:70,targetBearing:42,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Cold hyper-arid NASA Mars analog (-20 °C to -50 °C, permafrost basalt regolith).',keywords:['القطب الجنوبي','انتاركتيكا','ماكموردو','antarctica','south pole','mcmurdo']},
-          {id:'alaska',labelAr:'ألاسكا',region:'Valley of 10,000 Smokes, Katmai, Alaska',coords:'58.28° N, 155.16° W',lat:58.28,lon:-155.16,targetZoom:13.1,targetPitch:71,targetBearing:-24,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Sub-arctic NASA Apollo volcanic ash & glacial test site (-8 °C to 6 °C).',keywords:['الاسكا','ألاسكا','كاتماي','alaska','katmai']},
-          {id:'wadi_rum',labelAr:'وادي رم',region:'Wadi Rum Red Silicate Valley, Jordan',coords:'29.58° N, 35.42° E',lat:29.58,lon:35.42,targetZoom:13.6,targetPitch:72,targetBearing:30,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Iron-oxide red sandstone & granite monoliths (~32 °C, Martian valley analog).',keywords:['وادي رم','الاردن','الأردن','wadi rum','jordan']},
-          {id:'atacama',labelAr:'صحراء أتاكاما',region:'Valle de la Luna, Atacama Desert, Chile',coords:'22.92° S, 68.32° W',lat:-22.92,lon:-68.32,targetZoom:13.4,targetPitch:71,targetBearing:-28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'NASA ARADS rover drill testbed (~22 °C, hyper-arid perchlorate regolith).',keywords:['اتاكاما','أتاكاما','تشيلي','atacama','chile','valle de la luna']},
-          {id:'meteor_crater',labelAr:'فوهة بارينجر',region:'Barringer Meteor Crater & Cinder Lake, AZ',coords:'35.03° N, 111.02° W',lat:35.027,lon:-111.022,targetZoom:14.2,targetPitch:68,targetBearing:22,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Official NASA Apollo lunar crater & ejecta training site (~24 °C).',keywords:['فوهة بارينجر','اريزونا','أريزونا','meteor crater','barringer','cinder lake','arizona']}
-        ];
-
-        let activeEarthZone=earthZones[0];
-        function syncEarthTelemetry(zone){
-          activeEarthZone=zone;
-          states.mars.portal=zone.video;
-          states.earth.arrival=zone.video;
-          states.earth.facts=[
-            ['Landing Zone:',zone.region+' ('+zone.coords+').'],
-            ['Distance:','149.6 million km from the Sun (365.25-day orbit).'],
-            ['Temperature:',zone.temperature],
-            ['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']
-          ];
-          document.querySelectorAll('.earth-chip').forEach(btn=>{
-            btn.classList.toggle('active',btn.dataset.zoneId===zone.id);
-          });
-        }
-        function pickNextEarthZone(){
-          const pool=earthZones.filter(z=>z.id!==activeEarthZone.id);
-          const nextZone=pool[Math.floor(Math.random()*pool.length)]||earthZones[0];
-          syncEarthTelemetry(nextZone);
-          return nextZone;
-        }
-
-        const planets=['Mars','Earth','Moon'];
-        const states={
-          mars:{name:'Mars',next:'Earth',number:'[03]',portal:activeEarthZone.video,arrival:MARS_ORBIT,background:'mars-background',facts:[['Distance:','About 228 million km (1.5 astronomical units).'],['Year:','One Martian year is equal to 687 Earth days.'],['Temperature:','Around -60 °C, dropping to -125 °C at the poles in winter.'],['Atmosphere:','Very thin, consisting of 95% carbon dioxide, with frequent dust storms.']]},
-          earth:{name:'Earth',next:'Moon',number:'[02]',portal:TO_MOON,image:MOON_ORBIT,arrival:activeEarthZone.video,background:'earth-background',facts:[['Landing Zone:',activeEarthZone.region+' ('+activeEarthZone.coords+').'],['Distance:','149.6 million km from the Sun (365.25-day orbit).'],['Temperature:',activeEarthZone.temperature],['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']]},
-          moon:{name:'Moon',next:'Mars',number:'[01]',portal:MARS_ORBIT,arrival:TO_MOON,background:'moon-background',facts:[['Distance:','About 384,400 km from Earth (0.00257 AU).'],['Year:','27.3 Earth days (synchronous orbital period).'],['Temperature:','Around 127 °C by day, dropping to -173 °C at night.'],['Atmosphere:','Extremely thin exosphere, nearly a vacuum with no weather.']]}
+        /* ----------------------------------------------------------------------
+           A. State Management & Smooth Scroll Lerp Loop
+           ---------------------------------------------------------------------- */
+        const state = {
+          planet: 'earth', // 'earth' | 'moon' | 'mars'
+          scroll: 0,
+          targetScroll: 0,
+          mouse: { x: window.innerWidth / 2, y: window.innerHeight / 2, normX: 0, normY: 0 },
+          targetMouse: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+          isDiving: false,
+          diveProgress: 0,
+          diveTarget: { lat: 29.9792, lng: 31.1342 },
+          starSpeed: 0.5,
+          targetStarSpeed: 0.5,
+          activeSection: 'earth'
         };
 
-        const experience=document.getElementById('experience');
-        const portal=document.getElementById('portal');
-        const portalVideo=document.getElementById('portal-video');
-        const portalImage=document.getElementById('portal-image');
-        const transitionVideo=document.getElementById('transition-video');
-        const loadingLabel=document.getElementById('loading-label');
-        const canvas=document.getElementById('portal-canvas');
-        const sceneCanvas=document.getElementById('scene-canvas');
-        const ctx=canvas.getContext('2d');
-        const sceneCtx=sceneCanvas.getContext('2d');
-        const list=document.querySelector('.planet-list');
-        const searchForm=document.getElementById('earth-search-form');
-        const searchInput=document.getElementById('earth-search-input');
-        const quickChipsWrap=document.getElementById('earth-quick-chips');
+        const coordinatesList = [
+          '29.9792° N, 31.1342° E',
+          '0.6741° N, 23.4730° E',
+          '18.6500° N, 77.5200° E',
+          '14.2417° N, 40.2989° E',
+          '29.5734° N, 35.4206° E',
+          '-77.5167° S, 162.8667° E'
+        ];
 
-        let current='mars',firstRender=true,busy=false,transitionActive=false,lunarFlightActive=false,lunarProgress=0,frozenScene=false;
-        let earthEngineActive=false,earthFlightActive=false,earthCloudAlpha=0,earthCloudPhase=0,earthStarAlpha=1;
-        let expansion=0,maskScale=0,canvasOpacity=1,rotX=0,rotY=0,targetX=0,targetY=0,lastFrame=performance.now();
+        /* ----------------------------------------------------------------------
+           B. Starfield Canvas (Parallax 3D Stars + Dust motes)
+           ---------------------------------------------------------------------- */
+        const starCanvas = document.getElementById('starfield');
+        const starCtx = starCanvas.getContext('2d');
+        const numStars = 900;
+        const stars = [];
 
-        // =====================================================================
-        // REAL-TIME 3D GOOGLE EARTH ORBITAL-TO-SURFACE ENGINE (MapLibre GL v6)
-        // =====================================================================
-        let earthMap=null,earthMapReady=false;
-        const starField=[];
-        for(let i=0;i<220;i++){
-          starField.push({
-            x:Math.random(),
-            y:Math.random()*0.72,
-            r:Math.random()*1.35+0.4,
-            a:Math.random()*0.65+0.25,
-            tw:Math.random()*6.28
-          });
+        function initStars() {
+          starCanvas.width = window.innerWidth;
+          starCanvas.height = window.innerHeight;
+          stars.length = 0;
+          for (let i = 0; i < numStars; i++) {
+            stars.push({
+              x: (Math.random() - 0.5) * window.innerWidth * 2,
+              y: (Math.random() - 0.5) * window.innerHeight * 2,
+              z: Math.random() * window.innerWidth,
+              size: Math.random() * 1.5 + 0.5,
+              alpha: Math.random() * 0.8 + 0.2
+            });
+          }
         }
 
-        function initEarthGlobeEngine(){
-          if(earthMap||!window.maplibregl)return;
-          try{
-            earthMap=new window.maplibregl.Map({
-              container:'earth-globe-stage',
-              interactive:false,
-              attributionControl:false,
-              trackResize:true,
-              canvasContextAttributes:{preserveDrawingBuffer:true,antialias:true},
-              center:[activeEarthZone.lon,activeEarthZone.lat-10],
-              zoom:1.58,
-              pitch:12,
-              bearing:0,
-              style:{
-                version:8,
-                projection:{type:'globe'},
-                sky:{
-                  'sky-color':'#040812',
-                  'horizon-color':'#3b86db',
-                  'sky-horizon-blend':0.78,
-                  'atmosphere-blend':['interpolate',['linear'],['zoom'],0,0.92,6,0.78,10,0.35,13,0.08]
-                },
-                sources:{
-                  'esri-satellite':{
-                    type:'raster',
-                    tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                    tileSize:256,
-                    maxzoom:18
-                  },
-                  'terrain-dem':{
-                    type:'raster-dem',
-                    tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-                    tileSize:256,
-                    encoding:'terrarium',
-                    maxzoom:15
-                  }
-                },
-                terrain:{
-                  source:'terrain-dem',
-                  exaggeration:1.55
-                },
-                layers:[
-                  {
-                    id:'satellite-layer',
-                    type:'raster',
-                    source:'esri-satellite',
-                    paint:{
-                      'raster-contrast':0.12,
-                      'raster-saturation':0.08,
-                      'raster-fade-duration':0
-                    }
-                  }
-                ]
+        function drawStars() {
+          const w = starCanvas.width;
+          const h = starCanvas.height;
+          starCtx.clearRect(0, 0, w, h);
+
+          const cx = w / 2;
+          const cy = h / 2;
+          const speed = state.starSpeed;
+          const parallaxX = state.mouse.normX * 30;
+          const parallaxY = state.mouse.normY * 30;
+
+          // Planet accent tint
+          let starTint = '255, 255, 255';
+          if (state.planet === 'earth') starTint = '210, 240, 255';
+          else if (state.planet === 'moon') starTint = '235, 238, 245';
+          else if (state.planet === 'mars') starTint = '255, 220, 200';
+
+          for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            s.z -= speed;
+            if (s.z <= 0) {
+              s.z = w;
+              s.x = (Math.random() - 0.5) * w * 2;
+              s.y = (Math.random() - 0.5) * h * 2;
+            }
+
+            const k = 250 / s.z;
+            const px = (s.x + parallaxX) * k + cx;
+            const py = (s.y + parallaxY) * k + cy;
+
+            if (px >= 0 && px <= w && py >= 0 && py <= h) {
+              const radius = Math.max(0.4, (1 - s.z / w) * s.size * (state.isDiving ? 2.5 : 1.2));
+              starCtx.beginPath();
+              if (state.isDiving) {
+                // Streak speed lines
+                const prevK = 250 / (s.z + speed * 1.6);
+                const prevX = (s.x + parallaxX) * prevK + cx;
+                const prevY = (s.y + parallaxY) * prevK + cy;
+                starCtx.moveTo(prevX, prevY);
+                starCtx.lineTo(px, py);
+                starCtx.strokeStyle = `rgba(${starTint}, ${s.alpha * 0.9})`;
+                starCtx.lineWidth = radius * 1.5;
+                starCtx.stroke();
+              } else {
+                starCtx.arc(px, py, radius, 0, Math.PI * 2);
+                starCtx.fillStyle = `rgba(${starTint}, ${s.alpha * (1 - s.z / w)})`;
+                starCtx.fill();
               }
-            });
-            earthMap.on('load',()=>{
-              earthMapReady=true;
-              parkEarthInOrbit(activeEarthZone);
-            });
-          }catch(_){}
-        }
-        if(window.maplibregl)initEarthGlobeEngine();
-        else window.addEventListener('maplibre-ready',initEarthGlobeEngine,{once:true});
-
-        function parkEarthInOrbit(zone){
-          if(!earthMap)return;
-          earthStarAlpha=1;
-          earthCloudAlpha=0;
-          earthMap.jumpTo({
-            center:[zone.lon,Math.max(-65,Math.min(65,zone.lat))],
-            zoom:1.62,
-            pitch:14,
-            bearing:0,
-            padding:{top:Math.round(innerHeight*0.24),bottom:0,left:0,right:0}
-          });
+            }
+          }
         }
 
-        // Draw deep-space starfield behind the 3D Earth Globe + volumetric cloud breakthrough
-        function drawEarthEngineView(context,now){
-          if(!earthMap)return false;
-          const mapCanvas=earthMap.getCanvas();
-          if(!mapCanvas||!mapCanvas.width)return false;
+        /* ----------------------------------------------------------------------
+           C. Procedural 3D WebGL Sphere Engine (#globe-3d)
+           ---------------------------------------------------------------------- */
+        const globeCanvas = document.getElementById('globe-3d');
+        let gl = globeCanvas.getContext('webgl') || globeCanvas.getContext('experimental-webgl');
+        let globeProgram = null;
+        let globeVBO = null;
+        let uLocs = {};
 
-          // 1. Pitch-black space & pinpoint stars behind the globe in orbital phase
-          if(earthStarAlpha>0.01){
-            context.fillStyle='#020409';
-            context.fillRect(0,0,innerWidth,innerHeight);
-            context.save();
-            for(let i=0;i<starField.length;i++){
-              const s=starField[i];
-              const twinkle=0.7+0.3*Math.sin(now*0.002+s.tw);
-              context.fillStyle='rgba(235,244,255,'+(s.a*twinkle*earthStarAlpha).toFixed(3)+')';
-              context.beginPath();
-              context.arc(s.x*innerWidth,s.y*innerHeight,s.r,0,Math.PI*2);
-              context.fill();
-            }
-            context.restore();
+        const vsSource = `
+          attribute vec2 a_pos;
+          varying vec2 v_uv;
+          void main() {
+            v_uv = a_pos * 0.5 + 0.5;
+            gl_Position = vec4(a_pos, 0.0, 1.0);
+          }
+        `;
+
+        const fsSource = `
+          precision highp float;
+          varying vec2 v_uv;
+
+          uniform vec2 u_resolution;
+          uniform float u_time;
+          uniform vec2 u_mouse;
+          uniform float u_scroll;
+          uniform float u_planet;    // 0.0: Earth, 1.0: Moon, 2.0: Mars
+          uniform float u_blend;     // Transition blend 0.0..1.0
+          uniform float u_dive;      // Dive zoom progress 0.0..1.0
+          uniform vec2 u_diveTarget; // Lat / Lng
+          uniform vec3 u_glowColor;
+
+          // 3D Simplex-Style Hash Noise
+          vec3 hash33(vec3 p) {
+            p = fract(p * vec3(.1031, .1030, .0973));
+            p += dot(p, p.yxz + 33.33);
+            return fract((p.xxy + p.yxx) * p.zyx);
           }
 
-          // 2. Live 3D WebGL Globe & 3D DEM Terrain from MapLibre
-          context.drawImage(mapCanvas,0,0,innerWidth,innerHeight);
-
-          // 3. Volumetric 3D Atmospheric Cloud Plunge (during supersonic entry 1.0s - 2.9s)
-          if(earthCloudAlpha>0.01){
-            context.save();
-            const cx=innerWidth*0.5,cy=innerHeight*0.5;
-            const maxR=Math.hypot(cx,cy);
-            // Parting radial cloud tunnel as camera breaks through cloud deck
-            const innerHole=earthCloudPhase>0.55?maxR*((earthCloudPhase-0.55)/0.45)*0.85:0;
-            const grad=context.createRadialGradient(cx,cy,innerHole*0.4,cx,cy,maxR);
-            const cAlpha=Math.min(0.96,earthCloudAlpha);
-            grad.addColorStop(0,'rgba(238,246,255,'+(earthCloudPhase>0.55?cAlpha*0.35:cAlpha).toFixed(3)+')');
-            grad.addColorStop(0.55,'rgba(225,238,252,'+(cAlpha*0.92).toFixed(3)+')');
-            grad.addColorStop(1,'rgba(195,220,248,'+(cAlpha*0.98).toFixed(3)+')');
-            context.fillStyle=grad;
-            context.fillRect(0,0,innerWidth,innerHeight);
-
-            // Dynamic 3D cloud puffs & supersonic radial speed streaks
-            for(let i=0;i<14;i++){
-              const angle=(i/14)*Math.PI*2+earthCloudPhase*1.2;
-              const dist=((earthCloudPhase*2.4+i*0.19)%1)*maxR*0.95;
-              const px=cx+Math.cos(angle)*dist;
-              const py=cy+Math.sin(angle)*dist*0.72;
-              const pr=140+dist*0.42;
-              const pGrad=context.createRadialGradient(px,py,0,px,py,pr);
-              pGrad.addColorStop(0,'rgba(255,255,255,'+(cAlpha*0.55).toFixed(3)+')');
-              pGrad.addColorStop(1,'rgba(255,255,255,0)');
-              context.fillStyle=pGrad;
-              context.beginPath();
-              context.arc(px,py,pr,0,Math.PI*2);
-              context.fill();
-            }
-            context.restore();
+          float noise(vec3 p) {
+            vec3 i = floor(p);
+            vec3 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(
+              mix(mix(dot(hash33(i + vec3(0,0,0))-0.5, f - vec3(0,0,0)),
+                      dot(hash33(i + vec3(1,0,0))-0.5, f - vec3(1,0,0)), f.x),
+                  mix(dot(hash33(i + vec3(0,1,0))-0.5, f - vec3(0,1,0)),
+                      dot(hash33(i + vec3(1,1,0))-0.5, f - vec3(1,1,0)), f.x), f.y),
+              mix(mix(dot(hash33(i + vec3(0,0,1))-0.5, f - vec3(0,0,1)),
+                      dot(hash33(i + vec3(1,0,1))-0.5, f - vec3(1,0,1)), f.x),
+                  mix(dot(hash33(i + vec3(0,1,1))-0.5, f - vec3(0,1,1)),
+                      dot(hash33(i + vec3(1,1,1))-0.5, f - vec3(1,1,1)), f.x), f.y), f.z) + 0.5;
           }
+
+          float fbm(vec3 p) {
+            float val = 0.0;
+            float amp = 0.5;
+            for (int i = 0; i < 4; i++) {
+              val += amp * noise(p);
+              p *= 2.04;
+              amp *= 0.5;
+            }
+            return val;
+          }
+
+          mat3 rotY(float a) {
+            float c = cos(a), s = sin(a);
+            return mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c);
+          }
+
+          mat3 rotX(float a) {
+            float c = cos(a), s = sin(a);
+            return mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
+          }
+
+          void main() {
+            vec2 st = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y);
+
+            // Camera setup
+            float zoom = mix(1.15, 6.5, pow(u_dive, 2.5));
+            vec3 ro = vec3(0.0, 0.0, 2.8 / zoom);
+            vec3 rd = normalize(vec3(st, -1.0));
+
+            // Sphere center & radius
+            vec3 sc = vec3(0.0, 0.0, 0.0);
+            float sr = 0.95;
+
+            // Shift sphere slightly left/right based on scroll progress to frame HUD cards
+            float sceneShift = sin(u_scroll * 1.25) * 0.35;
+            sc.x += sceneShift * (1.0 - u_dive);
+
+            // Ray-sphere intersection
+            vec3 oc = ro - sc;
+            float b = dot(oc, rd);
+            float c = dot(oc, oc) - sr * sr;
+            float disc = b * b - c;
+
+            // Directional Light Vector (Dynamic Sun)
+            vec3 lightDir = normalize(vec3(1.2 + u_mouse.x * 0.8, 0.8 - u_mouse.y * 0.6, 1.5));
+
+            vec4 finalColor = vec4(0.0);
+
+            if (disc > 0.0) {
+              float t = -b - sqrt(disc);
+              vec3 hit = ro + rd * t;
+              vec3 N = normalize(hit - sc);
+
+              // Axial Rotation Matrix: Continuous spin + mouse scrub + scroll
+              float spin = u_time * 0.12 + u_scroll * 0.75 + u_mouse.x * 0.45;
+              float tilt = -0.38 + u_mouse.y * 0.2;
+              mat3 rMat = rotY(spin) * rotX(tilt);
+              vec3 p = rMat * N;
+
+              // Day/Night Terminator calculation
+              float NdotL = dot(N, lightDir);
+              float diffuse = smoothstep(-0.25, 0.5, NdotL);
+              float fresnel = pow(1.0 - max(0.0, dot(N, -rd)), 2.8);
+
+              // -------------------------------------------------------------
+              // 1. EARTH PROCEDURAL TEXTURE
+              // -------------------------------------------------------------
+              float contNoise = fbm(p * 2.2);
+              float isLand = smoothstep(0.51, 0.54, contNoise);
+              vec3 oceanCol = mix(vec3(0.02, 0.08, 0.22), vec3(0.05, 0.25, 0.45), contNoise * 1.5);
+              vec3 landCol = mix(vec3(0.12, 0.32, 0.16), vec3(0.55, 0.45, 0.22), noise(p * 4.0));
+              vec3 earthBase = mix(oceanCol, landCol, isLand);
+
+              // Specular glint on ocean
+              vec3 halfV = normalize(lightDir - rd);
+              float spec = pow(max(0.0, dot(N, halfV)), 32.0) * (1.0 - isLand) * 0.6;
+
+              // Atmospheric cloud layer
+              float cloudNoise = fbm((p + vec3(u_time * 0.03, 0.0, u_time * 0.015)) * 3.2);
+              float clouds = smoothstep(0.48, 0.75, cloudNoise) * 0.85;
+              vec3 earthFinal = mix(earthBase, vec3(1.0), clouds) * diffuse + spec;
+              earthFinal += fresnel * vec3(0.22, 0.74, 0.97) * 1.2;
+
+              // -------------------------------------------------------------
+              // 2. MOON PROCEDURAL TEXTURE (Regolith & Craters)
+              // -------------------------------------------------------------
+              float maria = fbm(p * 1.8);
+              float craterRims = abs(sin(noise(p * 6.5) * 6.28)) * 0.3;
+              vec3 moonBase = mix(vec3(0.22, 0.23, 0.26), vec3(0.78, 0.80, 0.84), maria + craterRims);
+              float moonDiffuse = smoothstep(-0.05, 0.65, NdotL);
+              vec3 moonFinal = moonBase * moonDiffuse;
+              moonFinal += fresnel * vec3(0.88, 0.92, 0.98) * 0.4; // Airless subtle halo
+
+              // -------------------------------------------------------------
+              // 3. MARS PROCEDURAL TEXTURE (Iron Oxide Dunes & Polar Caps)
+              // -------------------------------------------------------------
+              float marsFbm = fbm(p * 2.6);
+              vec3 rustCol = mix(vec3(0.85, 0.35, 0.12), vec3(0.48, 0.12, 0.05), marsFbm);
+              // Polar frost
+              float polar = smoothstep(0.75, 0.92, abs(p.y));
+              vec3 marsBase = mix(rustCol, vec3(0.92, 0.94, 0.96), polar);
+              vec3 marsFinal = marsBase * diffuse;
+              marsFinal += fresnel * vec3(0.98, 0.45, 0.15) * 0.8;
+
+              // Blend between planets based on u_planet
+              vec3 surfaceCol;
+              if (u_planet < 1.0) {
+                surfaceCol = mix(earthFinal, moonFinal, u_planet);
+              } else {
+                surfaceCol = mix(moonFinal, marsFinal, u_planet - 1.0);
+              }
+
+              // Apply Dive shockwave flash
+              if (u_dive > 0.0) {
+                float diveFlash = sin(u_dive * 3.1415) * 0.4;
+                surfaceCol += vec3(diveFlash) * u_glowColor;
+              }
+
+              finalColor = vec4(surfaceCol, 1.0);
+            } else {
+              // Atmospheric Outer Glow ring around sphere
+              float distToCenter = length(st - sc.xy);
+              float outerGlow = smoothstep(sr * 1.35, sr * 0.98, distToCenter);
+              if (outerGlow > 0.0) {
+                vec3 glow = u_glowColor * pow(outerGlow, 2.5) * 0.85;
+                finalColor = vec4(glow, outerGlow * 0.7);
+              }
+            }
+
+            // Orbital Trajectory Rings
+            float ringDist = abs(length(st * vec2(1.0, 2.2 + sin(u_scroll * 0.8) * 0.4)) - 0.78);
+            if (ringDist < 0.0035 && u_dive < 0.2) {
+              float dash = step(0.4, sin(atan(st.y, st.x) * 16.0 + u_time * 2.0));
+              finalColor += vec4(u_glowColor * dash * 0.65, dash * 0.5);
+            }
+
+            gl_FragColor = finalColor;
+          }
+        `;
+
+        function initWebGL() {
+          if (!gl) return false;
+
+          const compileShader = (type, src) => {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+              console.warn(gl.getShaderInfoLog(s));
+              gl.deleteShader(s);
+              return null;
+            }
+            return s;
+          };
+
+          const vs = compileShader(gl.VERTEX_SHADER, vsSource);
+          const fs = compileShader(gl.FRAGMENT_SHADER, fsSource);
+          if (!vs || !fs) return false;
+
+          globeProgram = gl.createProgram();
+          gl.attachShader(globeProgram, vs);
+          gl.attachShader(globeProgram, fs);
+          gl.linkProgram(globeProgram);
+
+          if (!gl.getProgramParameter(globeProgram, gl.LINK_STATUS)) {
+            console.warn(gl.getProgramInfoLog(globeProgram));
+            return false;
+          }
+
+          gl.useProgram(globeProgram);
+
+          // Full-screen quad
+          globeVBO = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, globeVBO);
+          gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+            gl.STATIC_DRAW
+          );
+
+          const aPos = gl.getAttribLocation(globeProgram, 'a_pos');
+          gl.enableVertexAttribArray(aPos);
+          gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+          // Get Uniform Locations
+          uLocs = {
+            resolution: gl.getUniformLocation(globeProgram, 'u_resolution'),
+            time: gl.getUniformLocation(globeProgram, 'u_time'),
+            mouse: gl.getUniformLocation(globeProgram, 'u_mouse'),
+            scroll: gl.getUniformLocation(globeProgram, 'u_scroll'),
+            planet: gl.getUniformLocation(globeProgram, 'u_planet'),
+            blend: gl.getUniformLocation(globeProgram, 'u_blend'),
+            dive: gl.getUniformLocation(globeProgram, 'u_dive'),
+            diveTarget: gl.getUniformLocation(globeProgram, 'u_diveTarget'),
+            glowColor: gl.getUniformLocation(globeProgram, 'u_glowColor')
+          };
+
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
           return true;
         }
 
-        // Render Quick NASA Test Site Chips
-        function renderQuickChips(){
-          quickChipsWrap.innerHTML=earthZones.map(z=>
-            '<button type="button" class="earth-chip'+(z.id===activeEarthZone.id?' active':'')+'" data-zone-id="'+z.id+'">'+z.labelAr+'</button>'
-          ).join('');
-        }
-        renderQuickChips();
+        function resizeGlobe() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          starCanvas.width = w;
+          starCanvas.height = h;
 
-        function formatCoordLabel(lat,lon){
-          const ns=lat>=0?'N':'S';
-          const ew=lon>=0?'E':'W';
-          return Math.abs(lat).toFixed(2)+'° '+ns+', '+Math.abs(lon).toFixed(2)+'° '+ew;
-        }
-
-        async function resolveLocationQuery(rawQuery){
-          const q=(rawQuery||'').trim();
-          if(!q)return activeEarthZone;
-          const qLow=q.toLowerCase();
-
-          // 1. Direct coordinates "27.3, 28.0"
-          const coordMatch=qLow.match(/^(-?\d+(?:\.\d+)?)\s*[,،\s]\s*(-?\d+(?:\.\d+)?)$/);
-          if(coordMatch){
-            const lat=Math.max(-84,Math.min(84,parseFloat(coordMatch[1])));
-            const lon=Math.max(-180,Math.min(180,parseFloat(coordMatch[2])));
-            const coords=formatCoordLabel(lat,lon);
-            return {
-              id:'custom_'+Date.now(),
-              labelAr:coords,
-              region:'Target Coordinates',
-              coords,
-              lat,lon,
-              targetZoom:13.4,targetPitch:70,targetBearing:22,
-              video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
-              temperature:Math.abs(lat)>55?'Polar / sub-polar planetary surface zone.':'Targeted planetary surface test zone.',
-              keywords:[]
-            };
-          }
-
-          // 2. Match built-in NASA analog presets
-          for(const z of earthZones){
-            if(z.id===qLow||z.labelAr.includes(q)||z.region.toLowerCase().includes(qLow)||z.keywords.some(k=>k.toLowerCase().includes(qLow)||qLow.includes(k.toLowerCase()))){
-              return z;
-            }
-          }
-
-          // 3. Live OpenStreetMap Nominatim Geocoding (supports any Arabic or English place name on Earth!)
-          try{
-            loadingLabel.textContent='Locating '+q+'…';
-            experience.classList.add('is-loading');
-            const res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=en,ar&q='+encodeURIComponent(q));
-            const data=await res.json();
-            if(Array.isArray(data)&&data.length>0){
-              const hit=data[0];
-              const lat=parseFloat(hit.lat);
-              const lon=parseFloat(hit.lon);
-              const shortName=(hit.display_name||q).split(',').slice(0,2).join(', ');
-              const coords=formatCoordLabel(lat,lon);
-              return {
-                id:'geo_'+Date.now(),
-                labelAr:q,
-                region:shortName,
-                coords,
-                lat,lon,
-                targetZoom:13.4,targetPitch:70,targetBearing:24,
-                video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
-                temperature:Math.abs(lat)>55?'Sub-polar / high-latitude surface zone.':'Live satellite & 3D DEM terrain target.',
-                keywords:[]
-              };
-            }
-          }catch(_){}
-          return activeEarthZone;
-        }
-
-        function render(){
-          const state=states[current];
-          experience.dataset.planet=current;
-          document.getElementById('planet-title').textContent=state.name.toUpperCase();
-          document.getElementById('next-name').textContent=state.next;
-          document.getElementById('next-number').textContent=state.number;
-          portal.setAttribute('aria-label','Travel to '+state.next);
-          document.getElementById('facts').innerHTML=state.facts.map(([key,value])=>'<div class="fact"><dt>'+key+'</dt><dd>'+value+'</dd></div>').join('');
-          list.innerHTML=planets.map(name=>{const key=name.toLowerCase(),active=key===current;return '<div class="planet-item'+(active?' active':'')+'" data-planet="'+key+'" role="button" tabindex="0" aria-label="'+name+'" aria-current="'+(active?'true':'false')+'">'+name+'</div>';}).join('');
-          if(!firstRender){list.classList.remove('is-switching');void list.offsetWidth;list.classList.add('is-switching');}
-          firstRender=false;
-          document.querySelectorAll('.background').forEach(el=>el.classList.toggle('is-visible',el.classList.contains(state.background)));
-          const targetVideoSrc=state.portal||states.moon.portal;
-          if(portalVideo.src!==targetVideoSrc){
-            portalVideo.src=targetVideoSrc;
-            portalVideo.load();
-          }
-          if(state.image){
-            portalImage.src=state.image;
+          if (gl) {
+            globeCanvas.width = w;
+            globeCanvas.height = h;
+            gl.viewport(0, 0, w, h);
           }
         }
 
-        function preloadNextTransition(){
-          const nextKey=states[current].next.toLowerCase();
-          const nextSrc=states[nextKey]&&states[nextKey].arrival;
-          if(nextSrc&&(!transitionVideo.getAttribute('src')||!transitionVideo.src.endsWith(nextSrc))){
-            transitionVideo.src=nextSrc;
-            transitionVideo.load();
-          }
-        }
-        let cachedShade=null;
-        function resizeCanvas(){
-          const d=Math.min(devicePixelRatio||1,1.35);
-          canvas.width=innerWidth*d;canvas.height=innerHeight*d;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(d,0,0,d,0,0);
-          if(!frozenScene){sceneCanvas.width=innerWidth*d;sceneCanvas.height=innerHeight*d;sceneCanvas.style.width=innerWidth+'px';sceneCanvas.style.height=innerHeight+'px';sceneCtx.setTransform(d,0,0,d,0,0);}
-          cachedShade=ctx.createLinearGradient(0,innerHeight*.52,0,innerHeight);
-          cachedShade.addColorStop(0,'rgba(0,0,0,0)');
-          cachedShade.addColorStop(1,'rgba(0,0,0,.88)');
-          if(earthMap)earthMap.resize();
-        }
-        function drawCover(context,media,zoom=1,offsetY=0){
-          const mw=media.videoWidth||media.naturalWidth||0,mh=media.videoHeight||media.naturalHeight||0;if(!mw||!mh)return;
-          const scale=Math.max(innerWidth/mw,innerHeight/mh)*zoom,w=mw*scale,h=mh*scale;
-          context.drawImage(media,(innerWidth-w)/2,(innerHeight-h)/2+offsetY,w,h);
-        }
-        function drawMoonOrbit(context,rect,e,zoom=1,offsetY=0){
-          const mw=moonOrbitImg.naturalWidth||0,mh=moonOrbitImg.naturalHeight||0;if(!mw||!mh)return;
-          const h0=rect.height*1.15,w0=h0*(mw/mh),y0=rect.top-rect.height*.02;
-          const scale1=Math.max(innerWidth/mw,innerHeight/mh),w1=mw*scale1,h1=mh*scale1;
-          const baseW=w0+(w1-w0)*e,baseH=h0+(h1-h0)*e;
-          const baseCx=(rect.left+rect.width/2)*(1-e)+(innerWidth/2)*e;
-          const baseCy=(y0+h0/2)*(1-e)+(innerHeight/2)*e;
-          const w=baseW*zoom,h=baseH*zoom;
-          context.drawImage(moonOrbitImg,baseCx-w/2,baseCy-h/2+offsetY,w,h);
-        }
-        function drawShade(context){
-          context.fillStyle=cachedShade||'rgba(0,0,0,.6)';
-          context.fillRect(0,innerHeight*.52,innerWidth,innerHeight*.48);
-        }
-        function roundedPoints(w,h,r){
-          r=Math.min(r,w/2,h/2);const corners=[[w/2-r,-h/2+r,-Math.PI/2,0],[w/2-r,h/2-r,0,Math.PI/2],[-w/2+r,h/2-r,Math.PI/2,Math.PI],[-w/2+r,-h/2+r,Math.PI,Math.PI*1.5]],points=[];
-          corners.forEach(([cx,cy,start,end])=>{for(let i=0;i<=10;i++){const a=start+(end-start)*(i/10);points.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}});return points;
-        }
-        function project(x,y,cx,cy,rx,ry){
-          const ax=rx*Math.PI/180,ay=ry*Math.PI/180,xx=x*Math.cos(ay),yy=y*Math.cos(ax),z=x*Math.sin(ay)-y*Math.sin(ax),p=850/(850+z);return[cx+xx*p,cy+yy*p];
-        }
+        /* ----------------------------------------------------------------------
+           D. Main Render Loop (60FPS WebGL + Canvas + Lerp Scroll)
+           ---------------------------------------------------------------------- */
+        let lastTime = 0;
+        let planetShaderIndex = 0.0; // 0.0 Earth, 1.0 Moon, 2.0 Mars
 
-        function draw(now){
-          const dt=Math.min(40,now-lastFrame);lastFrame=now;rotX+=(targetX-rotX)*Math.min(1,dt*.009);rotY+=(targetY-rotY)*Math.min(1,dt*.009);
-          const e=expansion;
+        function renderLoop(timeMs) {
+          const dt = (timeMs - lastTime) * 0.001;
+          lastTime = timeMs;
+          const timeSec = timeMs * 0.001;
 
-          // Subtle live 3D camera drift when landed on Earth via the 3D Engine
-          if(current==='earth'&&earthEngineActive&&!transitionActive&&earthMap&&earthMapReady){
-            earthMap.setBearing((earthMap.getBearing()+dt*0.0018)%360);
+          // 1. Smooth Scroll Lerp Loop
+          state.scroll += (state.targetScroll - state.scroll) * 0.08;
+          state.mouse.x += (state.targetMouse.x - state.mouse.x) * 0.1;
+          state.mouse.y += (state.targetMouse.y - state.mouse.y) * 0.1;
+          state.mouse.normX = (state.mouse.x / window.innerWidth) * 2 - 1;
+          state.mouse.normY = -(state.mouse.y / window.innerHeight * 2 - 1);
+
+          state.starSpeed += (state.targetStarSpeed - state.starSpeed) * 0.08;
+
+          // 2. Determine Planetary Section based on Scroll
+          const scrollProgress = state.scroll / (document.documentElement.scrollHeight - window.innerHeight);
+          let targetPlanetIdx = 0.0;
+          let newPlanet = 'earth';
+
+          if (scrollProgress < 0.22) {
+            targetPlanetIdx = 0.0;
+            newPlanet = 'earth';
+          } else if (scrollProgress < 0.52) {
+            targetPlanetIdx = 0.0 + (scrollProgress - 0.22) / 0.3 * 1.0;
+            newPlanet = scrollProgress > 0.36 ? 'moon' : 'earth';
+          } else if (scrollProgress < 0.82) {
+            targetPlanetIdx = 1.0 + (scrollProgress - 0.52) / 0.3 * 1.0;
+            newPlanet = scrollProgress > 0.66 ? 'mars' : 'moon';
+          } else {
+            targetPlanetIdx = 2.0;
+            newPlanet = 'mars';
           }
 
-          if(transitionActive&&e>=.995){
-            if(earthFlightActive&&earthMapReady){
-              drawEarthEngineView(ctx,now);
-            }else{
-              drawCover(ctx,transitionVideo);
-            }
-            drawShade(ctx);
-            requestAnimationFrame(draw);
-            return;
+          planetShaderIndex += (targetPlanetIdx - planetShaderIndex) * 0.05;
+
+          if (newPlanet !== state.planet && !state.isDiving) {
+            setPlanetState(newPlanet);
           }
 
-          ctx.clearRect(0,0,innerWidth,innerHeight);
-          if(current==='earth'&&earthEngineActive&&earthMapReady){
-            drawEarthEngineView(ctx,now);
-            drawShade(ctx);
-          }else if(frozenScene){
-            ctx.drawImage(sceneCanvas,0,0,innerWidth,innerHeight);
-            drawShade(ctx);
+          // 3. Parallax Hero Typography
+          const heroCenter = document.querySelector('.hero-center');
+          if (heroCenter && state.scroll < window.innerHeight) {
+            const p = state.scroll / window.innerHeight;
+            heroCenter.style.transform = `translate3d(0, ${-p * 120}px, 0)`;
+            heroCenter.style.opacity = `${Math.max(0, 1 - p * 1.4)}`;
           }
 
-          const rect=portal.getBoundingClientRect(),cx=rect.left+rect.width/2+(innerWidth/2-(rect.left+rect.width/2))*e,cy=rect.top+rect.height/2+(innerHeight/2-(rect.top+rect.height/2))*e;
-          const baseW=rect.width+(innerWidth-rect.width)*e,baseH=rect.height+(innerHeight-rect.height)*e,scale=e?1:maskScale,w=baseW*scale,h=baseH*scale,r=90*(1-e)*scale,rx=rotX*(1-e),ry=rotY*(1-e);
-          if(w>1&&h>1){
-            const points=roundedPoints(w,h,r).map(([x,y])=>project(x,y,cx,cy,rx,ry));
-            ctx.save();ctx.globalAlpha=canvasOpacity;ctx.beginPath();points.forEach((point,i)=>i?ctx.lineTo(point[0],point[1]):ctx.moveTo(point[0],point[1]));ctx.closePath();ctx.clip();
-            ctx.fillStyle='#030303';ctx.fillRect(0,0,innerWidth,innerHeight);
-            if(transitionActive&&earthFlightActive&&earthMapReady){
-              drawEarthEngineView(ctx,now);
-              drawShade(ctx);
-            }else if(!transitionActive&&current==='mars'&&earthMapReady){
-              // Live 3D Earth Globe in space inside the Mars portal capsule!
-              drawEarthEngineView(ctx,now);
-            }else if(!transitionActive&&states[current].image){
-              drawMoonOrbit(ctx,rect,e,1,0);
-            }else{
-              const media=transitionActive?transitionVideo:portalVideo;
-              drawCover(ctx,media);
-              if(transitionActive)drawShade(ctx);
-            }
-            ctx.restore();
+          // 4. Draw Stars
+          drawStars();
+
+          // 5. Draw 3D Globe WebGL
+          if (gl && globeProgram) {
+            gl.useProgram(globeProgram);
+
+            // Set Glow Color based on planet
+            let glow = [0.22, 0.74, 0.97]; // Earth cyan
+            if (state.planet === 'moon') glow = [0.88, 0.91, 0.94]; // Moon silver
+            else if (state.planet === 'mars') glow = [0.97, 0.45, 0.12]; // Mars rust
+
+            gl.uniform2f(uLocs.resolution, globeCanvas.width, globeCanvas.height);
+            gl.uniform1f(uLocs.time, timeSec);
+            gl.uniform2f(uLocs.mouse, state.mouse.normX, state.mouse.normY);
+            gl.uniform1f(uLocs.scroll, scrollProgress * 5.0);
+            gl.uniform1f(uLocs.planet, planetShaderIndex);
+            gl.uniform1f(uLocs.blend, 1.0);
+            gl.uniform1f(uLocs.dive, state.diveProgress);
+            gl.uniform2f(uLocs.diveTarget, state.diveTarget.lat, state.diveTarget.lng);
+            gl.uniform3f(uLocs.glowColor, glow[0], glow[1], glow[2]);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
           }
-          requestAnimationFrame(draw);
+
+          // 6. Custom Dual-Ring Orbital Cursor Lerp
+          updateCursor();
+
+          requestAnimationFrame(renderLoop);
         }
 
-        const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-        function animateValue(setter,duration){return new Promise(resolve=>{const start=performance.now();function step(now){const raw=Math.min(1,(now-start)/duration);setter(ease(raw));if(raw<1)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});}
-        function retrigger(className){experience.classList.remove(className);void experience.offsetWidth;experience.classList.add(className);}
-        function revealMask(){retrigger('mask-revealing');maskScale=0;return animateValue(value=>maskScale=value,1050);}
-        function revealPlanetContent(){retrigger('content-revealing');}
-        function waitForMedia(media,timeout=2200){return new Promise(resolve=>{if((media.tagName==='IMG'&&media.complete&&media.naturalWidth)||(media.tagName==='VIDEO'&&media.readyState>=3)){resolve();return;}let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);media.removeEventListener('canplaythrough',finish);media.removeEventListener('canplay',finish);media.removeEventListener('loadeddata',finish);media.removeEventListener('load',finish);media.removeEventListener('error',finish);resolve();};const timer=setTimeout(finish,timeout);media.addEventListener('canplaythrough',finish,{once:true});media.addEventListener('canplay',finish,{once:true});media.addEventListener('load',finish,{once:true});media.addEventListener('error',finish,{once:true});});}
-        async function startExperience(){const state=states[current];await waitForMedia(state.image?portalImage:portalVideo);await revealMask();document.body.classList.add('intro-ready');setTimeout(()=>{revealPlanetContent();preloadNextTransition();},850);}
-        function waitForEnd(video,timeout=6000){return new Promise(resolve=>{if(video.ended){resolve();return;}let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);video.removeEventListener('ended',finish);video.removeEventListener('error',finish);resolve();};const timer=setTimeout(finish,timeout);video.addEventListener('ended',finish,{once:true});video.addEventListener('error',finish,{once:true});});}
+        /* ----------------------------------------------------------------------
+           E. Planetary State & Glider Navigation Physics
+           ---------------------------------------------------------------------- */
+        function setPlanetState(planetName) {
+          state.planet = planetName;
+          document.body.dataset.planet = planetName;
 
-        // =====================================================================
-        // 4-STAGE 6-SECOND 3D ORBITAL-TO-SURFACE FLIGHT TO ANY EARTH COORDINATE
-        // [0.0s - 1.0s] Lower-center 3D Earth Globe with stars rotates to [lon, lat]
-        // [1.0s - 2.6s] Hyper-fast supersonic atmospheric entry & 3D cloud plunge
-        // [2.6s - 4.2s] Smooth gradual Ease-Out deceleration pitching up over 3D terrain
-        // [4.2s - 6.0s] 2-Second steady final vista hold on the landed location
-        // =====================================================================
-        function runEarth3DFlight(zone){
-          return new Promise(resolve=>{
-            const duration=5800;
-            const startLon=zone.lon-42;
-            const startLat=Math.max(-55,Math.min(55,zone.lat*0.45));
-            const targetLon=zone.lon;
-            const targetLat=zone.lat;
-            const targetZoom=zone.targetZoom||13.2;
-            const targetPitch=zone.targetPitch||70;
-            const targetBearing=zone.targetBearing||24;
-            const orbitalPadTop=Math.round(innerHeight*0.24);
-            let prewarmedTiles=false;
-            const t0=performance.now();
+          // Update active pill
+          document.querySelectorAll('.nav-pill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === planetName);
+          });
+          document.querySelectorAll('.dock-pill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === planetName);
+          });
 
-            function step(now){
-              const elapsed=now-t0;
-              const t=Math.min(5.8,elapsed/1000);
+          // Move Navigation Glider
+          updateNavGlider();
+        }
 
-              if(t<1.05){
-                // STAGE 1: [0.0s - 1.05s] Orbital Globe Rotation in Space (stars visible behind curved limb)
-                const p1=ease(t/1.05);
-                const lon=startLon+(targetLon-startLon)*p1;
-                const lat=startLat+(targetLat-startLat)*p1;
-                const zoom=1.60+0.65*p1;
-                earthStarAlpha=1;
-                earthCloudAlpha=0;
-                earthMap.jumpTo({
-                  center:[lon,lat],
-                  zoom,
-                  pitch:14+6*p1,
-                  bearing:-18*p1,
-                  padding:{top:Math.round(orbitalPadTop*(1-p1*0.35)),bottom:0,left:0,right:0}
-                });
-              }else if(t<2.65){
-                // STAGE 2: [1.05s - 2.65s] HYPER-FAST SUPERSONIC ATMOSPHERIC & VOLUMETRIC CLOUD ENTRY
-                const p2=(t-1.05)/1.60;
-                // Exponential supersonic acceleration into the atmosphere
-                const pFast=p2*p2*(3-2*p2);
-                const zoom=2.25+(10.85-2.25)*pFast;
-                const padTop=Math.round(orbitalPadTop*0.65*(1-pFast));
-                earthStarAlpha=Math.max(0,1-p2*2.2);
-                earthCloudPhase=p2;
-                // Bell-curve volumetric cloud opacity peaking as we punch through the cloud deck
-                earthCloudAlpha=Math.sin(p2*Math.PI)*0.95;
+        function updateNavGlider() {
+          const activeBtn = document.querySelector('.nav-pill.active');
+          const glider = document.getElementById('nav-glider');
+          const navPills = document.getElementById('nav-pills');
+          if (!activeBtn || !glider || !navPills) return;
 
-                // While cloud veil is thickest (p2 in 0.48..0.68), pre-trigger target tile fetch at ground zoom
-                if(p2>0.48&&p2<0.66&&!prewarmedTiles){
-                  prewarmedTiles=true;
-                  earthMap.jumpTo({
-                    center:[targetLon,targetLat],
-                    zoom:targetZoom-0.4,
-                    pitch:targetPitch-6,
-                    bearing:targetBearing-8,
-                    padding:{top:0,bottom:0,left:0,right:0}
-                  });
-                }else{
-                  earthMap.jumpTo({
-                    center:[targetLon,targetLat],
-                    zoom,
-                    pitch:20+22*pFast,
-                    bearing:-18+(targetBearing-12+18)*pFast,
-                    padding:{top:padTop,bottom:0,left:0,right:0}
-                  });
-                }
-              }else if(t<4.15){
-                // STAGE 3: [2.65s - 4.15s] SMOOTH GRADUAL EASE-OUT DECELERATION OVER 3D TERRAIN
-                const p3=(t-2.65)/1.50;
-                // Smooth cubic ease-out deceleration curve
-                const easeOut=1-Math.pow(1-p3,3.2);
-                const zoom=10.85+(targetZoom-10.85)*easeOut;
-                const pitch=42+(targetPitch-42)*easeOut;
-                const bearing=(targetBearing-12)+12*easeOut;
-                earthStarAlpha=0;
-                earthCloudPhase=0.65+p3*0.35;
-                earthCloudAlpha=Math.max(0,(1-p3*1.65)*0.45);
-                earthMap.jumpTo({
-                  center:[targetLon,targetLat],
-                  zoom,
-                  pitch,
-                  bearing,
-                  padding:{top:0,bottom:0,left:0,right:0}
-                });
-              }else{
-                // STAGE 4: [4.15s - 5.80s] 2-SECOND FINAL VISTA HOLD ON THE LANDED LOCATION
-                const p4=(t-4.15)/1.65;
-                earthStarAlpha=0;
-                earthCloudAlpha=0;
-                earthMap.jumpTo({
-                  center:[targetLon,targetLat],
-                  zoom:targetZoom+p4*0.10,
-                  pitch:targetPitch,
-                  bearing:targetBearing+p4*3.5,
-                  padding:{top:0,bottom:0,left:0,right:0}
-                });
-              }
+          const rect = activeBtn.getBoundingClientRect();
+          const parentRect = navPills.getBoundingClientRect();
+          glider.style.width = `${rect.width}px`;
+          glider.style.transform = `translateX(${rect.left - parentRect.left}px)`;
+        }
 
-              if(elapsed<duration){
-                requestAnimationFrame(step);
-              }else{
-                earthCloudAlpha=0;
-                earthStarAlpha=0;
-                resolve();
+        /* ----------------------------------------------------------------------
+           F. Signature Hover & Micro-Interaction Physics
+           ---------------------------------------------------------------------- */
+
+        // 1. Dual-Ring Orbital Cursor
+        const cursorHalo = document.getElementById('cursor-halo');
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+        let haloX = cursorX;
+        let haloY = cursorY;
+
+        function updateCursor() {
+          haloX += (cursorX - haloX) * 0.18;
+          haloY += (cursorY - haloY) * 0.18;
+          cursorHalo.style.transform = `translate3d(${haloX}px, ${haloY}px, 0) translate(-50%, -50%)`;
+        }
+
+        window.addEventListener('mousemove', e => {
+          cursorX = e.clientX;
+          cursorY = e.clientY;
+          state.targetMouse.x = e.clientX;
+          state.targetMouse.y = e.clientY;
+        });
+
+        // Interactive hover states for cursor
+        document.addEventListener('mouseover', e => {
+          const target = e.target.closest('a, button, .analog-card, input, .chip-btn');
+          if (target) {
+            cursorHalo.classList.add('is-hovering');
+          }
+        });
+        document.addEventListener('mouseout', e => {
+          const target = e.target.closest('a, button, .analog-card, input, .chip-btn');
+          if (target) {
+            cursorHalo.classList.remove('is-hovering');
+          }
+        });
+
+        // 2. 3D Tilt & Specular Glare on .analog-card
+        document.querySelectorAll('.analog-card').forEach(card => {
+          card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const normX = (x / rect.width - 0.5) * 2;
+            const normY = (y / rect.height - 0.5) * 2;
+
+            card.style.transform = `perspective(1000px) rotateX(${-normY * 9}deg) rotateY(${normX * 9}deg) scale3d(1.02, 1.02, 1.02)`;
+            card.style.setProperty('--mx', `${x}px`);
+            card.style.setProperty('--my', `${y}px`);
+          });
+
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+          });
+        });
+
+        // 3. Magnetic Pull Buttons & Pills (.magnetic)
+        document.querySelectorAll('.magnetic').forEach(el => {
+          el.addEventListener('mousemove', e => {
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = e.clientX - cx;
+            const dy = e.clientY - cy;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist < 70) {
+              el.style.transform = `translate3d(${dx * 0.32}px, ${dy * 0.32}px, 0)`;
+              const inner = el.querySelector('.btn-inner');
+              if (inner) {
+                inner.style.transform = `translate3d(${dx * 0.16}px, ${dy * 0.16}px, 0)`;
               }
             }
-            requestAnimationFrame(step);
+          });
+
+          el.addEventListener('mouseleave', () => {
+            el.style.transform = 'translate3d(0, 0, 0)';
+            const inner = el.querySelector('.btn-inner');
+            if (inner) {
+              inner.style.transform = 'translate3d(0, 0, 0)';
+            }
+          });
+        });
+
+        // 4. Telemetry Text Scramble Engine ([data-scramble])
+        const glyphPool = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789§$%&#@/+-*<>[]~';
+        function scrambleText(element, originalText) {
+          let iteration = 0;
+          const maxIter = 10;
+          clearInterval(element._scrambleInterval);
+
+          element._scrambleInterval = setInterval(() => {
+            element.textContent = originalText
+              .split('')
+              .map((char, index) => {
+                if (char === ' ') return ' ';
+                if (index < iteration) return originalText[index];
+                return glyphPool[Math.floor(Math.random() * glyphPool.length)];
+              })
+              .join('');
+
+            if (iteration >= originalText.length) {
+              clearInterval(element._scrambleInterval);
+              element.textContent = originalText;
+            }
+            iteration += 1 / 1.5;
+          }, 30);
+        }
+
+        document.querySelectorAll('[data-scramble]').forEach(el => {
+          const text = el.getAttribute('data-scramble');
+          el.addEventListener('mouseenter', () => scrambleText(el, text));
+        });
+
+        // 5. Telemetry Ticker Rotator
+        let tickerIdx = 0;
+        const tickerEl = document.getElementById('header-ticker');
+        if (tickerEl) {
+          setInterval(() => {
+            tickerIdx = (tickerIdx + 1) % coordinatesList.length;
+            scrambleText(tickerEl, coordinatesList[tickerIdx]);
+          }, 4500);
+        }
+
+        /* ----------------------------------------------------------------------
+           G. Interactive Compare Slider in Scene 3 (Moon)
+           ---------------------------------------------------------------------- */
+        const compareSlider = document.getElementById('compare-slider');
+        const lunarPane = document.getElementById('lunar-pane');
+        const compareHandle = document.getElementById('compare-handle');
+
+        if (compareSlider && lunarPane && compareHandle) {
+          let isDragging = false;
+          const setSplit = clientX => {
+            const rect = compareSlider.getBoundingClientRect();
+            let pct = ((clientX - rect.left) / rect.width) * 100;
+            pct = Math.max(10, Math.min(90, pct));
+            lunarPane.style.width = `${pct}%`;
+            compareHandle.style.left = `${pct}%`;
+          };
+
+          compareSlider.addEventListener('mousedown', e => {
+            isDragging = true;
+            setSplit(e.clientX);
+          });
+          window.addEventListener('mousemove', e => {
+            if (isDragging) setSplit(e.clientX);
+          });
+          window.addEventListener('mouseup', () => { isDragging = false; });
+
+          compareSlider.addEventListener('touchstart', e => {
+            isDragging = true;
+            if (e.touches[0]) setSplit(e.touches[0].clientX);
+          }, { passive: true });
+          window.addEventListener('touchmove', e => {
+            if (isDragging && e.touches[0]) setSplit(e.touches[0].clientX);
+          }, { passive: true });
+          window.addEventListener('touchend', () => { isDragging = false; });
+        }
+
+        /* ----------------------------------------------------------------------
+           H. Mars Rover Readiness Gauge Observer
+           ---------------------------------------------------------------------- */
+        const marsGauges = document.querySelectorAll('.gauge-bar-circle');
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              marsGauges.forEach(circle => {
+                const pct = parseInt(circle.dataset.pct, 10);
+                const offset = 226 - (226 * pct) / 100;
+                circle.style.strokeDashoffset = offset;
+              });
+            }
+          });
+        }, { threshold: 0.3 });
+
+        const gaugesGrid = document.getElementById('mars-gauges');
+        if (gaugesGrid) observer.observe(gaugesGrid);
+
+        /* ----------------------------------------------------------------------
+           I. Supersonic Camera Dive Execution ("Fly to LAT/LNG")
+           ---------------------------------------------------------------------- */
+        function triggerDive(lat, lng) {
+          if (state.isDiving) return;
+          state.isDiving = true;
+          document.body.classList.add('is-diving');
+          state.diveTarget = { lat: parseFloat(lat) || 29.9792, lng: parseFloat(lng) || 31.1342 };
+          state.targetStarSpeed = 38.0;
+
+          let start = performance.now();
+          const duration = 3000;
+
+          function animateDive(now) {
+            const elapsed = now - start;
+            const progress = Math.min(1, elapsed / duration);
+
+            // Sine pulse dive zoom
+            state.diveProgress = Math.sin(progress * Math.PI);
+
+            if (progress < 1) {
+              requestAnimationFrame(animateDive);
+            } else {
+              state.isDiving = false;
+              document.body.classList.remove('is-diving');
+              state.diveProgress = 0;
+              state.targetStarSpeed = 0.5;
+            }
+          }
+          requestAnimationFrame(animateDive);
+        }
+
+        // Preset Chips
+        document.querySelectorAll('.chip-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const lat = btn.dataset.lat;
+            const lng = btn.dataset.lng;
+            document.getElementById('input-lat').value = lat;
+            document.getElementById('input-lng').value = lng;
+            if (btn.dataset.planet) setPlanetState(btn.dataset.planet);
+            triggerDive(lat, lng);
+          });
+        });
+
+        // Form Submit
+        const diveForm = document.getElementById('dive-form');
+        if (diveForm) {
+          diveForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const lat = document.getElementById('input-lat').value;
+            const lng = document.getElementById('input-lng').value;
+            triggerDive(lat, lng);
           });
         }
 
-        async function travel(targetPlanet,customZone){
-          const next=typeof targetPlanet==='string'&&states[targetPlanet]?targetPlanet:states[current].next.toLowerCase();
-          if(busy||!states[next]||(next===current&&next!=='earth'))return;
-          busy=true;targetX=targetY=0;
-          try{
-            if(next==='earth'){
-              const zone=customZone||(current==='earth'?pickNextEarthZone():activeEarthZone);
-              syncEarthTelemetry(zone);
+        // Action Buttons triggering dive
+        document.getElementById('cta-launch').addEventListener('click', () => {
+          const portalSec = document.getElementById('scene-portal');
+          if (portalSec) state.targetScroll = portalSec.offsetTop;
+          triggerDive(29.9792, 31.1342);
+        });
 
-              if(earthMap&&earthMapReady){
-                // Live 3D Google Earth Orbital-to-Surface Flight!
-                portalVideo.pause();
-                experience.classList.remove('is-loading','content-revealing','mask-revealing');
-                experience.classList.add('is-transitioning');
-                canvasOpacity=1;transitionActive=true;earthFlightActive=true;lunarFlightActive=false;
-                await Promise.all([
-                  animateValue(value=>expansion=value,950),
-                  runEarth3DFlight(zone)
-                ]);
-                sceneCtx.clearRect(0,0,innerWidth,innerHeight);
-                drawEarthEngineView(sceneCtx,performance.now());
-                frozenScene=true;earthEngineActive=true;current='earth';
-                experience.classList.add('is-committing');render();
-                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-                transitionActive=false;earthFlightActive=false;expansion=0;maskScale=0;canvasOpacity=1;
-                experience.classList.remove('is-transitioning','is-committing');
-                const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-                setTimeout(()=>{preloadNextTransition();busy=false;},400);
-                return;
-              }
-            }else if(current==='earth'){
-              earthEngineActive=false;
-              pickNextEarthZone();
+        document.getElementById('hero-dive-btn').addEventListener('click', () => {
+          const portalSec = document.getElementById('scene-portal');
+          if (portalSec) state.targetScroll = portalSec.offsetTop;
+        });
+
+        document.getElementById('bottom-dive-btn').addEventListener('click', () => {
+          triggerDive(state.diveTarget.lat, state.diveTarget.lng);
+        });
+
+        document.querySelectorAll('[data-dive-lat]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            triggerDive(btn.dataset.diveLat, btn.dataset.diveLng);
+          });
+        });
+
+        // Navigation click jumps
+        document.querySelectorAll('[data-target]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.preventDefault();
+            const target = btn.dataset.target;
+            const sceneEl = document.getElementById(`scene-${target}`);
+            if (sceneEl) {
+              state.targetScroll = sceneEl.offsetTop;
             }
+            setPlanetState(target);
+          });
+        });
 
-            const transitionSrc=states[next].arrival||states[current].portal;
-            const startTime=states[next].arrivalStart||0;
-            portalVideo.pause();
-            if(!transitionVideo.getAttribute('src')||!transitionVideo.src.endsWith(transitionSrc)){
-              transitionVideo.src=transitionSrc;transitionVideo.load();
-            }
-            experience.classList.add('is-loading');await waitForMedia(transitionVideo,1800);
-            experience.classList.remove('is-loading','content-revealing','mask-revealing');experience.classList.add('is-transitioning');transitionVideo.currentTime=startTime;transitionVideo.playbackRate=1.5;canvasOpacity=1;transitionActive=true;earthFlightActive=false;lunarFlightActive=false;
-            const playback=transitionVideo.play();if(playback)await playback;await animateValue(value=>expansion=value,1100);await waitForEnd(transitionVideo);
-            sceneCtx.clearRect(0,0,innerWidth,innerHeight);drawCover(sceneCtx,transitionVideo);frozenScene=true;current=next;
-            if(current==='mars'&&earthMapReady)parkEarthInOrbit(activeEarthZone);
-            experience.classList.add('is-committing');render();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-            transitionActive=false;expansion=0;maskScale=0;canvasOpacity=1;experience.classList.remove('is-transitioning','is-committing');const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-            setTimeout(()=>{preloadNextTransition();busy=false;},450);
-          }catch(error){
-            transitionActive=false;earthFlightActive=false;lunarFlightActive=false;expansion=0;maskScale=1;canvasOpacity=1;experience.classList.remove('is-loading','is-transitioning','is-committing');busy=false;
-          }
+        document.getElementById('hero-explore-btn').addEventListener('click', () => {
+          const earthSec = document.getElementById('scene-earth');
+          if (earthSec) state.targetScroll = earthSec.offsetTop;
+        });
+
+        /* ----------------------------------------------------------------------
+           J. Scroll Event Listeners (Wheel, Touch, Resize)
+           ---------------------------------------------------------------------- */
+        window.addEventListener('wheel', e => {
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          state.targetScroll = Math.max(0, Math.min(maxScroll, state.targetScroll + e.deltaY * 1.05));
+        }, { passive: true });
+
+        let touchStartY = 0;
+        window.addEventListener('touchstart', e => {
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        window.addEventListener('touchmove', e => {
+          const deltaY = touchStartY - e.touches[0].clientY;
+          touchStartY = e.touches[0].clientY;
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          state.targetScroll = Math.max(0, Math.min(maxScroll, state.targetScroll + deltaY * 1.5));
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+          resizeGlobe();
+          initStars();
+          updateNavGlider();
+        });
+
+        /* ----------------------------------------------------------------------
+           K. Entrance Choreography (0.00s - 1.75s)
+           ---------------------------------------------------------------------- */
+        function runEntranceTimeline() {
+          const shell = document.getElementById('shell');
+
+          // Starfield warp-in: start speed at 28.0 decelerating to 0.5
+          state.starSpeed = 28.0;
+          state.targetStarSpeed = 0.5;
+
+          // 0.25s: Eyebrow pill scales and rises
+          setTimeout(() => {
+            const pill = document.querySelector('.pill');
+            if (pill) pill.style.transform = 'translate3d(0,0,0) scale(1)';
+          }, 250);
+
+          // 0.35s & 0.49s: Two-line Hero Headline reveal
+          setTimeout(() => {
+            const lns = document.querySelectorAll('.hero-title .ln-i');
+            if (lns[0]) lns[0].style.transform = 'translate3d(0,0,0)';
+          }, 350);
+
+          setTimeout(() => {
+            const lns = document.querySelectorAll('.hero-title .ln-i');
+            if (lns[1]) lns[1].style.transform = 'translate3d(0,0,0)';
+          }, 490);
+
+          // 0.75s: 3D Procedural planet rises from bottom horizon
+          setTimeout(() => {
+            const stage = document.getElementById('planet-stage');
+            if (stage) stage.style.transform = 'scale(1) translate3d(0,0,0)';
+          }, 750);
+
+          // 0.90s: Sub-headline and CTAs animate in
+          setTimeout(() => {
+            shell.classList.remove('is-entering');
+            updateNavGlider();
+          }, 900);
         }
 
-        // Search Form & Quick Chips Handlers
-        searchForm.addEventListener('submit',async event=>{
-          event.preventDefault();
-          if(busy)return;
-          const q=searchInput.value.trim();
-          const zone=await resolveLocationQuery(q);
-          experience.classList.remove('is-loading');
-          loadingLabel.textContent='Preparing orbit…';
-          travel('earth',zone);
-        });
-        quickChipsWrap.addEventListener('click',event=>{
-          const chip=event.target.closest('.earth-chip');
-          if(!chip||busy)return;
-          const zone=earthZones.find(z=>z.id===chip.dataset.zoneId);
-          if(zone){
-            searchInput.value=zone.labelAr;
-            travel('earth',zone);
-          }
-        });
-
-        portal.addEventListener('click',()=>travel());
-        list.addEventListener('click',event=>{
-          const item=event.target.closest('.planet-item');
-          if(!item)return;
-          travel(item.dataset.planet);
-        });
-        list.addEventListener('keydown',event=>{
-          if(event.key!=='Enter'&&event.key!==' ')return;
-          const item=event.target.closest('.planet-item');
-          if(!item)return;
-          event.preventDefault();
-          travel(item.dataset.planet);
-        });
-        if(matchMedia('(pointer:fine)').matches){document.addEventListener('pointermove',event=>{if(!busy){targetY=(event.clientX/innerWidth-.5)*37.4;targetX=(event.clientY/innerHeight-.5)*-33;}});document.addEventListener('pointerleave',()=>{targetX=targetY=0;});}
-
-        const cursor=document.getElementById('custom-cursor');let pointerX=innerWidth/2,pointerY=innerHeight/2,orbitX=pointerX,orbitY=pointerY;
-        document.addEventListener('pointermove',event=>{pointerX=event.clientX;pointerY=event.clientY;cursor.classList.add('is-visible');});document.addEventListener('mouseleave',()=>cursor.classList.remove('is-visible'));
-        portal.addEventListener('pointerenter',()=>cursor.classList.add('is-enter'));portal.addEventListener('pointerleave',()=>cursor.classList.remove('is-enter'));
-        list.addEventListener('pointerover',event=>{const item=event.target.closest('.planet-item');cursor.classList.toggle('is-enter',Boolean(item&&item.dataset.planet!==current));});
-        list.addEventListener('pointerleave',()=>cursor.classList.remove('is-enter'));
-        function cursorLoop(){orbitX+=(pointerX-orbitX)*.2;orbitY+=(pointerY-orbitY)*.2;cursor.style.transform='translate3d('+orbitX+'px,'+orbitY+'px,0)';requestAnimationFrame(cursorLoop);}
-        function parkBackgroundAtEnd(video){
-          if(video.tagName!=='VIDEO')return;
-          const seekEnd=()=>{if(video.duration&&Number.isFinite(video.duration)){video.pause();try{video.currentTime=Math.max(0,video.duration-.08);}catch(_){}}};
-          if(video.readyState>=1)seekEnd();else video.addEventListener('loadedmetadata',seekEnd,{once:true});
-        }
-        function runPreloader(){
-          const video=document.getElementById('preloader-video'),value=document.getElementById('preloader-value'),counter=document.getElementById('preloader-count'),logo=document.getElementById('floating-logo'),preloader=document.getElementById('preloader');let finished=false,raf=0;
-          const update=()=>{if(video.duration&&Number.isFinite(video.duration))value.textContent=String(Math.round(video.currentTime/video.duration*100));raf=requestAnimationFrame(update);};
-          const finish=()=>{if(finished)return;finished=true;cancelAnimationFrame(raf);parkBackgroundAtEnd(video);value.textContent='100';counter.classList.add('is-leaving');logo.classList.add('is-docked');preloader.classList.add('is-background');document.body.classList.add('preload-complete');startExperience();setTimeout(()=>counter.remove(),750);setTimeout(()=>logo.classList.add('is-settled'),2000);};
-          if(new URLSearchParams(location.search).get('autostart')==='1'){
-            if(video.readyState>=1)finish();else video.addEventListener('loadeddata',finish,{once:true});
-            setTimeout(finish,1200);
-            return;
-          }
-          const begin=()=>{if(video.duration&&Number.isFinite(video.duration))video.playbackRate=Math.max(.25,video.duration/3);video.play().then(()=>{update();}).catch(finish);};
-          video.addEventListener('ended',finish,{once:true});setTimeout(finish,5000);if(video.readyState>=1)begin();else video.addEventListener('loadedmetadata',begin,{once:true});
-        }
-        window.addEventListener('resize',resizeCanvas);
-        document.querySelectorAll('.background').forEach(parkBackgroundAtEnd);
-        resizeCanvas();render();requestAnimationFrame(draw);requestAnimationFrame(cursorLoop);runPreloader();
+        /* ----------------------------------------------------------------------
+           L. Initialization
+           ---------------------------------------------------------------------- */
+        initStars();
+        initWebGL();
+        resizeGlobe();
+        updateNavGlider();
+        runEntranceTimeline();
+        requestAnimationFrame(renderLoop);
       })();
     </script>
   </body>
