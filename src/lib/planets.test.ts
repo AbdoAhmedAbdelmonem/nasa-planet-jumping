@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  EARTH_LANDING_ZONES,
   MARS_ORBIT,
   MOON_ORBIT,
   MOON_SURFACE,
+  pickRandomEarthLandingZone,
   PLANETS,
   PLANET_STATES,
   resolveNextPlanet,
@@ -37,4 +39,11 @@ test("direct selection from left planet list resolves target planet and Moon vid
   assert.equal(PLANET_STATES.moon.arrival, TO_MOON);
   assert.equal(PLANET_STATES.moon.facts.length, 4);
   assert.equal(PLANET_STATES.moon.name.toUpperCase(), "MOON");
+});
+
+test("Earth landing zones cover multiple distinct geographic regions and never repeat consecutively", () => {
+  assert.ok(EARTH_LANDING_ZONES.length >= 4);
+  const first = pickRandomEarthLandingZone(null, () => 0);
+  const second = pickRandomEarthLandingZone(first.id, () => 0);
+  assert.notEqual(first.id, second.id);
 });
