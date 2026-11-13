@@ -1,847 +1,1843 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Planet Jumping — Mars Portal</title>
-    <meta name="description" content="An immersive cinematic journey from Mars through the inner Solar System." />
-    <meta property="og:title" content="Planet Jumping — Mars Portal" />
-    <meta property="og:description" content="An immersive cinematic journey from Mars through the inner Solar System." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/png" href="/assets/images/deimos_logo.png" />
-    <link rel="shortcut icon" href="/assets/images/deimos_logo.png" />
-    <link rel="apple-touch-icon" href="/assets/images/deimos_logo.png" />
-    <link rel="stylesheet" href="/assets/vendor/maplibre-gl.css" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css" />
-    <style>
-      @font-face{font-family:'SF Pro';font-style:normal;font-weight:400;src:local('SF Pro Display'),local('SF Pro Text')}
-      @font-face{font-family:'SF Pro';font-style:normal;font-weight:700;src:local('SF Pro Display Bold'),local('SF Pro Text Bold')}
-      @font-face{font-family:'SF Pro Thin';font-style:normal;font-weight:100;src:local('SF Pro Display Thin'),local('SF Pro Text Thin')}
-      @font-face{font-family:'Aalto';font-style:normal;font-weight:400;src:local('Aalto Display'),local('Aalto')}
-      :root{font-family:'SF Pro',Arial,sans-serif;color:#fff;background:#090807;font-synthesis:none}
-      *{box-sizing:border-box}
-      html,body{margin:0;width:100%;height:100%;overflow:hidden}
-      html,body,button,a,.portal{cursor:none!important}
-      button,a,input{font:inherit}
-      .experience{position:relative;width:100%;height:100%;min-height:540px;overflow:hidden;background:#0a0908}
-      .backgrounds,.background,.shade,.transition-layer,.transition-layer video{position:absolute;inset:0;width:100%;height:100%}
-      .background{object-fit:cover;opacity:0;transition:opacity .8s ease}
-      .background.is-visible{opacity:1}
-      .shade{z-index:1;background:linear-gradient(to bottom,transparent 52%,rgba(0,0,0,.88) 100%);pointer-events:none}
-      .chrome{position:absolute;z-index:4;transition:opacity .45s ease,filter .45s ease}
-      .experience.is-transitioning .chrome{opacity:0;filter:blur(8px);pointer-events:none}
-      .header{left:clamp(18px,1.95vw,28px);right:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-      .logo-slot{width:37px;height:36px;flex-shrink:0}
-      .earth-search-dock{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:min(560px,50vw);width:100%;margin:0 auto}
-      .earth-search-form{display:flex;align-items:center;width:100%;height:40px;padding:3px 4px 3px 14px;border:1px solid rgba(255,255,255,.38);background:rgba(8,11,18,.58);backdrop-filter:blur(14px);border-radius:999px;gap:8px;transition:border-color .2s,background .2s}
-      .earth-search-form:focus-within{border-color:rgba(255,255,255,.85);background:rgba(8,11,18,.78)}
-      .earth-search-input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:13.5px;direction:rtl;text-align:right;cursor:text!important}
-      .earth-search-input::placeholder{color:rgba(255,255,255,.62)}
-      .earth-search-btn{height:32px;padding:0 15px;border:0;border-radius:999px;background:#fff;color:#000;font-size:12.5px;font-weight:700;white-space:nowrap;transition:transform .15s,background .2s}
-      .earth-search-btn:hover{background:#dcebff;transform:scale(1.03)}
-      .earth-quick-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
-      .earth-chip{height:24px;padding:0 10px;border:1px solid rgba(255,255,255,.26);border-radius:999px;background:rgba(12,16,24,.52);backdrop-filter:blur(8px);color:rgba(255,255,255,.86);font-size:11.5px;line-height:22px;white-space:nowrap;transition:all .18s}
-      .earth-chip:hover,.earth-chip.active{background:#fff;color:#000;border-color:#fff}
-      .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-      .nav{display:flex;align-items:center;height:42px;padding:4px 5px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:999px}
-      .nav a{color:#fff;text-decoration:none;padding:8px 19px;border-radius:999px;line-height:1}
-      .nav a.active{background:#fff;color:#000}
-      .menu{height:42px;padding:0 20px;border:0;border-radius:999px;background:#fff;color:#000;cursor:pointer}
-      .planet-list{left:clamp(18px,1.95vw,28px);top:50%;transform:translateY(-43%);display:flex;flex-direction:column;gap:6px;font-size:16px}
-      .planet-item{display:flex;align-items:center;min-height:20px}
-      .planet-item.active{font-size:18px;font-weight:700;gap:8px}
-      .planet-item.active:before{content:'';width:16px;height:16px;border-radius:50%;background:#fff}
-      .portal-wrap{left:50%;top:50%;width:min(320px,31vw);transform:translate(-50%,-54%);perspective:none}
-      .portal-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:16px;opacity:0}
-      .portal-heading strong{font-size:18px;margin-left:8px}
-      .portal{position:relative;display:block;width:100%;aspect-ratio:320/350;padding:0;overflow:visible;border:0;border-radius:90px;background:transparent;cursor:pointer;box-shadow:none;transform:none!important}
-      .portal video,.portal img{opacity:0;position:absolute;width:1px;height:1px;pointer-events:none}
-      .portal-canvas{position:fixed;inset:0;z-index:3;width:100%;height:100%;pointer-events:none}
-      .earth-globe-stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;opacity:.001;pointer-events:none}
-      .planet-content{left:clamp(28px,4vw,58px);right:clamp(28px,3vw,44px);bottom:clamp(24px,3vh,30px);display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
-      .planet-content h1{font-family:Aalto,'Arial Narrow',sans-serif;font-stretch:condensed;font-size:clamp(128px,21.8vw,314px);font-weight:400;line-height:.72;margin:0 0 -.04em;letter-spacing:0;transform:translateX(-32px);opacity:0}
-      .planet-content dl{width:min(447px,34vw);margin:0;font-size:16px}
-      .fact{display:grid;grid-template-columns:138px 1fr;gap:18px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.48);opacity:0}
-      .fact:last-child{border-bottom:0}.fact dt{font-weight:700}.fact dd{margin:0}
-      .transition-layer{opacity:0;pointer-events:none;width:1px;height:1px;overflow:hidden}.scene-canvas{display:none}
-      .loading{position:absolute;z-index:12;left:50%;bottom:30px;transform:translateX(-50%);opacity:0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:opacity .2s}
-      .experience.is-loading .loading{opacity:.8}
-      .experience.is-transitioning .header,.experience.is-transitioning .planet-list{opacity:1;filter:none;pointer-events:auto}
-      .experience.is-transitioning .earth-search-dock{opacity:0;pointer-events:none;transition:opacity .25s}
-      .experience.is-transitioning .shade{opacity:1}
-      .experience.is-committing .background{transition:none!important}
-      .preloader{position:absolute;inset:0;z-index:20;background:#000;overflow:hidden}
-      .preloader video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-      .preloader-shade{position:absolute;inset:auto 0 0;height:35%;background:linear-gradient(to bottom,transparent,#000)}
-      .preloader.is-background{z-index:0}.preloader.is-background .preloader-shade{opacity:0}
-      .floating-logo{position:fixed;z-index:22;left:50%;top:50%;width:59px;height:58px;transform:translate(-50%,-50%);will-change:left,top,width,height,transform;transition:left 2s cubic-bezier(.16,1,.3,1),top 2s cubic-bezier(.16,1,.3,1),width 2s cubic-bezier(.16,1,.3,1),height 2s cubic-bezier(.16,1,.3,1),transform 2s cubic-bezier(.16,1,.3,1)}
-      .floating-logo.is-docked{left:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);width:37px;height:36px;transform:none}
-      .floating-logo.is-settled{z-index:5}
-      .preloader-count{position:fixed;z-index:22;left:50%;bottom:clamp(22px,3.1vh,28px);display:flex;align-items:flex-end;gap:4px;transform:translateX(-50%);font-family:'SF Pro',Arial,sans-serif;line-height:1}
-      .preloader-count>span:first-child{font-family:'SF Pro Thin','SF Pro',Arial,sans-serif;font-size:64px;font-weight:100}
-      .preloader-count .percent{font-size:24px;padding-bottom:4px}
-      .preloader-count.is-leaving{animation:preload-count-out .75s cubic-bezier(.22,1,.36,1) both}
-      @keyframes preload-count-out{to{opacity:0;filter:blur(7px);transform:translate(-50%,-34px)}}
-      body:not(.preload-complete) .custom-cursor{opacity:0!important}
-      .custom-cursor{display:block;position:fixed;left:0;top:0;z-index:100;width:1px;height:1px;pointer-events:none;opacity:0;transition:opacity .2s ease}
-      .custom-cursor.is-visible{opacity:1}
-      .cursor-dot,.cursor-orbit{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%)}
-      .cursor-dot{width:12px;height:12px;background:#fff}
-      .cursor-orbit{width:36px;height:36px;border:1px solid #fff;background:rgba(255,255,255,.4);transition:transform .3s cubic-bezier(.22,1,.36,1)}
-      .custom-cursor.is-enter .cursor-orbit{transform:translate(-50%,-50%) scale(1.16)}
-      .cursor-label{position:absolute;top:26px;left:0;transform:translateX(-50%) translateY(-4px);font:16px/1.2 'SF Pro',Arial,sans-serif;white-space:nowrap;opacity:0;transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1)}
-      .custom-cursor.is-enter .cursor-label{opacity:1;transform:translateX(-50%) translateY(0)}
-      body:not(.intro-ready) .header,body:not(.intro-ready) .planet-list,body:not(.intro-ready) .planet-content h1,body:not(.intro-ready) .planet-content .fact{opacity:0}
-      .intro-ready .header{animation:reveal-down .9s cubic-bezier(.22,1,.36,1) .1s both}
-      .intro-ready .planet-list{animation:reveal-side .9s cubic-bezier(.22,1,.36,1) .65s both}
-      .content-revealing h1{animation:title-rise 1.05s cubic-bezier(.16,1,.3,1) both}
-      .content-revealing .fact{animation:fact-rise .72s cubic-bezier(.22,1,.36,1) both}
-      .content-revealing .fact:nth-child(1){animation-delay:.52s}.content-revealing .fact:nth-child(2){animation-delay:.68s}.content-revealing .fact:nth-child(3){animation-delay:.84s}.content-revealing .fact:nth-child(4){animation-delay:1s}
-      .mask-revealing .portal-heading{animation:portal-caption .85s cubic-bezier(.22,1,.36,1) both}
-      .planet-list.is-switching .planet-item{animation:menu-row .58s cubic-bezier(.22,1,.36,1) both}
-      .planet-list.is-switching .planet-item:nth-child(1){animation-delay:.02s}.planet-list.is-switching .planet-item:nth-child(2){animation-delay:.05s}.planet-list.is-switching .planet-item:nth-child(3){animation-delay:.08s}
-      .planet-list.is-switching .planet-item.active:before{animation:active-dot .55s cubic-bezier(.22,1,.36,1) .18s both}
-      @keyframes reveal-down{from{opacity:0;filter:blur(8px);transform:translateY(-18px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes reveal-side{from{opacity:0;filter:blur(8px);transform:translate(-20px,-43%)}to{opacity:1;filter:blur(0);transform:translate(0,-43%)}}
-      @keyframes title-rise{from{opacity:0;filter:blur(12px);transform:translate(-32px,42px)}to{opacity:1;filter:blur(0);transform:translate(-32px,0)}}
-      @keyframes fact-rise{from{opacity:0;filter:blur(7px);transform:translateY(18px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes portal-caption{from{opacity:0;filter:blur(7px);transform:translateY(22px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-      @keyframes menu-row{from{opacity:.35;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-      @keyframes active-dot{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
-      @media(max-width:900px){.nav{display:none}.earth-search-dock{max-width:64vw}.portal-wrap{width:min(300px,48vw)}.planet-content h1{font-size:clamp(105px,24vw,190px)}.planet-content dl{width:43vw}.fact{grid-template-columns:110px 1fr}.planet-list{font-size:14px}.planet-item.active{font-size:16px}}
-      @media(max-width:640px){.experience{min-height:600px}.planet-list{display:none}.earth-quick-chips{display:none}.portal-wrap{top:44%;width:min(260px,66vw)}.planet-content{left:18px;right:18px;bottom:18px;display:block}.planet-content h1{font-size:clamp(98px,30vw,160px);margin-bottom:20px}.planet-content dl{width:100%;font-size:13px}.fact{grid-template-columns:92px 1fr;padding:5px 0}.portal-heading{font-size:14px}.portal-heading strong{font-size:16px}.menu{height:38px}.portal{border-radius:70px}}
-      @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}.portal{transform:none!important}}
-    </style>
-  </head>
-  <body>
-    <main id="experience" class="experience" data-planet="mars">
-      <div id="earth-globe-stage" class="earth-globe-stage" aria-hidden="true"></div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Deimos — Earth’s Closest Environmental Matches to the Moon and Mars</title>
+  <meta name="description" content="Finding Earth’s closest environmental matches to selected locations on the Moon and Mars.">
+  <meta property="og:title" content="Deimos — Earth’s Closest Environmental Matches to the Moon and Mars">
+  <meta property="og:description" content="Finding Earth’s closest environmental matches to selected locations on the Moon and Mars.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="/assets/images/deimos_logo.png">
+  <link rel="shortcut icon" href="/assets/images/deimos_logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/deimos_logo.png">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:wght@400;500;600&display=block">
+
+  <!-- MapLibre GL Styles -->
+  <link rel="stylesheet" href="/assets/vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css">
+
+  <script>
+    (function(){
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var d = document.documentElement;
+      d.classList.add('intro');
+      setTimeout(function(){
+        d.classList.remove('intro', 'intro-play');
+      }, 5000);
+    })();
+  </script>
+
+  <style>
+    :root{
+      --u: max( min(calc(100vw / 1563), calc(100vh / 460)), 0.80px );
+      --ink:#ffffff; --ink-mark:rgba(255,255,255,.98); --ink-nav:rgba(255,255,255,.91);
+      --ink-sub:rgba(255,255,255,.50); --ink-pill:rgba(255,255,255,.88); --ink-dark:#000000;
+      --hairline:rgba(255,255,255,.98); --glass-bg:rgba(255,255,255,.12); --glass-line:rgba(255,255,255,.15);
+      --accent:#9b8cff; --accent-soft:#b8abff;
+      --r-btn: calc(10 * var(--u));
+    }
+    @supports (height:100dvh){ :root{ --u: max( min(calc(100vw / 1563), calc(100dvh / 460)), 0.80px ); } }
+    @supports not (width: max(1px,1vw)){ :root{ --u: calc(100vw / 1563); } }
+
+    *,*::before,*::after{box-sizing:border-box}
+    html{
+      height:100%;
+      scroll-behavior:smooth;
+      background:#000;
+    }
+    body{
+      min-height:100%;
+      margin:0;
+      background:#000;
+      color:#fff;
+      overflow-x:hidden;
+      overflow-y:auto;
+      font-family:"InterVar","Inter","Helvetica Neue",Arial,system-ui,sans-serif;
+      font-optical-sizing:none;
+      font-feature-settings:"kern" 1,"calt" 1;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:geometricPrecision;
+    }
+
+    a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible{
+      outline:2px solid #9b8cff;
+      outline-offset:3px;
+      border-radius:4px;
+    }
+    .sr{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .mono{
+      font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      font-variant-numeric:tabular-nums;
+    }
+
+    /* HERO FRAME */
+    .frame{
+      position:relative;
+      width:100%;
+      height:max(100vh, calc(1006 * var(--u)));
+      overflow:hidden;
+      background:#000;
+      isolation:isolate;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+
+    .sky{
+      position:absolute;
+      top:calc(-1.5 * var(--u));
+      left:50%;
+      transform:translateX(-50%);
+      width:100%;
+      height:auto;
+      min-height:calc(100% + 1.5 * var(--u));
+      object-fit:cover;
+      object-position:center top;
+      z-index:0;
+      pointer-events:none;
+      user-select:none;
+    }
+
+    .veil{
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.06);
+      z-index:1;
+      pointer-events:none;
+    }
+
+    .bar{
+      position:absolute;
+      left:calc(50% - 495.5 * var(--u));
+      top:calc(7.5 * var(--u));
+      width:calc(983.5 * var(--u));
+      height:calc(36.2 * var(--u));
+      z-index:10;
+    }
+
+    .brand{
+      position:absolute;
+      left:0;
+      top:50%;
+      transform:translateY(-50%);
+      display:flex;
+      align-items:center;
+      gap:calc(11.4 * var(--u));
+      color:var(--ink-mark);
+      text-decoration:none;
+      font-size:calc(17.5 * var(--u));
+      font-weight:550;
+      font-variation-settings:'opsz' 22;
+      letter-spacing:0;
+      line-height:1;
+    }
+    .brand img{
+      width:calc(30 * var(--u));
+      height:calc(30 * var(--u));
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+      flex-shrink:0;
+      filter:drop-shadow(0 0 10px rgba(155,140,255,.6));
+    }
+    .brand svg{
+      width:calc(26.9 * var(--u));
+      height:calc(16.6 * var(--u));
+      overflow:visible;
+      fill:none;
+      display:block;
+      flex-shrink:0;
+    }
+
+    .links{
+      position:absolute;
+      left:calc(320 * var(--u));
+      top:50%;
+      transform:translateY(-50%);
+      display:flex;
+      align-items:center;
+      gap:calc(22 * var(--u));
+    }
+    .links a{
+      font-size:calc(11.9 * var(--u));
+      font-weight:450;
+      font-variation-settings:'opsz' 15;
+      letter-spacing:calc(-0.30 * var(--u));
+      color:var(--ink-nav);
+      white-space:nowrap;
+      text-decoration:none;
+      transition:color .18s ease;
+    }
+    .links a:hover{
+      color:#ffffff;
+    }
+
+    .actions{
+      position:absolute;
+      right:0;
+      top:0;
+      display:flex;
+      align-items:center;
+      gap:calc(7.8 * var(--u));
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:calc(10 * var(--u));
+      text-decoration:none;
+      white-space:nowrap;
+      line-height:1;
+      border:0;
+      cursor:pointer;
+      font-family:inherit;
+      transition:background-color .18s ease, color .18s ease, border-color .18s ease, transform .15s ease;
+    }
+    .btn:hover{
+      transform:scale(1.02);
+    }
+    .ghost{
+      background:transparent;
+      color:#ffffff;
+      border:calc(1 * var(--u)) solid rgba(255,255,255,.98);
+    }
+    .ghost:hover{
+      background:rgba(255,255,255,.10);
+    }
+    .solid{
+      background:#ffffff;
+      color:#000000;
+    }
+    .solid:hover{
+      background:#e9e9ea;
+    }
+
+    .bar .btn{
+      height:calc(36.2 * var(--u));
+      line-height:calc(36.2 * var(--u));
+      font-size:calc(11.9 * var(--u));
+      font-weight:500;
+      font-variation-settings:'opsz' 15;
+      letter-spacing:calc(-0.38 * var(--u));
+      padding:0 calc(14 * var(--u));
+    }
+    .bar .ghost{
+      min-width:calc(85.5 * var(--u));
+    }
+    .bar .solid{
+      min-width:calc(88.2 * var(--u));
+      font-size:calc(12.15 * var(--u));
+      font-weight:550;
+      letter-spacing:calc(-0.35 * var(--u));
+    }
+
+    .menu{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      width:calc(36.2 * var(--u));
+      height:calc(36.2 * var(--u));
+      border-radius:calc(10 * var(--u));
+      border:calc(1 * var(--u)) solid rgba(255,255,255,.35);
+      background:transparent;
+      color:#ffffff;
+      cursor:pointer;
+      padding:0;
+      font-family:inherit;
+      transition:background-color .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .menu svg{
+      width:55%;
+      height:55%;
+      display:block;
+    }
+    .menu:hover{
+      background:rgba(255,255,255,.10);
+    }
+
+    .sheet{
+      display:none;
+      position:absolute;
+      top:calc(100% + 9 * var(--u));
+      right:0;
+      min-width:calc(230 * var(--u));
+      padding:calc(12 * var(--u));
+      border-radius:calc(14 * var(--u));
+      background:rgba(18,18,20,.94);
+      border:calc(1 * var(--u)) solid rgba(255,255,255,.15);
+      -webkit-backdrop-filter:blur(calc(18 * var(--u))) saturate(140%);
+      backdrop-filter:blur(calc(18 * var(--u))) saturate(140%);
+      box-shadow:0 calc(18 * var(--u)) calc(44 * var(--u)) rgba(0,0,0,.55);
+      z-index:99;
+    }
+    .bar[data-open="true"] .sheet{
+      display:block;
+    }
+    .sheet a{
+      display:block;
+      padding:calc(9 * var(--u)) calc(10 * var(--u));
+      border-radius:calc(9 * var(--u));
+      color:var(--ink-nav);
+      font-size:calc(14 * var(--u));
+      font-weight:450;
+      font-variation-settings:'opsz' 15;
+      letter-spacing:calc(-0.30 * var(--u));
+      text-decoration:none;
+      transition:background-color .18s ease, color .18s ease;
+    }
+    .sheet a:hover{
+      background:rgba(255,255,255,.08);
+      color:#ffffff;
+    }
+    .sheet .solid{
+      display:flex;
+      width:100%;
+      height:calc(38 * var(--u));
+      line-height:calc(38 * var(--u));
+      padding:0;
+      border-radius:calc(10 * var(--u));
+      margin-top:calc(8 * var(--u));
+      font-size:calc(14 * var(--u));
+      font-weight:500;
+      font-variation-settings:'opsz' 15;
+      letter-spacing:calc(-0.30 * var(--u));
+      color:#000000;
+      background:#ffffff;
+    }
+    .sheet .solid:hover{
+      background:#e9e9ea;
+      color:#000000;
+    }
+
+    .screen{
+      position:absolute;
+      top:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:calc(1563 * var(--u));
+      height:calc(1006 * var(--u));
+      z-index:2;
+    }
+
+    .hero{
+      position:absolute;
+      left:calc(0.9 * var(--u));
+      right:calc(-0.9 * var(--u));
+      top:0;
+      text-align:center;
+    }
+
+    .pill{
+      position:absolute;
+      top:calc(129.6 * var(--u));
+      left:50%;
+      transform:translateX(-50%);
+      display:inline-flex;
+      align-items:center;
+      gap:calc(6 * var(--u));
+      height:calc(22.4 * var(--u));
+      padding-left:calc(4.0 * var(--u));
+      padding-right:calc(8.6 * var(--u));
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:calc(1 * var(--u)) solid rgba(255,255,255,.15);
+      -webkit-backdrop-filter:blur(calc(10 * var(--u)));
+      backdrop-filter:blur(calc(10 * var(--u)));
+      white-space:nowrap;
+      text-decoration:none;
+      transition:background-color .18s ease;
+    }
+    .pill:hover{
+      background:rgba(255,255,255,.17);
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 calc(8 * var(--u));
+      height:calc(14 * var(--u));
+      border-radius:999px;
+      background:#ffffff;
+      color:#000000;
+      font-size:calc(10.2 * var(--u));
+      font-weight:600;
+      font-variation-settings:'opsz' 14;
+      padding-top:calc(1.7 * var(--u));
+      letter-spacing:calc(-0.1 * var(--u));
+      line-height:1;
+    }
+    .pill-label{
+      position:relative;
+      top:calc(1 * var(--u));
+      color:rgba(255,255,255,.88);
+      font-size:calc(12.4 * var(--u));
+      font-weight:450;
+      font-variation-settings:'opsz' 15;
+      letter-spacing:calc(-0.48 * var(--u));
+      height:calc(22.4 * var(--u));
+      line-height:calc(22.4 * var(--u));
+    }
+    .pill svg{
+      width:calc(9.5 * var(--u));
+      height:calc(8 * var(--u));
+      margin-left:auto;
+      color:rgba(255,255,255,.95);
+      display:block;
+      flex-shrink:0;
+    }
+
+    .hero h1{
+      position:absolute;
+      left:calc(0.6 * var(--u));
+      right:calc(-0.6 * var(--u));
+      top:calc(168.5 * var(--u));
+      margin:0;
+      font-size:calc(55 * var(--u));
+      font-weight:545;
+      font-variation-settings:'opsz' 32;
+      line-height:calc(56 * var(--u));
+      letter-spacing:calc(-0.76 * var(--u));
+      color:#ffffff;
+    }
+    .hero h1 .accent-word{
+      color:#ffffff;
+    }
+    .ln{
+      display:block;
+      overflow:hidden;
+      padding-bottom:calc(7 * var(--u));
+      margin-bottom:calc(-7 * var(--u));
+    }
+    .ln-i{
+      display:block;
+    }
+
+    .hero p{
+      position:absolute;
+      left:50%;
+      transform:translateX(calc(-50% + 0.25 * var(--u)));
+      top:calc(292.6 * var(--u));
+      margin:0;
+      width:calc(700 * var(--u));
+      font-size:calc(15.7 * var(--u));
+      font-weight:400;
+      font-variation-settings:'opsz' 20;
+      line-height:calc(24 * var(--u));
+      letter-spacing:calc(-0.05 * var(--u));
+      color:rgba(255,255,255,.50);
+    }
+
+    .cta{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      top:calc(342.8 * var(--u));
+      display:flex;
+      align-items:center;
+      gap:calc(9.9 * var(--u));
+    }
+    .cta .btn{
+      height:calc(36.4 * var(--u));
+      line-height:calc(36.4 * var(--u));
+      padding-top:calc(2 * var(--u));
+      font-size:calc(13.3 * var(--u));
+      font-weight:480;
+      font-variation-settings:'opsz' 16;
+      letter-spacing:calc(-0.34 * var(--u));
+      padding-left:calc(16 * var(--u));
+      padding-right:calc(16 * var(--u));
+    }
+    .cta .ghost{
+      min-width:calc(99.6 * var(--u));
+    }
+    .cta .solid{
+      min-width:calc(96.4 * var(--u));
+    }
+
+    /* HERO TELEMETRY STRIP AT BOTTOM OF HERO */
+    .hero-hud{
+      position:absolute;
+      bottom:calc(26 * var(--u));
+      left:50%;
+      transform:translateX(-50%);
+      z-index:4;
+      width:min(92vw, calc(1140 * var(--u)));
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:calc(12 * var(--u));
+      padding:calc(14 * var(--u)) calc(18 * var(--u));
+      border-radius:calc(14 * var(--u));
+      background:rgba(12,10,18,.72);
+      border:1px solid rgba(255,255,255,.15);
+      -webkit-backdrop-filter:blur(16px);
+      backdrop-filter:blur(16px);
+    }
+    .hud-cell{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding-right:calc(12 * var(--u));
+      border-right:1px solid rgba(255,255,255,.08);
+    }
+    .hud-cell:last-child{
+      border-right:0;
+      padding-right:0;
+    }
+    .hud-label{
+      font-size:11px;
+      color:rgba(255,255,255,.52);
+      letter-spacing:0.04em;
+    }
+    .hud-val{
+      font-size:18px;
+      font-weight:600;
+      color:#fff;
+    }
+    .hud-val span{
+      color:var(--accent-soft);
+      font-size:12px;
+      margin-left:6px;
+    }
+
+    /* ==========================================================================
+       SECTION 2: INTERACTIVE 3D PLANETARY JUMPING STAGE (#experience)
+       ========================================================================== */
+    .experience-section{
+      position:relative;
+      width:100%;
+      min-height:100vh;
+      background:#0a0908;
+      border-top:1px solid rgba(255,255,255,.15);
+      border-bottom:1px solid rgba(255,255,255,.15);
+      overflow:hidden;
+    }
+
+    .experience{
+      position:relative;
+      width:100%;
+      height:100vh;
+      min-height:640px;
+      overflow:hidden;
+      background:#0a0908;
+    }
+
+    .backgrounds,.background,.shade,.transition-layer,.transition-layer video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+    }
+    .background{
+      object-fit:cover;
+      opacity:0;
+      transition:opacity .8s ease;
+    }
+    .background.is-visible{
+      opacity:1;
+    }
+
+    .earth-map-container{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .8s ease;
+      overflow:hidden;
+      background:#020202;
+    }
+    .earth-map-container.is-active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .earth-map-container .maplibregl-canvas{
+      width:100%!important;
+      height:100%!important;
+    }
+
+    .shade{
+      z-index:1;
+      background:linear-gradient(to bottom, transparent 52%, rgba(0,0,0,.88) 100%);
+      pointer-events:none;
+    }
+
+    .chrome{
+      position:absolute;
+      z-index:4;
+      transition:opacity .45s ease, filter .45s ease;
+    }
+    .experience.is-transitioning .chrome{
+      opacity:0;
+      filter:blur(8px);
+      pointer-events:none;
+    }
+
+    .experience-header{
+      left:clamp(18px,1.95vw,28px);
+      right:clamp(18px,1.95vw,28px);
+      top:clamp(18px,3.1vh,28px);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+    }
+
+    .exp-logo-slot{
+      width:clamp(46px, 4.2vw, 64px);
+      height:clamp(46px, 4.2vw, 64px);
+      flex-shrink:0;
+    }
+    .exp-logo-img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      filter:drop-shadow(0 0 12px rgba(155,140,255,.5));
+    }
+
+    .earth-search-dock{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      max-width:min(560px, 50vw);
+      width:100%;
+      margin:0 auto;
+    }
+    .earth-search-form{
+      display:flex;
+      align-items:center;
+      width:100%;
+      height:40px;
+      padding:3px 4px 3px 14px;
+      border:1px solid rgba(255,255,255,.38);
+      background:rgba(8,11,18,.58);
+      backdrop-filter:blur(14px);
+      border-radius:999px;
+      gap:8px;
+      transition:border-color .2s, background .2s;
+    }
+    .earth-search-form:focus-within{
+      border-color:rgba(255,255,255,.85);
+      background:rgba(8,11,18,.78);
+    }
+    .earth-search-input{
+      flex:1;
+      min-width:0;
+      border:0;
+      outline:0;
+      background:transparent;
+      color:#fff;
+      font-size:13.5px;
+      direction:rtl;
+      text-align:right;
+      cursor:text!important;
+    }
+    .earth-search-input::placeholder{
+      color:rgba(255,255,255,.62);
+    }
+    .earth-search-btn{
+      height:32px;
+      padding:0 15px;
+      border:0;
+      border-radius:999px;
+      background:#fff;
+      color:#000;
+      font-size:12.5px;
+      font-weight:700;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:transform .15s, background .2s;
+    }
+    .earth-search-btn:hover{
+      background:#dcebff;
+      transform:scale(1.03);
+    }
+
+    .earth-quick-chips{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:5px;
+    }
+    .earth-chip{
+      height:24px;
+      padding:0 10px;
+      border:1px solid rgba(255,255,255,.26);
+      border-radius:999px;
+      background:rgba(12,16,24,.52);
+      backdrop-filter:blur(8px);
+      color:rgba(255,255,255,.86);
+      font-size:11.5px;
+      line-height:22px;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:all .18s;
+    }
+    .earth-chip:hover, .earth-chip.active{
+      background:#fff;
+      color:#000;
+      border-color:#fff;
+    }
+
+    .exp-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+    }
+    .exp-nav{
+      display:flex;
+      align-items:center;
+      height:42px;
+      padding:4px 5px;
+      border:1px solid rgba(255,255,255,.45);
+      background:rgba(255,255,255,.1);
+      backdrop-filter:blur(12px);
+      border-radius:999px;
+    }
+    .exp-nav a{
+      color:#fff;
+      text-decoration:none;
+      padding:8px 19px;
+      border-radius:999px;
+      line-height:1;
+      font-size:14px;
+      transition:background .2s, color .2s;
+    }
+    .exp-nav a.active{
+      background:#fff;
+      color:#000;
+    }
+
+    .planet-list{
+      left:clamp(18px,1.95vw,28px);
+      top:50%;
+      transform:translateY(-43%);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:16px;
+    }
+    .planet-item{
+      display:flex;
+      align-items:center;
+      min-height:20px;
+      color:rgba(255,255,255,.6);
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .planet-item:hover{
+      color:#fff;
+    }
+    .planet-item.active{
+      font-size:18px;
+      font-weight:700;
+      gap:8px;
+      color:#fff;
+    }
+    .planet-item.active::before{
+      content:'';
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 0 10px #fff;
+    }
+
+    .portal{
+      right:clamp(22px,4vw,66px);
+      top:50%;
+      transform:translateY(-50%);
+      width:clamp(112px,11.2vw,160px);
+      height:clamp(112px,11.2vw,160px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      cursor:pointer;
+    }
+    .portal-ring{
+      position:absolute;
+      inset:0;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.4);
+      background:rgba(255,255,255,.05);
+      backdrop-filter:blur(10px);
+      box-shadow:0 0 35px rgba(255,255,255,.15);
+      transition:all .3s ease;
+    }
+    .portal:hover .portal-ring{
+      border-color:rgba(255,255,255,.9);
+      box-shadow:0 0 45px rgba(255,255,255,.35);
+      transform:scale(1.06);
+    }
+    .portal-inner{
+      position:relative;
+      z-index:1;
+      width:84%;
+      height:84%;
+      border-radius:50%;
+      overflow:hidden;
+      box-shadow:inset 0 0 20px rgba(0,0,0,.8);
+    }
+    .portal-inner video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .telemetry-hud{
+      position:absolute;
+      left:clamp(18px,1.95vw,28px);
+      bottom:clamp(20px,3.4vh,36px);
+      display:flex;
+      align-items:flex-end;
+      gap:clamp(16px,2vw,36px);
+      font-family:'JetBrains Mono',ui-monospace,monospace;
+      font-size:12px;
+      letter-spacing:.04em;
+      pointer-events:none;
+    }
+    .hud-item{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .hud-k{
+      font-size:10px;
+      color:rgba(255,255,255,.5);
+      text-transform:uppercase;
+    }
+    .hud-v{
+      font-size:14px;
+      font-weight:600;
+      color:#fff;
+    }
+
+    .custom-cursor{
+      position:fixed;
+      pointer-events:none;
+      z-index:9999;
+      transform:translate3d(-100px,-100px,0);
+      mix-blend-mode:difference;
+      transition:width .2s, height .2s, border-color .2s;
+    }
+    .cursor-orbit{
+      position:absolute;
+      width:34px;
+      height:34px;
+      left:-17px;
+      top:-17px;
+      border:1.5px solid rgba(255,255,255,.8);
+      border-radius:50%;
+    }
+    .cursor-dot{
+      position:absolute;
+      width:4px;
+      height:4px;
+      left:-2px;
+      top:-2px;
+      background:#fff;
+      border-radius:50%;
+    }
+
+    /* ==========================================================================
+       SECTION 3: 5-VECTOR METHODOLOGY & FIELD CAMPAIGNS
+       ========================================================================== */
+    .page-content{
+      position:relative;
+      z-index:5;
+      background:
+        radial-gradient(50% 28% at 50% 0%, rgba(155,140,255,.12) 0%, rgba(0,0,0,0) 100%),
+        #030305;
+    }
+
+    .section{
+      max-width:1360px;
+      margin:0 auto;
+      padding:96px 32px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .sec-head{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin-bottom:44px;
+    }
+    .sec-kicker{
+      font-size:12px;
+      font-weight:600;
+      color:var(--accent-soft);
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .sec-title{
+      font-size:clamp(28px, 3.2vw, 44px);
+      font-weight:560;
+      letter-spacing:-0.025em;
+      line-height:1.12;
+      margin:0;
+      color:#fff;
+      text-wrap:balance;
+    }
+    .sec-desc{
+      max-width:520px;
+      font-size:15px;
+      line-height:1.6;
+      color:rgba(255,255,255,.62);
+      margin:0;
+    }
+
+    /* 5-VECTOR METHODOLOGY GRID (#telemetry) */
+    .vector-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:20px;
+    }
+    .vector-card{
+      padding:28px;
+      border-radius:16px;
+      background:rgba(255,255,255,.025);
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:18px;
+      transition:transform .2s ease, border-color .2s ease;
+    }
+    .vector-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(184,171,255,.4);
+    }
+    .vector-card.span-2{
+      grid-column:span 2;
+      background:linear-gradient(135deg, rgba(155,140,255,.14) 0%, rgba(255,255,255,.02) 100%);
+      border-color:rgba(184,171,255,.28);
+    }
+    .vector-num{
+      font-size:12px;
+      font-weight:600;
+      color:var(--accent-soft);
+    }
+    .vector-title{
+      font-size:20px;
+      font-weight:600;
+      margin:6px 0 10px 0;
+      color:#fff;
+    }
+    .vector-text{
+      font-size:14px;
+      line-height:1.6;
+      color:rgba(255,255,255,.64);
+      margin:0;
+    }
+    .vector-stat{
+      padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      font-size:12px;
+      color:rgba(255,255,255,.55);
+    }
+    .vector-stat strong{
+      font-size:16px;
+      color:#fff;
+    }
+
+    /* FIELD CAMPAIGNS (#missions) */
+    .missions-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:24px;
+    }
+    .mission-card{
+      padding:28px;
+      border-radius:16px;
+      background:rgba(255,255,255,.025);
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:20px;
+      transition:transform .2s ease, border-color .2s ease;
+    }
+    .mission-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(184,171,255,.4);
+    }
+    .mission-meta{
+      font-size:12px;
+      color:var(--accent-soft);
+    }
+    .mission-title{
+      font-size:19px;
+      font-weight:600;
+      margin:8px 0 10px 0;
+      color:#fff;
+    }
+    .mission-body{
+      font-size:14px;
+      line-height:1.6;
+      color:rgba(255,255,255,.64);
+      margin:0;
+    }
+    .mission-pair{
+      padding:12px 14px;
+      border-radius:10px;
+      background:rgba(155,140,255,.08);
+      border:1px solid rgba(184,171,255,.22);
+      font-size:12px;
+      color:rgba(255,255,255,.88);
+      display:flex;
+      justify-content:space-between;
+    }
+
+    /* FOOTER */
+    .site-footer{
+      max-width:1360px;
+      margin:0 auto;
+      padding:48px 32px 64px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
+      color:rgba(255,255,255,.5);
+      font-size:13px;
+    }
+    .footer-links{
+      display:flex;
+      gap:24px;
+    }
+    .footer-links a{
+      color:rgba(255,255,255,.64);
+      text-decoration:none;
+      transition:color .2s;
+    }
+    .footer-links a:hover{
+      color:#ffffff;
+    }
+
+    /* MEDIA QUERIES */
+    @media (max-width:1023px){
+      :root{ --u: calc(100vw / 900); }
+      .bar{ left:4.2vw; width:91.6vw; }
+      .links, .actions > .solid{ display:none; }
+      .menu{ display:inline-flex; }
+      .hero-hud{ grid-template-columns:repeat(2, 1fr); }
+      .vector-grid, .missions-grid{ grid-template-columns:1fr; }
+      .vector-card.span-2{ grid-column:span 1; }
+    }
+    @media (max-width:640px){
+      :root{ --u: calc(100vw / 486); }
+      .bar{ left:5.2vw; width:89.6vw; }
+      .hero p{ width:min(calc(440 * var(--u)), 88vw); line-height:calc(23 * var(--u)); }
+      .pill{ padding-right:calc(8 * var(--u)); }
+      .hero-hud{ display:none; }
+      .section{ padding:64px 20px; }
+      .experience-header{ flex-direction:column; align-items:stretch; }
+      .earth-search-dock{ max-width:100%; }
+      .portal{ right:14px; width:92px; height:92px; }
+    }
+    @media (max-width:380px){
+      :root{ --u: calc(100vw / 470); }
+    }
+    @media (max-width:1023px) and (max-height:520px){
+      :root{ --u: min(calc(100vw / 900), calc(100vh / 470)); }
+    }
+    @media (min-aspect-ratio:3/1){
+      .sky{ top:auto; bottom:0; height:auto; min-height:0; width:100%; min-width:100%; }
+      .veil{ background:linear-gradient(to bottom, rgba(0,0,0,.82) 0%, rgba(0,0,0,.72) 55%, rgba(0,0,0,.18) 100%); }
+    }
+
+    /* MOTION & ENTRANCE CHOREOGRAPHY */
+    @media (prefers-reduced-motion: no-preference){
+      :root{
+        --e-reveal: cubic-bezier(.18,.85,.26,1);
+        --e-soft:   cubic-bezier(.22,1,.36,1);
+        --e-nav:    cubic-bezier(.33,1,.68,1);
+        --rise:     calc(10 * var(--u));
+        --rise-lg:  calc(13 * var(--u));
+      }
+      .intro .brand,
+      .intro .links a,
+      .intro .actions > .btn,
+      .intro .actions > .menu,
+      .intro .pill,
+      .intro .hero p,
+      .intro .cta .btn{
+        opacity:0;
+      }
+      .intro .ln-i{
+        transform:translate3d(0,115%,0);
+      }
+      .intro .brand,
+      .intro .pill,
+      .intro .hero p,
+      .intro .ln-i,
+      .intro .cta .btn{
+        will-change:transform,opacity;
+      }
+      @keyframes i-rise{
+        from{ opacity:0; transform:translate3d(0,var(--rise),0); }
+        to{ opacity:1; transform:none; }
+      }
+      @keyframes i-rise-cy{
+        from{ opacity:0; transform:translateY(-50%) translate3d(0,var(--rise),0); }
+        to{ opacity:1; transform:translateY(-50%); }
+      }
+      @keyframes i-pill{
+        from{ opacity:0; transform:translateX(-50%) translate3d(0,var(--rise-lg),0) scale(.972); }
+        to{ opacity:1; transform:translateX(-50%); }
+      }
+      @keyframes i-sub{
+        from{ opacity:0; transform:translateX(calc(-50% + 0.25 * var(--u))) translate3d(0,var(--rise-lg),0); }
+        to{ opacity:1; transform:translateX(calc(-50% + 0.25 * var(--u))); }
+      }
+      @keyframes i-btn{
+        from{ opacity:0; transform:translate3d(0,var(--rise-lg),0) scale(.986); }
+        to{ opacity:1; transform:none; }
+      }
+      @keyframes i-line{
+        from{ transform:translate3d(0,115%,0); }
+        to{ transform:none; }
+      }
+      .intro-play .brand{ animation:i-rise-cy .62s var(--e-nav) 0s both; }
+      .intro-play .links a:nth-child(1){ animation:i-rise .55s var(--e-nav) .070s both; }
+      .intro-play .links a:nth-child(2){ animation:i-rise .55s var(--e-nav) .115s both; }
+      .intro-play .links a:nth-child(3){ animation:i-rise .55s var(--e-nav) .160s both; }
+      .intro-play .links a:nth-child(4){ animation:i-rise .55s var(--e-nav) .205s both; }
+      .intro-play .actions > .btn,
+      .intro-play .actions > .menu{ animation:i-rise .55s var(--e-nav) .215s both; }
+      .intro-play .actions > .ghost{ animation:i-rise .55s var(--e-nav) .160s both; }
+      .intro-play .pill{ animation:i-pill .62s var(--e-soft) .26s both; }
+      .intro-play .hero h1 .ln:nth-child(1) .ln-i{ animation:i-line .95s var(--e-reveal) .34s both; }
+      .intro-play .hero h1 .ln:nth-child(2) .ln-i{ animation:i-line .95s var(--e-reveal) .48s both; }
+      .intro-play .hero p{ animation:i-sub .70s var(--e-soft) .86s both; }
+      .intro-play .cta .btn:nth-child(1){ animation:i-btn .62s var(--e-soft) 1.00s both; }
+      .intro-play .cta .btn:nth-child(2){ animation:i-btn .62s var(--e-soft) 1.07s both; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{ transition:none!important; animation:none!important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       HERO FRAME: VIDEO SKY, DEIMOS BRANDING & LIVE TELEMETRY SUMMARY
+       ======================================================================== -->
+  <div class="frame" id="top">
+    <video class="sky" aria-hidden="true" autoplay muted loop playsinline preload="auto" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/0bf7409c-9fa2-4bef-a49d-34903dcc91ad.png" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/4b73c700-3112-4c07-bd48-0af2893dff7c.mp4"></video>
+    <div class="veil"></div>
+
+    <header class="bar">
+      <a class="brand" href="#top" aria-label="Deimos — home">
+        <img src="/assets/images/deimos_logo.png" alt="Deimos Logo">
+        <span>Deimos</span>
+      </a>
+
+      <nav class="links" aria-label="Primary">
+        <a href="#experience">3D Explorer</a>
+        <a href="#telemetry">Vectors</a>
+        <a href="#missions">Missions</a>
+        <a href="#footer">About</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn ghost" href="#missions">View campaigns</a>
+        <a class="btn solid" href="#experience">Launch 3D Explorer</a>
+        <button class="menu" id="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu-sheet">
+          <svg viewBox="0 0 20 14" fill="none" aria-hidden="true">
+            <path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <nav class="sheet" id="menu-sheet" aria-label="Menu">
+          <a href="#experience">3D Planetary Explorer</a>
+          <a href="#telemetry">5-Vector Matrix</a>
+          <a href="#missions">Field Campaigns</a>
+          <a href="#footer">About Platform</a>
+          <a class="btn solid" href="#experience">Launch 3D Explorer</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="screen">
+      <main class="hero">
+        <a class="pill" href="#telemetry">
+          <span class="chip">Deimos</span>
+          <span class="pill-label">Lunar &amp; Martian Environmental Atlas</span>
+          <svg viewBox="0 0 9.5 8" fill="none" aria-hidden="true">
+            <path d="M0.7 4H8.8M5.6 0.75 8.85 4 5.6 7.25" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <h1>
+          <span class="ln"><span class="ln-i">Find Earth’s twin</span></span>
+          <span class="ln"><span class="ln-i">for <span class="accent-word">Moon and Mars</span></span></span>
+        </h1>
+
+        <p>Finding Earth’s closest environmental matches to selected locations on the Moon and Mars.</p>
+
+        <div class="cta">
+          <a class="btn ghost" href="#missions">Field campaigns</a>
+          <a class="btn solid" href="#experience">Launch 3D Journey</a>
+        </div>
+      </main>
+    </div>
+
+    <div class="hero-hud" role="region" aria-label="Planetary Analog Index Summary">
+      <div class="hud-cell">
+        <span class="hud-label">INDEXED EXTRATERRESTRIAL SITES</span>
+        <span class="hud-val mono">1,420 <span>Mars &amp; Moon</span></span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">VERIFIED EARTH FIELD TWINS</span>
+        <span class="hud-val mono">84 Basins <span>7 Continents</span></span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">PEAK MINERALOGICAL FIDELITY</span>
+        <span class="hud-val mono">98.1% <span>CRISM / ASTER</span></span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">ACTIVE MISSION CAMPAIGNS</span>
+        <span class="hud-val mono">19 Teams <span>ISRU &amp; Rover</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       SECTION 2: INTERACTIVE 3D PLANETARY JUMPING & EARTH ORBITAL DESCENT
+       ======================================================================== -->
+  <section class="experience-section" id="experience">
+    <main id="planet-experience" class="experience" data-planet="mars">
       <div class="backgrounds" aria-hidden="true">
-        <video class="background mars-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
+        <video class="background mars-background is-visible" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
         <video class="background earth-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4"></video>
         <video class="background moon-background" src="/assets/videos/to_moon.mp4" muted playsinline preload="auto"></video>
       </div>
+
+      <div id="earth-map-container" class="earth-map-container"></div>
       <div class="shade"></div>
-      <header class="header chrome">
-        <div class="logo-slot" aria-hidden="true"></div>
+
+      <header class="experience-header chrome">
+        <div class="exp-logo-slot">
+          <img class="exp-logo-img" src="/assets/images/deimos_logo.png" alt="Deimos Logo">
+        </div>
+
         <div id="earth-search-dock" class="earth-search-dock">
           <form id="earth-search-form" class="earth-search-form" autocomplete="off">
-            <button id="earth-search-btn" class="earth-search-btn" type="submit" dir="rtl">هبوط فوري</button>
-            <input id="earth-search-input" class="earth-search-input" type="text" placeholder="اكتب أي مكان أو إحداثيات على الأرض (مثال: الصحراء الغربية، القطب الجنوبي، ألاسكا)..." aria-label="Search Earth landing location" />
+            <button type="submit" class="earth-search-btn">هبوط مداري</button>
+            <input id="earth-search-input" class="earth-search-input" type="text" placeholder="ابحث عن موقع على كوكب الأرض (مثال: بحيرة قارون، دالول)..." />
           </form>
-          <div id="earth-quick-chips" class="earth-quick-chips" role="group" aria-label="NASA Planetary Test Sites"></div>
+          <div id="earth-quick-chips" class="earth-quick-chips">
+            <button type="button" class="earth-chip active" data-zone-id="fayoum">بازلت الفيوم (مصر)</button>
+            <button type="button" class="earth-chip" data-zone-id="dallol">منخفض الدنكل (إثيوبيا)</button>
+            <button type="button" class="earth-chip" data-zone-id="mcmurdo">وديان ماكمردو (أنتاركتيكا)</button>
+            <button type="button" class="earth-chip" data-zone-id="wadirum">وادي رم (الأردن)</button>
+            <button type="button" class="earth-chip" data-zone-id="atacama">صحراء أتاكاما (تشيلي)</button>
+            <button type="button" class="earth-chip" data-zone-id="whitesands">الرمال البيضاء (أمريكا)</button>
+          </div>
         </div>
-        <div class="header-actions">
-          <nav class="nav" aria-label="Primary"><a href="#about">About</a><a class="active" href="#explore">Explore</a><a href="#planets">Planets</a></nav>
-          <button class="menu" type="button">Menu</button>
+
+        <div class="exp-actions">
+          <nav class="exp-nav">
+            <a href="#top">Overview</a>
+            <a href="#experience" class="active">3D Explorer</a>
+            <a href="#telemetry">Vectors</a>
+            <a href="#missions">Missions</a>
+          </nav>
         </div>
       </header>
-      <aside class="planet-list chrome" aria-label="Planets"></aside>
-      <section class="portal-wrap chrome">
-        <div class="portal-heading"><span>Next:</span><strong><span id="next-number">[03]</span> <span id="next-name">Earth</span></strong></div>
-        <button id="portal" class="portal" type="button" aria-label="Travel to Earth">
-          <video id="portal-video" muted playsinline preload="auto"></video>
-          <img id="portal-image" alt="Moon seen through the portal" referrerpolicy="no-referrer" />
-        </button>
+
+      <aside class="planet-list chrome" aria-label="Celestial destinations">
+        <div class="planet-item active" data-planet="mars">Mars</div>
+        <div class="planet-item" data-planet="earth">Earth</div>
+        <div class="planet-item" data-planet="moon">Moon</div>
+      </aside>
+
+      <section class="portal chrome" id="portal-trigger" role="button" tabindex="0" aria-label="Jump to next planetary body">
+        <div class="portal-ring"></div>
+        <div class="portal-inner">
+          <video id="portal-video" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4"></video>
+        </div>
       </section>
-      <section class="planet-content chrome">
-        <h1 id="planet-title">MARS</h1>
-        <dl id="facts"></dl>
-      </section>
-      <canvas id="portal-canvas" class="portal-canvas" aria-hidden="true"></canvas>
-      <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
-      <div class="transition-layer" aria-hidden="true"><video id="transition-video" muted playsinline preload="auto"></video></div>
-      <div class="loading" id="loading-label">Preparing orbit…</div>
-      <div id="preloader" class="preloader">
-        <video id="preloader-video" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
-        <div class="preloader-shade"></div>
+
+      <div class="telemetry-hud chrome" id="telemetry-hud">
+        <div class="hud-item">
+          <span class="hud-k">ALTITUDE</span>
+          <span class="hud-v" id="hud-alt">384,400 KM</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-k">VELOCITY</span>
+          <span class="hud-v" id="hud-vel">11.2 KM/S</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-k">TARGET VECTOR</span>
+          <span class="hud-v" id="hud-coords">29.9792° N, 31.1342° E</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-k">ANALOG TESTBED</span>
+          <span class="hud-v" id="hud-site" style="color:var(--accent-soft);">Fayoum Basalt Shield</span>
+        </div>
       </div>
-      <img id="floating-logo" class="floating-logo" src="/assets/images/deimos_logo.png" alt="Deimos Logo" />
-      <div id="preloader-count" class="preloader-count"><span id="preloader-value">0</span><span class="percent">%</span></div>
-      <div id="custom-cursor" class="custom-cursor" aria-hidden="true"><span class="cursor-orbit"></span><span class="cursor-dot"></span><span class="cursor-label">Enter</span></div>
+
+      <div class="transition-layer" aria-hidden="true">
+        <video id="transition-video" muted playsinline preload="auto"></video>
+      </div>
+
+      <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
+        <span class="cursor-orbit"></span>
+        <span class="cursor-dot"></span>
+      </div>
     </main>
-    <script type="module">
-      (async () => {
-        let ml = null;
-        try {
-          ml = await import('/assets/vendor/maplibre-gl.mjs');
-        } catch (_) {}
-        if (!ml || (!ml.Map && !(ml.default && ml.default.Map))) {
-          try {
-            await new Promise((resolve, reject) => {
-              const s = document.createElement('script');
-              s.src = 'https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js';
-              s.onload = resolve;
-              s.onerror = reject;
-              document.head.appendChild(s);
-            });
-            ml = window.maplibregl;
-          } catch (__) {}
-        }
-        if (ml) {
-          window.maplibregl = (ml.default && ml.default.Map) ? ml.default : ml;
-          window.dispatchEvent(new Event('maplibre-ready'));
-        }
-      })();
-    </script>
-    <script>
-      (() => {
-        'use strict';
-        const BASE='https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P';
-        const TO_MARS=BASE+'/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4';
-        const TO_EARTH=BASE+'/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4';
-        const MARS_ORBIT='/assets/videos/to_mars.mp4';
-        const TO_MOON='/assets/videos/to_moon.mp4';
-        const MOON_ORBIT='/assets/images/moon_orbit_portal_1794350272270.jpg';
-        const MOON_SURFACE='/assets/images/moon_surface_bg_1794350272226.jpg';
-        const moonOrbitImg=new Image();moonOrbitImg.src=MOON_ORBIT;
-        const moonSurfaceImg=new Image();moonSurfaceImg.src=MOON_SURFACE;
+  </section>
 
-        const earthZones=[
-          {id:'western_desert',labelAr:'الصحراء الغربية',region:'Gilf Kebir & Black Desert, Egypt',coords:'23.62° N, 25.41° E',lat:23.62,lon:25.41,targetZoom:13.2,targetPitch:70,targetBearing:28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Hyper-arid Martian analog plateau (~36 °C day, iron-rich sandstone regolith).',keywords:['الصحراء الغربية','الجلف الكبير','الفرافرة','الصحراء السوداء','western desert','gilf kebir','farafra']},
-          {id:'eastern_desert',labelAr:'الصحراء الشرقية',region:'Red Sea Wadis & Basement Rocks, Egypt',coords:'26.08° N, 33.78° E',lat:26.08,lon:33.78,targetZoom:13.4,targetPitch:72,targetBearing:-35,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Precambrian igneous & basaltic wadi canyons (~34 °C, ancient flood channel analog).',keywords:['الصحراء الشرقية','جبال البحر الاحمر','البحر الأحمر','eastern desert','red sea']},
-          {id:'sahara',labelAr:'الصحراء الكبرى',region:'Tassili & Richat Structure, Sahara',coords:'21.12° N, 11.40° W',lat:21.124,lon:-11.402,targetZoom:12.6,targetPitch:68,targetBearing:18,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Arid desert zone (~38 °C by day, eroded sandstone & concentric regolith rings).',keywords:['الصحراء الكبرى','الصحراء الكبري','تاسيلي','صحراء','sahara','tassili','richat']},
-          {id:'antarctica',labelAr:'القطب الجنوبي',region:'McMurdo Dry Valleys, Antarctica',coords:'77.52° S, 162.53° E',lat:-77.52,lon:162.53,targetZoom:12.8,targetPitch:70,targetBearing:42,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Cold hyper-arid NASA Mars analog (-20 °C to -50 °C, permafrost basalt regolith).',keywords:['القطب الجنوبي','انتاركتيكا','ماكموردو','antarctica','south pole','mcmurdo']},
-          {id:'alaska',labelAr:'ألاسكا',region:'Valley of 10,000 Smokes, Katmai, Alaska',coords:'58.28° N, 155.16° W',lat:58.28,lon:-155.16,targetZoom:13.1,targetPitch:71,targetBearing:-24,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Sub-arctic NASA Apollo volcanic ash & glacial test site (-8 °C to 6 °C).',keywords:['الاسكا','ألاسكا','كاتماي','alaska','katmai']},
-          {id:'wadi_rum',labelAr:'وادي رم',region:'Wadi Rum Red Silicate Valley, Jordan',coords:'29.58° N, 35.42° E',lat:29.58,lon:35.42,targetZoom:13.6,targetPitch:72,targetBearing:30,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Iron-oxide red sandstone & granite monoliths (~32 °C, Martian valley analog).',keywords:['وادي رم','الاردن','الأردن','wadi rum','jordan']},
-          {id:'atacama',labelAr:'صحراء أتاكاما',region:'Valle de la Luna, Atacama Desert, Chile',coords:'22.92° S, 68.32° W',lat:-22.92,lon:-68.32,targetZoom:13.4,targetPitch:71,targetBearing:-28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'NASA ARADS rover drill testbed (~22 °C, hyper-arid perchlorate regolith).',keywords:['اتاكاما','أتاكاما','تشيلي','atacama','chile','valle de la luna']},
-          {id:'meteor_crater',labelAr:'فوهة بارينجر',region:'Barringer Meteor Crater & Cinder Lake, AZ',coords:'35.03° N, 111.02° W',lat:35.027,lon:-111.022,targetZoom:14.2,targetPitch:68,targetBearing:22,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Official NASA Apollo lunar crater & ejecta training site (~24 °C).',keywords:['فوهة بارينجر','اريزونا','أريزونا','meteor crater','barringer','cinder lake','arizona']}
-        ];
+  <!-- ========================================================================
+       SECTION 3: 5-VECTOR MULTI-SPECTRAL SIMILARITY ENGINE
+       ======================================================================== -->
+  <div class="page-content">
+    <section class="section" id="telemetry" aria-labelledby="vectors-heading">
+      <div class="sec-head">
+        <div>
+          <div class="sec-kicker">Multi-Spectral Similarity Matrix</div>
+          <h2 class="sec-title" id="vectors-heading">How Deimos pairs off-world craters with terrestrial basins</h2>
+        </div>
+        <p class="sec-desc">
+          Every candidate site on the Moon and Mars is decomposed into five calibrated physical vectors and cross-queried against 14,000+ terrestrial geological survey stations.
+        </p>
+      </div>
 
-        let activeEarthZone=earthZones[0];
-        function syncEarthTelemetry(zone){
-          activeEarthZone=zone;
-          states.mars.portal=zone.video;
-          states.earth.arrival=zone.video;
-          states.earth.facts=[
-            ['Landing Zone:',zone.region+' ('+zone.coords+').'],
-            ['Distance:','149.6 million km from the Sun (365.25-day orbit).'],
-            ['Temperature:',zone.temperature],
-            ['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']
-          ];
-          document.querySelectorAll('.earth-chip').forEach(btn=>{
-            btn.classList.toggle('active',btn.dataset.zoneId===zone.id);
-          });
-        }
-        function pickNextEarthZone(){
-          const pool=earthZones.filter(z=>z.id!==activeEarthZone.id);
-          const nextZone=pool[Math.floor(Math.random()*pool.length)]||earthZones[0];
-          syncEarthTelemetry(nextZone);
-          return nextZone;
-        }
+      <div class="vector-grid">
+        <article class="vector-card span-2">
+          <div>
+            <span class="vector-num mono">01. SPECTRAL MINERALOGY &amp; REGOLITH</span>
+            <h3 class="vector-title">Orbital Spectroscopy to Field Petrology</h3>
+            <p class="vector-text">
+              Deimos aligns Mars Reconnaissance Orbiter CRISM and Chandrayaan M3 reflectance spectra with Earth ASTER and USGS field core samples—matching olivine-carbonate shorelines, iron-magnesium smectites, and high-titanium ilmenite basalts down to grain-size distribution.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Spectral Bands Evaluated</span>
+            <strong>0.4 – 3.9 μm (544 Channels)</strong>
+          </div>
+        </article>
 
-        const planets=['Mars','Earth','Moon'];
-        const states={
-          mars:{name:'Mars',next:'Earth',number:'[03]',portal:activeEarthZone.video,arrival:MARS_ORBIT,background:'mars-background',facts:[['Distance:','About 228 million km (1.5 astronomical units).'],['Year:','One Martian year is equal to 687 Earth days.'],['Temperature:','Around -60 °C, dropping to -125 °C at the poles in winter.'],['Atmosphere:','Very thin, consisting of 95% carbon dioxide, with frequent dust storms.']]},
-          earth:{name:'Earth',next:'Moon',number:'[02]',portal:TO_MOON,image:MOON_ORBIT,arrival:activeEarthZone.video,background:'earth-background',facts:[['Landing Zone:',activeEarthZone.region+' ('+activeEarthZone.coords+').'],['Distance:','149.6 million km from the Sun (365.25-day orbit).'],['Temperature:',activeEarthZone.temperature],['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']]},
-          moon:{name:'Moon',next:'Mars',number:'[01]',portal:MARS_ORBIT,arrival:TO_MOON,background:'moon-background',facts:[['Distance:','About 384,400 km from Earth (0.00257 AU).'],['Year:','27.3 Earth days (synchronous orbital period).'],['Temperature:','Around 127 °C by day, dropping to -173 °C at night.'],['Atmosphere:','Extremely thin exosphere, nearly a vacuum with no weather.']]}
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">02. GEOMORPHOLOGY &amp; SLOPE</span>
+            <h3 class="vector-title">LOLA &amp; HiRISE Terrain Twins</h3>
+            <p class="vector-text">
+              Matches digital elevation models for slope gradient, crater rim roughness, boulder cumulative fractional area, and wheel-sinkage bearing capacity.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>DEM Resolution</span>
+            <strong>0.25 m / pixel</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">03. THERMAL &amp; ARIDITY REGIME</span>
+            <h3 class="vector-title">Cryogenic &amp; Hyper-Arid Cycles</h3>
+            <p class="vector-text">
+              Pairs diurnal thermal swings, subsurface permafrost tables, and atmospheric water-vapor columns below 0.5 precipitable millimeters.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Thermal Span</span>
+            <strong>-130°C to +24°C</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">04. GEOCHEMICAL EXTREMES</span>
+            <h3 class="vector-title">Sulfate, Perchlorate &amp; pH</h3>
+            <p class="vector-text">
+              Identifies acidic iron-rich drainage basins, hypersaline evaporite flats, and volcanic fumaroles that replicate Martian soil oxidation states.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Redox &amp; pH Window</span>
+            <strong>pH 1.8 – 9.4</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">05. OPERATIONAL FIDELITY</span>
+            <h3 class="vector-title">ISRU &amp; EVA Traverse Readiness</h3>
+            <p class="vector-text">
+              Evaluates solar incidence angles, radar attenuation depth for ground-penetrating radar, and drilling unconfined compressive strength across benchmark terrestrial analog sites.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Field Validation Sites</span>
+            <strong>84 Earth Analogs</strong>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 4: FIELD-TO-ORBIT MISSION VALIDATION CAMPAIGNS
+         ======================================================================== -->
+    <section class="section" id="missions" aria-labelledby="missions-heading">
+      <div class="sec-head">
+        <div>
+          <div class="sec-kicker">Field-to-Orbit Provenance</div>
+          <h2 class="sec-title" id="missions-heading">Where mission hardware meets its extraterrestrial twin on Earth</h2>
+        </div>
+        <p class="sec-desc">
+          Before instruments launch to Jezero Crater or the Lunar South Pole, engineering teams validate drills, spectrometers, and autonomy stacks in Deimos-matched environments.
+        </p>
+      </div>
+
+      <div class="missions-grid">
+        <article class="mission-card">
+          <div>
+            <div class="mission-meta mono">CAMPAIGN 01 · AUTONOMOUS NAVIGATION</div>
+            <h3 class="mission-title">Jezero Boulder Field Hazard Trials</h3>
+            <p class="mission-body">
+              Matched cumulative rock size-frequency distributions and wind-abraded ventifacts in the Atacama to validate vision-based rover slip compensation on 16° unconsolidated slopes.
+            </p>
+          </div>
+          <div class="mission-pair mono">
+            <span>Jezero Crater ⇄ Atacama</span>
+            <span style="color:var(--accent-soft)">96.4% Match</span>
+          </div>
+        </article>
+
+        <article class="mission-card">
+          <div>
+            <div class="mission-meta mono">CAMPAIGN 02 · LUNAR SOUTH POLE ISRU</div>
+            <h3 class="mission-title">Cryogenic Regolith Core Drilling</h3>
+            <p class="mission-body">
+              Paired Shackleton Crater rim anorthositic breccia and low-angle solar illumination with Devon Island impact melt sheets to benchmark percussive auger power draw.
+            </p>
+          </div>
+          <div class="mission-pair mono">
+            <span>Shackleton Rim ⇄ Devon Island</span>
+            <span style="color:var(--accent-soft)">91.7% Match</span>
+          </div>
+        </article>
+
+        <article class="mission-card">
+          <div>
+            <div class="mission-meta mono">CAMPAIGN 03 · SUBSURFACE HABITATS</div>
+            <h3 class="mission-title">Mare Skylight Lava Tube LiDAR</h3>
+            <p class="mission-body">
+              Mapped basaltic roof thickness, rubble-pile collapse morphology, and subterranean thermal stability inside Lanzarote’s Corona tube as a direct proxy for Mare Tranquillitatis pits.
+            </p>
+          </div>
+          <div class="mission-pair mono">
+            <span>Tranquillitatis Pit ⇄ Lanzarote</span>
+            <span style="color:var(--accent-soft)">95.1% Match</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         FOOTER
+         ======================================================================== -->
+    <footer class="site-footer" id="footer">
+      <div>
+        <strong style="color:#fff">Deimos</strong> · Planetary Environmental Analog Intelligence · Earth ⇄ Moon &amp; Mars
+      </div>
+      <div class="footer-links">
+        <a href="#top">Top</a>
+        <a href="#experience">3D Explorer</a>
+        <a href="#telemetry">5-Vector Matrix</a>
+        <a href="#missions">Campaigns</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       INTEGRATED ENGINE SCRIPTS
+       ======================================================================== -->
+  <script type="module">
+    (async () => {
+      'use strict';
+
+      /* ----------------------------------------------------------------------
+         A. Header & Mobile Sheet Drawer Logic
+         ---------------------------------------------------------------------- */
+      const bar = document.querySelector('.bar');
+      const btn = document.getElementById('menu-btn');
+      function setMenu(open) {
+        if (!bar || !btn) return;
+        bar.dataset.open = open ? 'true' : 'false';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
+      }
+      setMenu(false);
+      if (btn && bar) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setMenu(bar.dataset.open !== 'true');
+        });
+        document.addEventListener('click', (e) => {
+          if (!bar.contains(e.target)) setMenu(false);
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') setMenu(false);
+        });
+      }
+
+      const skyVideo = document.querySelector('video.sky');
+      if (skyVideo) {
+        skyVideo.muted = true;
+        const playSky = () => {
+          if (skyVideo.paused) {
+            const p = skyVideo.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          }
+        };
+        playSky();
+        skyVideo.addEventListener('canplay', playSky);
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) playSky();
+        });
+      }
+
+      /* ----------------------------------------------------------------------
+         B. Planetary Jumping Engine Setup
+         ---------------------------------------------------------------------- */
+      let ml = null;
+      try {
+        ml = await import('/assets/vendor/maplibre-gl.mjs');
+      } catch (e) {
+        if (window.maplibregl) ml = { default: window.maplibregl };
+      }
+      const maplibregl = (ml && ml.default) ? ml.default : window.maplibregl;
+
+      const BASE = 'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P';
+      const TO_MARS = BASE + '/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4';
+      const TO_EARTH = BASE + '/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4';
+      const TO_MOON = '/assets/videos/to_moon.mp4';
+
+      const earthZones = [
+        {
+          id: 'fayoum',
+          name: 'Fayoum Basalt Shield',
+          labelAr: 'بازلت الفيوم (مصر)',
+          lat: 29.3084,
+          lng: 30.8428,
+          zoom: 13.8,
+          pitch: 62,
+          bearing: 38,
+          elevation: '12 M ASL',
+          biome: 'Desert Basalt Flow',
+          similarity: '98.4% (Early Martian Volcanics)'
+        },
+        {
+          id: 'dallol',
+          name: 'Dallol Hydrothermal Crater',
+          labelAr: 'منخفض الدنكل (إثيوبيا)',
+          lat: 14.2417,
+          lng: 40.2989,
+          zoom: 14.2,
+          pitch: 58,
+          bearing: -15,
+          elevation: '-125 M BSL',
+          biome: 'Hyper-acidic Geothermal Springs',
+          similarity: '99.1% (Martian Acidic Brines)'
+        },
+        {
+          id: 'mcmurdo',
+          name: 'McMurdo Dry Valleys',
+          labelAr: 'وديان ماكمردو (أنتاركتيكا)',
+          lat: -77.5167,
+          lng: 162.8667,
+          zoom: 13.0,
+          pitch: 65,
+          bearing: 110,
+          elevation: '850 M ASL',
+          biome: 'Hyper-Arid Cold Polar Desert',
+          similarity: '97.8% (Martian Permafrost)'
+        },
+        {
+          id: 'wadirum',
+          name: 'Wadi Rum Iron Sandstone',
+          labelAr: 'وادي رم (الأردن)',
+          lat: 29.5734,
+          lng: 35.4206,
+          zoom: 13.5,
+          pitch: 60,
+          bearing: 45,
+          elevation: '940 M ASL',
+          biome: 'Oxidized Sandstone Paleochannels',
+          similarity: '96.4% (Jezero Delta Sandstone)'
+        },
+        {
+          id: 'atacama',
+          name: 'Atacama Hyper-Arid Core',
+          labelAr: 'صحراء أتاكاما (تشيلي)',
+          lat: -24.4984,
+          lng: -69.2481,
+          zoom: 13.2,
+          pitch: 55,
+          bearing: -25,
+          elevation: '2,400 M ASL',
+          biome: 'Zero-Moisture Nitrate Salars',
+          similarity: '98.7% (Martian Soil Regolith)'
+        },
+        {
+          id: 'whitesands',
+          name: 'White Sands Gypsum Dunes',
+          labelAr: 'الرمال البيضاء (أمريكا)',
+          lat: 32.7872,
+          lng: -106.3256,
+          zoom: 13.4,
+          pitch: 50,
+          bearing: 20,
+          elevation: '1,218 M ASL',
+          biome: 'Gypsum Evaporite Field',
+          similarity: '95.2% (Olympia Undae Sulfate Plains)'
+        }
+      ];
+
+      let activeEarthZone = earthZones[0];
+      let current = 'mars';
+      let busy = false;
+
+      const states = {
+        mars: {
+          next: 'earth',
+          portal: TO_EARTH,
+          alt: '225,000,000 KM',
+          vel: '24.1 KM/S',
+          coords: '18.3800° N, 77.5800° E',
+          site: 'Jezero Crater Delta'
+        },
+        earth: {
+          next: 'moon',
+          portal: TO_MOON,
+          alt: '0 KM (SURFACE ORBIT)',
+          vel: '7.8 KM/S',
+          coords: '29.3084° N, 30.8428° E',
+          site: 'Fayoum Basalt Shield'
+        },
+        moon: {
+          next: 'mars',
+          portal: TO_MARS,
+          alt: '384,400 KM',
+          vel: '1.02 KM/S',
+          coords: '0.6741° N, 23.4730° E',
+          site: 'Mare Tranquillitatis'
+        }
+      };
+
+      const experience = document.getElementById('planet-experience');
+      const portalVideo = document.getElementById('portal-video');
+      const transitionVideo = document.getElementById('transition-video');
+      const mapContainer = document.getElementById('earth-map-container');
+      const searchForm = document.getElementById('earth-search-form');
+      const searchInput = document.getElementById('earth-search-input');
+      const quickChipsWrap = document.getElementById('earth-quick-chips');
+      const hudAlt = document.getElementById('hud-alt');
+      const hudVel = document.getElementById('hud-vel');
+      const hudCoords = document.getElementById('hud-coords');
+      const hudSite = document.getElementById('hud-site');
+
+      let earthMap = null;
+      let earthMapReady = false;
+
+      function initEarthMap() {
+        if (!maplibregl || earthMap) return;
+        const style = {
+          version: 8,
+          sources: {
+            'satellite': {
+              type: 'raster',
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+              tileSize: 256,
+              attribution: 'Esri, Maxar, Earthstar'
+            }
+          },
+          layers: [{ id: 'satellite-layer', type: 'raster', source: 'satellite', minzoom: 0, maxzoom: 19 }]
         };
 
-        const experience=document.getElementById('experience');
-        const portal=document.getElementById('portal');
-        const portalVideo=document.getElementById('portal-video');
-        const portalImage=document.getElementById('portal-image');
-        const transitionVideo=document.getElementById('transition-video');
-        const loadingLabel=document.getElementById('loading-label');
-        const canvas=document.getElementById('portal-canvas');
-        const sceneCanvas=document.getElementById('scene-canvas');
-        const ctx=canvas.getContext('2d');
-        const sceneCtx=sceneCanvas.getContext('2d');
-        const list=document.querySelector('.planet-list');
-        const searchForm=document.getElementById('earth-search-form');
-        const searchInput=document.getElementById('earth-search-input');
-        const quickChipsWrap=document.getElementById('earth-quick-chips');
-
-        let current='mars',firstRender=true,busy=false,transitionActive=false,lunarFlightActive=false,lunarProgress=0,frozenScene=false;
-        let earthEngineActive=false,earthFlightActive=false,earthCloudAlpha=0,earthCloudPhase=0,earthStarAlpha=1;
-        let expansion=0,maskScale=0,canvasOpacity=1,rotX=0,rotY=0,targetX=0,targetY=0,lastFrame=performance.now();
-
-        // =====================================================================
-        // REAL-TIME 3D GOOGLE EARTH ORBITAL-TO-SURFACE ENGINE (MapLibre GL v6)
-        // =====================================================================
-        let earthMap=null,earthMapReady=false;
-        const starField=[];
-        for(let i=0;i<220;i++){
-          starField.push({
-            x:Math.random(),
-            y:Math.random()*0.72,
-            r:Math.random()*1.35+0.4,
-            a:Math.random()*0.65+0.25,
-            tw:Math.random()*6.28
+        try {
+          earthMap = new maplibregl.Map({
+            container: 'earth-map-container',
+            style: style,
+            center: [activeEarthZone.lng, activeEarthZone.lat],
+            zoom: 2.5,
+            pitch: 0,
+            bearing: 0,
+            interactive: true,
+            attributionControl: false
           });
+          earthMap.on('load', () => { earthMapReady = true; });
+        } catch (e) {
+          console.warn('MapLibre GL fallback to video layer', e);
         }
+      }
 
-        function initEarthGlobeEngine(){
-          if(earthMap||!window.maplibregl)return;
-          try{
-            earthMap=new window.maplibregl.Map({
-              container:'earth-globe-stage',
-              interactive:false,
-              attributionControl:false,
-              trackResize:true,
-              canvasContextAttributes:{preserveDrawingBuffer:true,antialias:true},
-              center:[activeEarthZone.lon,activeEarthZone.lat-10],
-              zoom:1.58,
-              pitch:12,
-              bearing:0,
-              style:{
-                version:8,
-                projection:{type:'globe'},
-                sky:{
-                  'sky-color':'#040812',
-                  'horizon-color':'#3b86db',
-                  'sky-horizon-blend':0.78,
-                  'atmosphere-blend':['interpolate',['linear'],['zoom'],0,0.92,6,0.78,10,0.35,13,0.08]
-                },
-                sources:{
-                  'esri-satellite':{
-                    type:'raster',
-                    tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                    tileSize:256,
-                    maxzoom:18
-                  },
-                  'terrain-dem':{
-                    type:'raster-dem',
-                    tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-                    tileSize:256,
-                    encoding:'terrarium',
-                    maxzoom:15
-                  }
-                },
-                terrain:{
-                  source:'terrain-dem',
-                  exaggeration:1.55
-                },
-                layers:[
-                  {
-                    id:'satellite-layer',
-                    type:'raster',
-                    source:'esri-satellite',
-                    paint:{
-                      'raster-contrast':0.12,
-                      'raster-saturation':0.08,
-                      'raster-fade-duration':0
-                    }
-                  }
-                ]
-              }
+      function updateHUD(planet, zone) {
+        if (planet === 'earth' && zone) {
+          hudAlt.textContent = '1,200 M (TACTICAL DESCENT)';
+          hudVel.textContent = '0.34 KM/S';
+          hudCoords.textContent = `${Math.abs(zone.lat).toFixed(4)}° ${zone.lat >= 0 ? 'N' : 'S'}, ${Math.abs(zone.lng).toFixed(4)}° ${zone.lng >= 0 ? 'E' : 'W'}`;
+          hudSite.textContent = zone.name;
+        } else {
+          const s = states[planet];
+          hudAlt.textContent = s.alt;
+          hudVel.textContent = s.vel;
+          hudCoords.textContent = s.coords;
+          hudSite.textContent = s.site;
+        }
+      }
+
+      function setPlanetDisplay(next) {
+        current = next;
+        experience.dataset.planet = next;
+
+        // Backgrounds
+        document.querySelectorAll('.background').forEach(bg => bg.classList.remove('is-visible'));
+        const activeBg = document.querySelector(`.${next}-background`);
+        if (activeBg) activeBg.classList.add('is-visible');
+
+        // Planet list
+        document.querySelectorAll('.planet-item').forEach(it => {
+          it.classList.toggle('active', it.dataset.planet === next);
+        });
+
+        // Portal video preview
+        portalVideo.src = states[next].portal;
+        portalVideo.load();
+        portalVideo.play().catch(() => {});
+
+        // Earth MapLibre mode
+        if (next === 'earth') {
+          mapContainer.classList.add('is-active');
+          if (!earthMap) initEarthMap();
+          if (earthMap && earthMapReady) {
+            earthMap.flyTo({
+              center: [activeEarthZone.lng, activeEarthZone.lat],
+              zoom: activeEarthZone.zoom,
+              pitch: activeEarthZone.pitch,
+              bearing: activeEarthZone.bearing,
+              duration: 3500
             });
-            earthMap.on('load',()=>{
-              earthMapReady=true;
-              parkEarthInOrbit(activeEarthZone);
-            });
-          }catch(_){}
-        }
-        if(window.maplibregl)initEarthGlobeEngine();
-        else window.addEventListener('maplibre-ready',initEarthGlobeEngine,{once:true});
-
-        function parkEarthInOrbit(zone){
-          if(!earthMap)return;
-          earthStarAlpha=1;
-          earthCloudAlpha=0;
-          earthMap.jumpTo({
-            center:[zone.lon,Math.max(-65,Math.min(65,zone.lat))],
-            zoom:1.62,
-            pitch:14,
-            bearing:0,
-            padding:{top:Math.round(innerHeight*0.24),bottom:0,left:0,right:0}
-          });
-        }
-
-        // Draw deep-space starfield behind the 3D Earth Globe + volumetric cloud breakthrough
-        function drawEarthEngineView(context,now){
-          if(!earthMap)return false;
-          const mapCanvas=earthMap.getCanvas();
-          if(!mapCanvas||!mapCanvas.width)return false;
-
-          // 1. Pitch-black space & pinpoint stars behind the globe in orbital phase
-          if(earthStarAlpha>0.01){
-            context.fillStyle='#020409';
-            context.fillRect(0,0,innerWidth,innerHeight);
-            context.save();
-            for(let i=0;i<starField.length;i++){
-              const s=starField[i];
-              const twinkle=0.7+0.3*Math.sin(now*0.002+s.tw);
-              context.fillStyle='rgba(235,244,255,'+(s.a*twinkle*earthStarAlpha).toFixed(3)+')';
-              context.beginPath();
-              context.arc(s.x*innerWidth,s.y*innerHeight,s.r,0,Math.PI*2);
-              context.fill();
-            }
-            context.restore();
           }
-
-          // 2. Live 3D WebGL Globe & 3D DEM Terrain from MapLibre
-          context.drawImage(mapCanvas,0,0,innerWidth,innerHeight);
-
-          // 3. Volumetric 3D Atmospheric Cloud Plunge (during supersonic entry 1.0s - 2.9s)
-          if(earthCloudAlpha>0.01){
-            context.save();
-            const cx=innerWidth*0.5,cy=innerHeight*0.5;
-            const maxR=Math.hypot(cx,cy);
-            // Parting radial cloud tunnel as camera breaks through cloud deck
-            const innerHole=earthCloudPhase>0.55?maxR*((earthCloudPhase-0.55)/0.45)*0.85:0;
-            const grad=context.createRadialGradient(cx,cy,innerHole*0.4,cx,cy,maxR);
-            const cAlpha=Math.min(0.96,earthCloudAlpha);
-            grad.addColorStop(0,'rgba(238,246,255,'+(earthCloudPhase>0.55?cAlpha*0.35:cAlpha).toFixed(3)+')');
-            grad.addColorStop(0.55,'rgba(225,238,252,'+(cAlpha*0.92).toFixed(3)+')');
-            grad.addColorStop(1,'rgba(195,220,248,'+(cAlpha*0.98).toFixed(3)+')');
-            context.fillStyle=grad;
-            context.fillRect(0,0,innerWidth,innerHeight);
-
-            // Dynamic 3D cloud puffs & supersonic radial speed streaks
-            for(let i=0;i<14;i++){
-              const angle=(i/14)*Math.PI*2+earthCloudPhase*1.2;
-              const dist=((earthCloudPhase*2.4+i*0.19)%1)*maxR*0.95;
-              const px=cx+Math.cos(angle)*dist;
-              const py=cy+Math.sin(angle)*dist*0.72;
-              const pr=140+dist*0.42;
-              const pGrad=context.createRadialGradient(px,py,0,px,py,pr);
-              pGrad.addColorStop(0,'rgba(255,255,255,'+(cAlpha*0.55).toFixed(3)+')');
-              pGrad.addColorStop(1,'rgba(255,255,255,0)');
-              context.fillStyle=pGrad;
-              context.beginPath();
-              context.arc(px,py,pr,0,Math.PI*2);
-              context.fill();
-            }
-            context.restore();
-          }
-          return true;
+        } else {
+          mapContainer.classList.remove('is-active');
         }
 
-        // Render Quick NASA Test Site Chips
-        function renderQuickChips(){
-          quickChipsWrap.innerHTML=earthZones.map(z=>
-            '<button type="button" class="earth-chip'+(z.id===activeEarthZone.id?' active':'')+'" data-zone-id="'+z.id+'">'+z.labelAr+'</button>'
-          ).join('');
-        }
-        renderQuickChips();
+        updateHUD(next, activeEarthZone);
+      }
 
-        function formatCoordLabel(lat,lon){
-          const ns=lat>=0?'N':'S';
-          const ew=lon>=0?'E':'W';
-          return Math.abs(lat).toFixed(2)+'° '+ns+', '+Math.abs(lon).toFixed(2)+'° '+ew;
-        }
+      async function travel(targetPlanet, zoneOverride) {
+        if (busy) return;
+        busy = true;
+        const next = targetPlanet || states[current].next;
+        if (zoneOverride) activeEarthZone = zoneOverride;
 
-        async function resolveLocationQuery(rawQuery){
-          const q=(rawQuery||'').trim();
-          if(!q)return activeEarthZone;
-          const qLow=q.toLowerCase();
+        experience.classList.add('is-transitioning');
+        transitionVideo.src = states[current].portal;
+        transitionVideo.load();
 
-          // 1. Direct coordinates "27.3, 28.0"
-          const coordMatch=qLow.match(/^(-?\d+(?:\.\d+)?)\s*[,،\s]\s*(-?\d+(?:\.\d+)?)$/);
-          if(coordMatch){
-            const lat=Math.max(-84,Math.min(84,parseFloat(coordMatch[1])));
-            const lon=Math.max(-180,Math.min(180,parseFloat(coordMatch[2])));
-            const coords=formatCoordLabel(lat,lon);
-            return {
-              id:'custom_'+Date.now(),
-              labelAr:coords,
-              region:'Target Coordinates',
-              coords,
-              lat,lon,
-              targetZoom:13.4,targetPitch:70,targetBearing:22,
-              video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
-              temperature:Math.abs(lat)>55?'Polar / sub-polar planetary surface zone.':'Targeted planetary surface test zone.',
-              keywords:[]
-            };
-          }
+        try {
+          await transitionVideo.play();
+        } catch (e) {}
 
-          // 2. Match built-in NASA analog presets
-          for(const z of earthZones){
-            if(z.id===qLow||z.labelAr.includes(q)||z.region.toLowerCase().includes(qLow)||z.keywords.some(k=>k.toLowerCase().includes(qLow)||qLow.includes(k.toLowerCase()))){
-              return z;
-            }
-          }
+        setTimeout(() => {
+          setPlanetDisplay(next);
+          experience.classList.remove('is-transitioning');
+          busy = false;
+        }, 1200);
+      }
 
-          // 3. Live OpenStreetMap Nominatim Geocoding (supports any Arabic or English place name on Earth!)
-          try{
-            loadingLabel.textContent='Locating '+q+'…';
-            experience.classList.add('is-loading');
-            const res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=en,ar&q='+encodeURIComponent(q));
-            const data=await res.json();
-            if(Array.isArray(data)&&data.length>0){
-              const hit=data[0];
-              const lat=parseFloat(hit.lat);
-              const lon=parseFloat(hit.lon);
-              const shortName=(hit.display_name||q).split(',').slice(0,2).join(', ');
-              const coords=formatCoordLabel(lat,lon);
-              return {
-                id:'geo_'+Date.now(),
-                labelAr:q,
-                region:shortName,
-                coords,
-                lat,lon,
-                targetZoom:13.4,targetPitch:70,targetBearing:24,
-                video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
-                temperature:Math.abs(lat)>55?'Sub-polar / high-latitude surface zone.':'Live satellite & 3D DEM terrain target.',
-                keywords:[]
-              };
-            }
-          }catch(_){}
-          return activeEarthZone;
-        }
-
-        function render(){
-          const state=states[current];
-          experience.dataset.planet=current;
-          document.getElementById('planet-title').textContent=state.name.toUpperCase();
-          document.getElementById('next-name').textContent=state.next;
-          document.getElementById('next-number').textContent=state.number;
-          portal.setAttribute('aria-label','Travel to '+state.next);
-          document.getElementById('facts').innerHTML=state.facts.map(([key,value])=>'<div class="fact"><dt>'+key+'</dt><dd>'+value+'</dd></div>').join('');
-          list.innerHTML=planets.map(name=>{const key=name.toLowerCase(),active=key===current;return '<div class="planet-item'+(active?' active':'')+'" data-planet="'+key+'" role="button" tabindex="0" aria-label="'+name+'" aria-current="'+(active?'true':'false')+'">'+name+'</div>';}).join('');
-          if(!firstRender){list.classList.remove('is-switching');void list.offsetWidth;list.classList.add('is-switching');}
-          firstRender=false;
-          document.querySelectorAll('.background').forEach(el=>el.classList.toggle('is-visible',el.classList.contains(state.background)));
-          const targetVideoSrc=state.portal||states.moon.portal;
-          if(portalVideo.src!==targetVideoSrc){
-            portalVideo.src=targetVideoSrc;
-            portalVideo.load();
-          }
-          if(state.image){
-            portalImage.src=state.image;
-          }
-        }
-
-        function preloadNextTransition(){
-          const nextKey=states[current].next.toLowerCase();
-          const nextSrc=states[nextKey]&&states[nextKey].arrival;
-          if(nextSrc&&(!transitionVideo.getAttribute('src')||!transitionVideo.src.endsWith(nextSrc))){
-            transitionVideo.src=nextSrc;
-            transitionVideo.load();
-          }
-        }
-        let cachedShade=null;
-        function resizeCanvas(){
-          const d=Math.min(devicePixelRatio||1,1.35);
-          canvas.width=innerWidth*d;canvas.height=innerHeight*d;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(d,0,0,d,0,0);
-          if(!frozenScene){sceneCanvas.width=innerWidth*d;sceneCanvas.height=innerHeight*d;sceneCanvas.style.width=innerWidth+'px';sceneCanvas.style.height=innerHeight+'px';sceneCtx.setTransform(d,0,0,d,0,0);}
-          cachedShade=ctx.createLinearGradient(0,innerHeight*.52,0,innerHeight);
-          cachedShade.addColorStop(0,'rgba(0,0,0,0)');
-          cachedShade.addColorStop(1,'rgba(0,0,0,.88)');
-          if(earthMap)earthMap.resize();
-        }
-        function drawCover(context,media,zoom=1,offsetY=0){
-          const mw=media.videoWidth||media.naturalWidth||0,mh=media.videoHeight||media.naturalHeight||0;if(!mw||!mh)return;
-          const scale=Math.max(innerWidth/mw,innerHeight/mh)*zoom,w=mw*scale,h=mh*scale;
-          context.drawImage(media,(innerWidth-w)/2,(innerHeight-h)/2+offsetY,w,h);
-        }
-        function drawMoonOrbit(context,rect,e,zoom=1,offsetY=0){
-          const mw=moonOrbitImg.naturalWidth||0,mh=moonOrbitImg.naturalHeight||0;if(!mw||!mh)return;
-          const h0=rect.height*1.15,w0=h0*(mw/mh),y0=rect.top-rect.height*.02;
-          const scale1=Math.max(innerWidth/mw,innerHeight/mh),w1=mw*scale1,h1=mh*scale1;
-          const baseW=w0+(w1-w0)*e,baseH=h0+(h1-h0)*e;
-          const baseCx=(rect.left+rect.width/2)*(1-e)+(innerWidth/2)*e;
-          const baseCy=(y0+h0/2)*(1-e)+(innerHeight/2)*e;
-          const w=baseW*zoom,h=baseH*zoom;
-          context.drawImage(moonOrbitImg,baseCx-w/2,baseCy-h/2+offsetY,w,h);
-        }
-        function drawShade(context){
-          context.fillStyle=cachedShade||'rgba(0,0,0,.6)';
-          context.fillRect(0,innerHeight*.52,innerWidth,innerHeight*.48);
-        }
-        function roundedPoints(w,h,r){
-          r=Math.min(r,w/2,h/2);const corners=[[w/2-r,-h/2+r,-Math.PI/2,0],[w/2-r,h/2-r,0,Math.PI/2],[-w/2+r,h/2-r,Math.PI/2,Math.PI],[-w/2+r,-h/2+r,Math.PI,Math.PI*1.5]],points=[];
-          corners.forEach(([cx,cy,start,end])=>{for(let i=0;i<=10;i++){const a=start+(end-start)*(i/10);points.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}});return points;
-        }
-        function project(x,y,cx,cy,rx,ry){
-          const ax=rx*Math.PI/180,ay=ry*Math.PI/180,xx=x*Math.cos(ay),yy=y*Math.cos(ax),z=x*Math.sin(ay)-y*Math.sin(ax),p=850/(850+z);return[cx+xx*p,cy+yy*p];
-        }
-
-        function draw(now){
-          const dt=Math.min(40,now-lastFrame);lastFrame=now;rotX+=(targetX-rotX)*Math.min(1,dt*.009);rotY+=(targetY-rotY)*Math.min(1,dt*.009);
-          const e=expansion;
-
-          // Subtle live 3D camera drift when landed on Earth via the 3D Engine
-          if(current==='earth'&&earthEngineActive&&!transitionActive&&earthMap&&earthMapReady){
-            earthMap.setBearing((earthMap.getBearing()+dt*0.0018)%360);
-          }
-
-          if(transitionActive&&e>=.995){
-            if(earthFlightActive&&earthMapReady){
-              drawEarthEngineView(ctx,now);
-            }else{
-              drawCover(ctx,transitionVideo);
-            }
-            drawShade(ctx);
-            requestAnimationFrame(draw);
-            return;
-          }
-
-          ctx.clearRect(0,0,innerWidth,innerHeight);
-          if(current==='earth'&&earthEngineActive&&earthMapReady){
-            drawEarthEngineView(ctx,now);
-            drawShade(ctx);
-          }else if(frozenScene){
-            ctx.drawImage(sceneCanvas,0,0,innerWidth,innerHeight);
-            drawShade(ctx);
-          }
-
-          const rect=portal.getBoundingClientRect(),cx=rect.left+rect.width/2+(innerWidth/2-(rect.left+rect.width/2))*e,cy=rect.top+rect.height/2+(innerHeight/2-(rect.top+rect.height/2))*e;
-          const baseW=rect.width+(innerWidth-rect.width)*e,baseH=rect.height+(innerHeight-rect.height)*e,scale=e?1:maskScale,w=baseW*scale,h=baseH*scale,r=90*(1-e)*scale,rx=rotX*(1-e),ry=rotY*(1-e);
-          if(w>1&&h>1){
-            const points=roundedPoints(w,h,r).map(([x,y])=>project(x,y,cx,cy,rx,ry));
-            ctx.save();ctx.globalAlpha=canvasOpacity;ctx.beginPath();points.forEach((point,i)=>i?ctx.lineTo(point[0],point[1]):ctx.moveTo(point[0],point[1]));ctx.closePath();ctx.clip();
-            ctx.fillStyle='#030303';ctx.fillRect(0,0,innerWidth,innerHeight);
-            if(transitionActive&&earthFlightActive&&earthMapReady){
-              drawEarthEngineView(ctx,now);
-              drawShade(ctx);
-            }else if(!transitionActive&&current==='mars'&&earthMapReady){
-              // Live 3D Earth Globe in space inside the Mars portal capsule!
-              drawEarthEngineView(ctx,now);
-            }else if(!transitionActive&&states[current].image){
-              drawMoonOrbit(ctx,rect,e,1,0);
-            }else{
-              const media=transitionActive?transitionVideo:portalVideo;
-              drawCover(ctx,media);
-              if(transitionActive)drawShade(ctx);
-            }
-            ctx.restore();
-          }
-          requestAnimationFrame(draw);
-        }
-
-        const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-        function animateValue(setter,duration){return new Promise(resolve=>{const start=performance.now();function step(now){const raw=Math.min(1,(now-start)/duration);setter(ease(raw));if(raw<1)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});}
-        function retrigger(className){experience.classList.remove(className);void experience.offsetWidth;experience.classList.add(className);}
-        function revealMask(){retrigger('mask-revealing');maskScale=0;return animateValue(value=>maskScale=value,1050);}
-        function revealPlanetContent(){retrigger('content-revealing');}
-        function waitForMedia(media,timeout=2200){return new Promise(resolve=>{if((media.tagName==='IMG'&&media.complete&&media.naturalWidth)||(media.tagName==='VIDEO'&&media.readyState>=3)){resolve();return;}let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);media.removeEventListener('canplaythrough',finish);media.removeEventListener('canplay',finish);media.removeEventListener('loadeddata',finish);media.removeEventListener('load',finish);media.removeEventListener('error',finish);resolve();};const timer=setTimeout(finish,timeout);media.addEventListener('canplaythrough',finish,{once:true});media.addEventListener('canplay',finish,{once:true});media.addEventListener('load',finish,{once:true});media.addEventListener('error',finish,{once:true});});}
-        async function startExperience(){const state=states[current];await waitForMedia(state.image?portalImage:portalVideo);await revealMask();document.body.classList.add('intro-ready');setTimeout(()=>{revealPlanetContent();preloadNextTransition();},850);}
-        function waitForEnd(video,timeout=6000){return new Promise(resolve=>{if(video.ended){resolve();return;}let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);video.removeEventListener('ended',finish);video.removeEventListener('error',finish);resolve();};const timer=setTimeout(finish,timeout);video.addEventListener('ended',finish,{once:true});video.addEventListener('error',finish,{once:true});});}
-
-        // =====================================================================
-        // 4-STAGE 6-SECOND 3D ORBITAL-TO-SURFACE FLIGHT TO ANY EARTH COORDINATE
-        // [0.0s - 1.0s] Lower-center 3D Earth Globe with stars rotates to [lon, lat]
-        // [1.0s - 2.6s] Hyper-fast supersonic atmospheric entry & 3D cloud plunge
-        // [2.6s - 4.2s] Smooth gradual Ease-Out deceleration pitching up over 3D terrain
-        // [4.2s - 6.0s] 2-Second steady final vista hold on the landed location
-        // =====================================================================
-        function runEarth3DFlight(zone){
-          return new Promise(resolve=>{
-            const duration=5800;
-            const startLon=zone.lon-42;
-            const startLat=Math.max(-55,Math.min(55,zone.lat*0.45));
-            const targetLon=zone.lon;
-            const targetLat=zone.lat;
-            const targetZoom=zone.targetZoom||13.2;
-            const targetPitch=zone.targetPitch||70;
-            const targetBearing=zone.targetBearing||24;
-            const orbitalPadTop=Math.round(innerHeight*0.24);
-            let prewarmedTiles=false;
-            const t0=performance.now();
-
-            function step(now){
-              const elapsed=now-t0;
-              const t=Math.min(5.8,elapsed/1000);
-
-              if(t<1.05){
-                // STAGE 1: [0.0s - 1.05s] Orbital Globe Rotation in Space (stars visible behind curved limb)
-                const p1=ease(t/1.05);
-                const lon=startLon+(targetLon-startLon)*p1;
-                const lat=startLat+(targetLat-startLat)*p1;
-                const zoom=1.60+0.65*p1;
-                earthStarAlpha=1;
-                earthCloudAlpha=0;
-                earthMap.jumpTo({
-                  center:[lon,lat],
-                  zoom,
-                  pitch:14+6*p1,
-                  bearing:-18*p1,
-                  padding:{top:Math.round(orbitalPadTop*(1-p1*0.35)),bottom:0,left:0,right:0}
-                });
-              }else if(t<2.65){
-                // STAGE 2: [1.05s - 2.65s] HYPER-FAST SUPERSONIC ATMOSPHERIC & VOLUMETRIC CLOUD ENTRY
-                const p2=(t-1.05)/1.60;
-                // Exponential supersonic acceleration into the atmosphere
-                const pFast=p2*p2*(3-2*p2);
-                const zoom=2.25+(10.85-2.25)*pFast;
-                const padTop=Math.round(orbitalPadTop*0.65*(1-pFast));
-                earthStarAlpha=Math.max(0,1-p2*2.2);
-                earthCloudPhase=p2;
-                // Bell-curve volumetric cloud opacity peaking as we punch through the cloud deck
-                earthCloudAlpha=Math.sin(p2*Math.PI)*0.95;
-
-                // While cloud veil is thickest (p2 in 0.48..0.68), pre-trigger target tile fetch at ground zoom
-                if(p2>0.48&&p2<0.66&&!prewarmedTiles){
-                  prewarmedTiles=true;
-                  earthMap.jumpTo({
-                    center:[targetLon,targetLat],
-                    zoom:targetZoom-0.4,
-                    pitch:targetPitch-6,
-                    bearing:targetBearing-8,
-                    padding:{top:0,bottom:0,left:0,right:0}
-                  });
-                }else{
-                  earthMap.jumpTo({
-                    center:[targetLon,targetLat],
-                    zoom,
-                    pitch:20+22*pFast,
-                    bearing:-18+(targetBearing-12+18)*pFast,
-                    padding:{top:padTop,bottom:0,left:0,right:0}
-                  });
-                }
-              }else if(t<4.15){
-                // STAGE 3: [2.65s - 4.15s] SMOOTH GRADUAL EASE-OUT DECELERATION OVER 3D TERRAIN
-                const p3=(t-2.65)/1.50;
-                // Smooth cubic ease-out deceleration curve
-                const easeOut=1-Math.pow(1-p3,3.2);
-                const zoom=10.85+(targetZoom-10.85)*easeOut;
-                const pitch=42+(targetPitch-42)*easeOut;
-                const bearing=(targetBearing-12)+12*easeOut;
-                earthStarAlpha=0;
-                earthCloudPhase=0.65+p3*0.35;
-                earthCloudAlpha=Math.max(0,(1-p3*1.65)*0.45);
-                earthMap.jumpTo({
-                  center:[targetLon,targetLat],
-                  zoom,
-                  pitch,
-                  bearing,
-                  padding:{top:0,bottom:0,left:0,right:0}
-                });
-              }else{
-                // STAGE 4: [4.15s - 5.80s] 2-SECOND FINAL VISTA HOLD ON THE LANDED LOCATION
-                const p4=(t-4.15)/1.65;
-                earthStarAlpha=0;
-                earthCloudAlpha=0;
-                earthMap.jumpTo({
-                  center:[targetLon,targetLat],
-                  zoom:targetZoom+p4*0.10,
-                  pitch:targetPitch,
-                  bearing:targetBearing+p4*3.5,
-                  padding:{top:0,bottom:0,left:0,right:0}
-                });
-              }
-
-              if(elapsed<duration){
-                requestAnimationFrame(step);
-              }else{
-                earthCloudAlpha=0;
-                earthStarAlpha=0;
-                resolve();
-              }
-            }
-            requestAnimationFrame(step);
-          });
-        }
-
-        async function travel(targetPlanet,customZone){
-          const next=typeof targetPlanet==='string'&&states[targetPlanet]?targetPlanet:states[current].next.toLowerCase();
-          if(busy||!states[next]||(next===current&&next!=='earth'))return;
-          busy=true;targetX=targetY=0;
-          try{
-            if(next==='earth'){
-              const zone=customZone||(current==='earth'?pickNextEarthZone():activeEarthZone);
-              syncEarthTelemetry(zone);
-
-              if(earthMap&&earthMapReady){
-                // Live 3D Google Earth Orbital-to-Surface Flight!
-                portalVideo.pause();
-                experience.classList.remove('is-loading','content-revealing','mask-revealing');
-                experience.classList.add('is-transitioning');
-                canvasOpacity=1;transitionActive=true;earthFlightActive=true;lunarFlightActive=false;
-                await Promise.all([
-                  animateValue(value=>expansion=value,950),
-                  runEarth3DFlight(zone)
-                ]);
-                sceneCtx.clearRect(0,0,innerWidth,innerHeight);
-                drawEarthEngineView(sceneCtx,performance.now());
-                frozenScene=true;earthEngineActive=true;current='earth';
-                experience.classList.add('is-committing');render();
-                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-                transitionActive=false;earthFlightActive=false;expansion=0;maskScale=0;canvasOpacity=1;
-                experience.classList.remove('is-transitioning','is-committing');
-                const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-                setTimeout(()=>{preloadNextTransition();busy=false;},400);
-                return;
-              }
-            }else if(current==='earth'){
-              earthEngineActive=false;
-              pickNextEarthZone();
-            }
-
-            const transitionSrc=states[next].arrival||states[current].portal;
-            const startTime=states[next].arrivalStart||0;
-            portalVideo.pause();
-            if(!transitionVideo.getAttribute('src')||!transitionVideo.src.endsWith(transitionSrc)){
-              transitionVideo.src=transitionSrc;transitionVideo.load();
-            }
-            experience.classList.add('is-loading');await waitForMedia(transitionVideo,1800);
-            experience.classList.remove('is-loading','content-revealing','mask-revealing');experience.classList.add('is-transitioning');transitionVideo.currentTime=startTime;transitionVideo.playbackRate=1.5;canvasOpacity=1;transitionActive=true;earthFlightActive=false;lunarFlightActive=false;
-            const playback=transitionVideo.play();if(playback)await playback;await animateValue(value=>expansion=value,1100);await waitForEnd(transitionVideo);
-            sceneCtx.clearRect(0,0,innerWidth,innerHeight);drawCover(sceneCtx,transitionVideo);frozenScene=true;current=next;
-            if(current==='mars'&&earthMapReady)parkEarthInOrbit(activeEarthZone);
-            experience.classList.add('is-committing');render();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-            transitionActive=false;expansion=0;maskScale=0;canvasOpacity=1;experience.classList.remove('is-transitioning','is-committing');const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-            setTimeout(()=>{preloadNextTransition();busy=false;},450);
-          }catch(error){
-            transitionActive=false;earthFlightActive=false;lunarFlightActive=false;expansion=0;maskScale=1;canvasOpacity=1;experience.classList.remove('is-loading','is-transitioning','is-committing');busy=false;
-          }
-        }
-
-        // Search Form & Quick Chips Handlers
-        searchForm.addEventListener('submit',async event=>{
-          event.preventDefault();
-          if(busy)return;
-          const q=searchInput.value.trim();
-          const zone=await resolveLocationQuery(q);
-          experience.classList.remove('is-loading');
-          loadingLabel.textContent='Preparing orbit…';
-          travel('earth',zone);
+      // Event Listeners for Planetary Jumping
+      document.getElementById('portal-trigger').addEventListener('click', () => travel());
+      document.querySelectorAll('.planet-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const p = item.dataset.planet;
+          if (p !== current) travel(p);
         });
-        quickChipsWrap.addEventListener('click',event=>{
-          const chip=event.target.closest('.earth-chip');
-          if(!chip||busy)return;
-          const zone=earthZones.find(z=>z.id===chip.dataset.zoneId);
-          if(zone){
-            searchInput.value=zone.labelAr;
-            travel('earth',zone);
-          }
-        });
+      });
 
-        portal.addEventListener('click',()=>travel());
-        list.addEventListener('click',event=>{
-          const item=event.target.closest('.planet-item');
-          if(!item)return;
-          travel(item.dataset.planet);
-        });
-        list.addEventListener('keydown',event=>{
-          if(event.key!=='Enter'&&event.key!==' ')return;
-          const item=event.target.closest('.planet-item');
-          if(!item)return;
-          event.preventDefault();
-          travel(item.dataset.planet);
-        });
-        if(matchMedia('(pointer:fine)').matches){document.addEventListener('pointermove',event=>{if(!busy){targetY=(event.clientX/innerWidth-.5)*37.4;targetX=(event.clientY/innerHeight-.5)*-33;}});document.addEventListener('pointerleave',()=>{targetX=targetY=0;});}
-
-        const cursor=document.getElementById('custom-cursor');let pointerX=innerWidth/2,pointerY=innerHeight/2,orbitX=pointerX,orbitY=pointerY;
-        document.addEventListener('pointermove',event=>{pointerX=event.clientX;pointerY=event.clientY;cursor.classList.add('is-visible');});document.addEventListener('mouseleave',()=>cursor.classList.remove('is-visible'));
-        portal.addEventListener('pointerenter',()=>cursor.classList.add('is-enter'));portal.addEventListener('pointerleave',()=>cursor.classList.remove('is-enter'));
-        list.addEventListener('pointerover',event=>{const item=event.target.closest('.planet-item');cursor.classList.toggle('is-enter',Boolean(item&&item.dataset.planet!==current));});
-        list.addEventListener('pointerleave',()=>cursor.classList.remove('is-enter'));
-        function cursorLoop(){orbitX+=(pointerX-orbitX)*.2;orbitY+=(pointerY-orbitY)*.2;cursor.style.transform='translate3d('+orbitX+'px,'+orbitY+'px,0)';requestAnimationFrame(cursorLoop);}
-        function parkBackgroundAtEnd(video){
-          if(video.tagName!=='VIDEO')return;
-          const seekEnd=()=>{if(video.duration&&Number.isFinite(video.duration)){video.pause();try{video.currentTime=Math.max(0,video.duration-.08);}catch(_){}}};
-          if(video.readyState>=1)seekEnd();else video.addEventListener('loadedmetadata',seekEnd,{once:true});
-        }
-        function runPreloader(){
-          const video=document.getElementById('preloader-video'),value=document.getElementById('preloader-value'),counter=document.getElementById('preloader-count'),logo=document.getElementById('floating-logo'),preloader=document.getElementById('preloader');let finished=false,raf=0;
-          const update=()=>{if(video.duration&&Number.isFinite(video.duration))value.textContent=String(Math.round(video.currentTime/video.duration*100));raf=requestAnimationFrame(update);};
-          const finish=()=>{if(finished)return;finished=true;cancelAnimationFrame(raf);parkBackgroundAtEnd(video);value.textContent='100';counter.classList.add('is-leaving');logo.classList.add('is-docked');preloader.classList.add('is-background');document.body.classList.add('preload-complete');startExperience();setTimeout(()=>counter.remove(),750);setTimeout(()=>logo.classList.add('is-settled'),2000);};
-          if(new URLSearchParams(location.search).get('autostart')==='1'){
-            if(video.readyState>=1)finish();else video.addEventListener('loadeddata',finish,{once:true});
-            setTimeout(finish,1200);
-            return;
+      // Quick Chips Click
+      quickChipsWrap.addEventListener('click', (e) => {
+        const chip = e.target.closest('.earth-chip');
+        if (!chip) return;
+        document.querySelectorAll('.earth-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const z = earthZones.find(item => item.id === chip.dataset.zoneId);
+        if (z) {
+          activeEarthZone = z;
+          searchInput.value = z.labelAr;
+          if (current !== 'earth') travel('earth', z);
+          else {
+            setPlanetDisplay('earth');
           }
-          const begin=()=>{if(video.duration&&Number.isFinite(video.duration))video.playbackRate=Math.max(.25,video.duration/3);video.play().then(()=>{update();}).catch(finish);};
-          video.addEventListener('ended',finish,{once:true});setTimeout(finish,5000);if(video.readyState>=1)begin();else video.addEventListener('loadedmetadata',begin,{once:true});
         }
-        window.addEventListener('resize',resizeCanvas);
-        document.querySelectorAll('.background').forEach(parkBackgroundAtEnd);
-        resizeCanvas();render();requestAnimationFrame(draw);requestAnimationFrame(cursorLoop);runPreloader();
-      })();
-    </script>
-  </body>
+      });
+
+      // Search Form Submit
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = searchInput.value.trim().toLowerCase();
+        let matched = earthZones.find(z => z.labelAr.toLowerCase().includes(q) || z.name.toLowerCase().includes(q));
+        if (!matched) matched = earthZones[0];
+        activeEarthZone = matched;
+        travel('earth', matched);
+      });
+
+      // Custom Cursor inside Experience
+      const cursor = document.getElementById('custom-cursor');
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let cx = mx, cy = my;
+
+      window.addEventListener('mousemove', (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+
+      function cursorLoop() {
+        cx += (mx - cx) * 0.2;
+        cy += (my - cy) * 0.2;
+        cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+        requestAnimationFrame(cursorLoop);
+      }
+      requestAnimationFrame(cursorLoop);
+
+      // Initialize
+      portalVideo.play().catch(() => {});
+      updateHUD('mars');
+    })();
+  </script>
+</body>
 </html>
