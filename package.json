@@ -4,7 +4,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "sync:vendor": "mkdir -p public/assets/vendor && cp -f node_modules/maplibre-gl/dist/maplibre-gl.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl.css public/assets/vendor/ 2>/dev/null || true",
+    "predev": "npm run sync:vendor",
     "dev": "vite dev --host 0.0.0.0 --port 3000",
+    "prebuild": "npm run sync:vendor",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
