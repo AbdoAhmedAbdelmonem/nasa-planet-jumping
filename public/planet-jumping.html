@@ -9,8 +9,8 @@
     <meta property="og:description" content="An immersive cinematic journey from Mars through the inner Solar System." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="/assets/css/maplibre-gl.css" />
-    <script src="/assets/js/maplibre-gl.js"></script>
+    <link rel="stylesheet" href="/assets/vendor/maplibre-gl.css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css" />
     <style>
       @font-face{font-family:'SF Pro';font-style:normal;font-weight:400;src:local('SF Pro Display'),local('SF Pro Text')}
       @font-face{font-family:'SF Pro';font-style:normal;font-weight:700;src:local('SF Pro Display Bold'),local('SF Pro Text Bold')}
@@ -20,20 +20,27 @@
       *{box-sizing:border-box}
       html,body{margin:0;width:100%;height:100%;overflow:hidden}
       html,body,button,a,.portal{cursor:none!important}
-      button,a{font:inherit}
+      button,a,input{font:inherit}
       .experience{position:relative;width:100%;height:100%;min-height:540px;overflow:hidden;background:#0a0908}
       .backgrounds,.background,.shade,.transition-layer,.transition-layer video{position:absolute;inset:0;width:100%;height:100%}
       .background{object-fit:cover;opacity:0;transition:opacity .8s ease}
       .background.is-visible{opacity:1}
-      .earth-map-container{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0;pointer-events:none;transition:opacity .8s ease;overflow:hidden;background:#020202}
-      .earth-map-container.is-active{opacity:1;pointer-events:auto}
-      .earth-map-container .maplibregl-canvas{width:100%!important;height:100%!important}
-      .shade{z-index:2;background:linear-gradient(to bottom,transparent 48%,rgba(0,0,0,.92) 100%);pointer-events:none}
+      .shade{z-index:1;background:linear-gradient(to bottom,transparent 52%,rgba(0,0,0,.88) 100%);pointer-events:none}
       .chrome{position:absolute;z-index:4;transition:opacity .45s ease,filter .45s ease}
       .experience.is-transitioning .chrome{opacity:0;filter:blur(8px);pointer-events:none}
-      .header{left:clamp(18px,1.95vw,28px);right:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);display:flex;justify-content:space-between;align-items:center}
-      .logo-slot{width:37px;height:36px}
-      .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+      .header{left:clamp(18px,1.95vw,28px);right:clamp(18px,1.95vw,28px);top:clamp(18px,3.1vh,28px);display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+      .logo-slot{width:37px;height:36px;flex-shrink:0}
+      .earth-search-dock{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:min(560px,50vw);width:100%;margin:0 auto}
+      .earth-search-form{display:flex;align-items:center;width:100%;height:40px;padding:3px 4px 3px 14px;border:1px solid rgba(255,255,255,.38);background:rgba(8,11,18,.58);backdrop-filter:blur(14px);border-radius:999px;gap:8px;transition:border-color .2s,background .2s}
+      .earth-search-form:focus-within{border-color:rgba(255,255,255,.85);background:rgba(8,11,18,.78)}
+      .earth-search-input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:13.5px;direction:rtl;text-align:right;cursor:text!important}
+      .earth-search-input::placeholder{color:rgba(255,255,255,.62)}
+      .earth-search-btn{height:32px;padding:0 15px;border:0;border-radius:999px;background:#fff;color:#000;font-size:12.5px;font-weight:700;white-space:nowrap;transition:transform .15s,background .2s}
+      .earth-search-btn:hover{background:#dcebff;transform:scale(1.03)}
+      .earth-quick-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+      .earth-chip{height:24px;padding:0 10px;border:1px solid rgba(255,255,255,.26);border-radius:999px;background:rgba(12,16,24,.52);backdrop-filter:blur(8px);color:rgba(255,255,255,.86);font-size:11.5px;line-height:22px;white-space:nowrap;transition:all .18s}
+      .earth-chip:hover,.earth-chip.active{background:#fff;color:#000;border-color:#fff}
+      .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
       .nav{display:flex;align-items:center;height:42px;padding:4px 5px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:999px}
       .nav a{color:#fff;text-decoration:none;padding:8px 19px;border-radius:999px;line-height:1}
       .nav a.active{background:#fff;color:#000}
@@ -48,6 +55,7 @@
       .portal{position:relative;display:block;width:100%;aspect-ratio:320/350;padding:0;overflow:visible;border:0;border-radius:90px;background:transparent;cursor:pointer;box-shadow:none;transform:none!important}
       .portal video,.portal img{opacity:0;position:absolute;width:1px;height:1px;pointer-events:none}
       .portal-canvas{position:fixed;inset:0;z-index:3;width:100%;height:100%;pointer-events:none}
+      .earth-globe-stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;opacity:.001;pointer-events:none}
       .planet-content{left:clamp(28px,4vw,58px);right:clamp(28px,3vw,44px);bottom:clamp(24px,3vh,30px);display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
       .planet-content h1{font-family:Aalto,'Arial Narrow',sans-serif;font-stretch:condensed;font-size:clamp(128px,21.8vw,314px);font-weight:400;line-height:.72;margin:0 0 -.04em;letter-spacing:0;transform:translateX(-32px);opacity:0}
       .planet-content dl{width:min(447px,34vw);margin:0;font-size:16px}
@@ -57,6 +65,7 @@
       .loading{position:absolute;z-index:12;left:50%;bottom:30px;transform:translateX(-50%);opacity:0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:opacity .2s}
       .experience.is-loading .loading{opacity:.8}
       .experience.is-transitioning .header,.experience.is-transitioning .planet-list{opacity:1;filter:none;pointer-events:auto}
+      .experience.is-transitioning .earth-search-dock{opacity:0;pointer-events:none;transition:opacity .25s}
       .experience.is-transitioning .shade{opacity:1}
       .experience.is-committing .background{transition:none!important}
       .preloader{position:absolute;inset:0;z-index:20;background:#000;overflow:hidden}
@@ -97,55 +106,29 @@
       @keyframes portal-caption{from{opacity:0;filter:blur(7px);transform:translateY(22px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
       @keyframes menu-row{from{opacity:.35;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
       @keyframes active-dot{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
-      @media(max-width:900px){.nav{display:none}.portal-wrap{width:min(300px,48vw)}.planet-content h1{font-size:clamp(105px,24vw,190px)}.planet-content dl{width:43vw}.fact{grid-template-columns:110px 1fr}.planet-list{font-size:14px}.planet-item.active{font-size:16px}}
-      @media(max-width:640px){.experience{min-height:600px}.planet-list{display:none}.portal-wrap{top:44%;width:min(260px,66vw)}.planet-content{left:18px;right:18px;bottom:18px;display:block}.planet-content h1{font-size:clamp(98px,30vw,160px);margin-bottom:20px}.planet-content dl{width:100%;font-size:13px}.fact{grid-template-columns:92px 1fr;padding:5px 0}.portal-heading{font-size:14px}.portal-heading strong{font-size:16px}.menu{height:38px}.portal{border-radius:70px}}
+      @media(max-width:900px){.nav{display:none}.earth-search-dock{max-width:64vw}.portal-wrap{width:min(300px,48vw)}.planet-content h1{font-size:clamp(105px,24vw,190px)}.planet-content dl{width:43vw}.fact{grid-template-columns:110px 1fr}.planet-list{font-size:14px}.planet-item.active{font-size:16px}}
+      @media(max-width:640px){.experience{min-height:600px}.planet-list{display:none}.earth-quick-chips{display:none}.portal-wrap{top:44%;width:min(260px,66vw)}.planet-content{left:18px;right:18px;bottom:18px;display:block}.planet-content h1{font-size:clamp(98px,30vw,160px);margin-bottom:20px}.planet-content dl{width:100%;font-size:13px}.fact{grid-template-columns:92px 1fr;padding:5px 0}.portal-heading{font-size:14px}.portal-heading strong{font-size:16px}.menu{height:38px}.portal{border-radius:70px}}
       @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}.portal{transform:none!important}}
-
-      /* MapLibre GL Earth Telemetry HUD */
-      .earth-telemetry-hud{position:fixed;inset:0;z-index:15;pointer-events:none;opacity:0;transition:opacity .45s cubic-bezier(.16,1,.3,1)}
-      .earth-telemetry-hud.is-active{opacity:1}
-      .hud-reticle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:170px;height:170px;border:1px dashed rgba(255,255,255,.4);border-radius:50%;display:flex;align-items:center;justify-content:center}
-      .hud-reticle::before{content:'';position:absolute;width:34px;height:34px;border:2px solid #fff;border-radius:50%;animation:reticle-pulse 1.6s infinite ease-out}
-      .hud-reticle-cross{position:absolute;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent)}
-      .hud-reticle-cross.vert{transform:rotate(90deg)}
-      .hud-coords-badge{position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);font-family:monospace;font-size:11px;letter-spacing:.16em;color:#fff;background:rgba(0,0,0,.75);padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.3);white-space:nowrap}
-      .hud-readouts{position:absolute;bottom:clamp(32px,5vh,64px);left:50%;transform:translateX(-50%);display:flex;gap:28px;background:rgba(8,8,8,.8);backdrop-filter:blur(14px);padding:10px 28px;border-radius:999px;border:1px solid rgba(255,255,255,.25)}
-      .hud-readout-item{display:flex;flex-direction:column;align-items:center;gap:3px}
-      .hud-readout-item .lbl{font-size:9px;letter-spacing:.22em;color:rgba(255,255,255,.6);font-weight:700}
-      .hud-readout-item .val{font-size:14px;font-weight:700;font-family:monospace;color:#fff}
-      @keyframes reticle-pulse{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.8);opacity:0}}
-
-      /* MapLibre Landing Marker */
-      .earth-landing-marker{width:48px;height:48px;position:relative;cursor:pointer}
-      .earth-landing-marker .marker-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:12px;height:12px;background:#fff;border-radius:50%;box-shadow:0 0 16px rgba(255,255,255,1)}
-      .earth-landing-marker .marker-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border:1.5px solid rgba(255,255,255,.8);border-radius:50%;animation:marker-pulse 2s infinite ease-out}
-      .earth-landing-marker .marker-badge{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(8,8,8,.88);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(10px);padding:4px 10px;border-radius:4px;font-family:monospace;font-size:10px;letter-spacing:.12em;color:#fff;white-space:nowrap;pointer-events:none}
-      @keyframes marker-pulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:1}100%{transform:translate(-50%,-50%) scale(1.7);opacity:0}}
     </style>
   </head>
   <body>
     <main id="experience" class="experience" data-planet="mars">
+      <div id="earth-globe-stage" class="earth-globe-stage" aria-hidden="true"></div>
       <div class="backgrounds" aria-hidden="true">
         <video class="background mars-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
         <video class="background earth-background" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/fc3ded42-e845-41f3-a830-5cab512d79cd.mp4"></video>
         <video class="background moon-background" src="/assets/videos/to_moon.mp4" muted playsinline preload="auto"></video>
       </div>
-      <div id="earth-map-container" class="earth-map-container" aria-hidden="true"></div>
-      <div id="earth-telemetry-hud" class="earth-telemetry-hud" aria-hidden="true">
-        <div class="hud-reticle">
-          <div class="hud-reticle-cross"></div>
-          <div class="hud-reticle-cross vert"></div>
-          <div id="hud-coords" class="hud-coords-badge">ENTRY VECTOR: 25.4000° N, 29.8000° E</div>
-        </div>
-        <div class="hud-readouts">
-          <div class="hud-readout-item"><span class="lbl">ALTITUDE</span><span id="hud-alt" class="val">420 KM</span></div>
-          <div class="hud-readout-item"><span class="lbl">VELOCITY</span><span id="hud-vel" class="val">MACH 24.2</span></div>
-          <div class="hud-readout-item"><span class="lbl">TARGET REGION</span><span id="hud-zone" class="val">SAHARA & ARABIAN DESERT</span></div>
-        </div>
-      </div>
       <div class="shade"></div>
       <header class="header chrome">
         <div class="logo-slot" aria-hidden="true"></div>
+        <div id="earth-search-dock" class="earth-search-dock">
+          <form id="earth-search-form" class="earth-search-form" autocomplete="off">
+            <button id="earth-search-btn" class="earth-search-btn" type="submit" dir="rtl">هبوط فوري</button>
+            <input id="earth-search-input" class="earth-search-input" type="text" placeholder="اكتب أي مكان أو إحداثيات على الأرض (مثال: الصحراء الغربية، القطب الجنوبي، ألاسكا)..." aria-label="Search Earth landing location" />
+          </form>
+          <div id="earth-quick-chips" class="earth-quick-chips" role="group" aria-label="NASA Planetary Test Sites"></div>
+        </div>
         <div class="header-actions">
           <nav class="nav" aria-label="Primary"><a href="#about">About</a><a class="active" href="#explore">Explore</a><a href="#planets">Planets</a></nav>
           <button class="menu" type="button">Menu</button>
@@ -166,7 +149,7 @@
       <canvas id="portal-canvas" class="portal-canvas" aria-hidden="true"></canvas>
       <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
       <div class="transition-layer" aria-hidden="true"><video id="transition-video" muted playsinline preload="auto"></video></div>
-      <div class="loading">Preparing orbit…</div>
+      <div class="loading" id="loading-label">Preparing orbit…</div>
       <div id="preloader" class="preloader">
         <video id="preloader-video" muted playsinline preload="auto" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3c83091e-4046-4fd6-adbb-2edb728be79a.mp4"></video>
         <div class="preloader-shade"></div>
@@ -175,6 +158,30 @@
       <div id="preloader-count" class="preloader-count"><span id="preloader-value">0</span><span class="percent">%</span></div>
       <div id="custom-cursor" class="custom-cursor" aria-hidden="true"><span class="cursor-orbit"></span><span class="cursor-dot"></span><span class="cursor-label">Enter</span></div>
     </main>
+    <script type="module">
+      (async () => {
+        let ml = null;
+        try {
+          ml = await import('/assets/vendor/maplibre-gl.mjs');
+        } catch (_) {}
+        if (!ml || (!ml.Map && !(ml.default && ml.default.Map))) {
+          try {
+            await new Promise((resolve, reject) => {
+              const s = document.createElement('script');
+              s.src = 'https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js';
+              s.onload = resolve;
+              s.onerror = reject;
+              document.head.appendChild(s);
+            });
+            ml = window.maplibregl;
+          } catch (__) {}
+        }
+        if (ml) {
+          window.maplibregl = (ml.default && ml.default.Map) ? ml.default : ml;
+          window.dispatchEvent(new Event('maplibre-ready'));
+        }
+      })();
+    </script>
     <script>
       (() => {
         'use strict';
@@ -188,36 +195,44 @@
         const moonOrbitImg=new Image();moonOrbitImg.src=MOON_ORBIT;
         const moonSurfaceImg=new Image();moonSurfaceImg.src=MOON_SURFACE;
 
-        /* Precision Earth Landing Zones with exact [lng, lat] coordinates */
         const earthZones=[
-          {id:'sahara',region:'Sahara & Arabian Desert',name:'Great Sand Sea Sector Alpha',coords:'25.4000° N, 29.8000° E',lng:29.8000,lat:25.4000,zoom:12.5,pitch:58,bearing:24,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Arid desert zone (~38 °C by day, 15 °C global mean).',elevation:'182 m datum',atmosphere:'Hyper-arid, high visibility, thin cloud cover'},
-          {id:'amazon',region:'Amazon Rainforest Basin',name:'Rio Negro Biosphere Gateway',coords:'3.4000° S, 62.2000° W',lng:-62.2000,lat:-3.4000,zoom:12.0,pitch:60,bearing:-15,video:'/assets/videos/to_earth_amazon.mp4',temperature:'Equatorial tropical basin (~28 °C, high humidity).',elevation:'64 m datum',atmosphere:'Dense canopy transpiration, oxygen-rich'},
-          {id:'arctic',region:'Arctic Glacial Fjord',name:'Svalbard Polar Archipelago',coords:'68.3000° N, 14.6000° E',lng:14.6000,lat:68.3000,zoom:12.0,pitch:64,bearing:42,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Sub-polar glacial zone (-12 °C to 4 °C).',elevation:'320 m fjord elevation',atmosphere:'Crisp polar air, high atmospheric transparency'},
-          {id:'savanna',region:'East African Rift Savanna',name:'Serengeti Caldera Approach',coords:'2.3000° S, 34.8000° E',lng:34.8000,lat:-2.3000,zoom:12.5,pitch:55,bearing:18,video:'/assets/videos/to_earth_savanna.mp4',temperature:'Sub-tropical savanna (~24 °C, 15 °C global mean).',elevation:'1,530 m rift plateau',atmosphere:'Semi-arid continental airflow, open thermals'},
-          {id:'kennedy',region:'NASA Kennedy Space Center',name:'Cape Canaveral Launch Complex 39A',coords:'28.5721° N, 80.6480° W',lng:-80.6480,lat:28.5721,zoom:13.5,pitch:62,bearing:-32,video:'/assets/videos/to_earth.mp4',temperature:'Subtropical coastal climate (~26 °C).',elevation:'3 m spaceport datum',atmosphere:'Maritime coastal boundary layer, Atlantic trades'},
-          {id:'mojave',region:'Mojave Air & Space Port',name:'Mojave Aerospace Test Center',coords:'35.0592° N, 118.1517° W',lng:-118.1517,lat:35.0592,zoom:13.0,pitch:60,bearing:45,video:'/assets/videos/to_earth.mp4',temperature:'High desert climate (~22 °C mean).',elevation:'851 m high desert plateau',atmosphere:'Low humidity, ultra-clear visual corridor'}
+          {id:'western_desert',labelAr:'الصحراء الغربية',region:'Gilf Kebir & Black Desert, Egypt',coords:'23.62° N, 25.41° E',lat:23.62,lon:25.41,targetZoom:13.2,targetPitch:70,targetBearing:28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Hyper-arid Martian analog plateau (~36 °C day, iron-rich sandstone regolith).',keywords:['الصحراء الغربية','الجلف الكبير','الفرافرة','الصحراء السوداء','western desert','gilf kebir','farafra']},
+          {id:'eastern_desert',labelAr:'الصحراء الشرقية',region:'Red Sea Wadis & Basement Rocks, Egypt',coords:'26.08° N, 33.78° E',lat:26.08,lon:33.78,targetZoom:13.4,targetPitch:72,targetBearing:-35,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Precambrian igneous & basaltic wadi canyons (~34 °C, ancient flood channel analog).',keywords:['الصحراء الشرقية','جبال البحر الاحمر','البحر الأحمر','eastern desert','red sea']},
+          {id:'sahara',labelAr:'الصحراء الكبرى',region:'Tassili & Richat Structure, Sahara',coords:'21.12° N, 11.40° W',lat:21.124,lon:-11.402,targetZoom:12.6,targetPitch:68,targetBearing:18,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Arid desert zone (~38 °C by day, eroded sandstone & concentric regolith rings).',keywords:['الصحراء الكبرى','الصحراء الكبري','تاسيلي','صحراء','sahara','tassili','richat']},
+          {id:'antarctica',labelAr:'القطب الجنوبي',region:'McMurdo Dry Valleys, Antarctica',coords:'77.52° S, 162.53° E',lat:-77.52,lon:162.53,targetZoom:12.8,targetPitch:70,targetBearing:42,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Cold hyper-arid NASA Mars analog (-20 °C to -50 °C, permafrost basalt regolith).',keywords:['القطب الجنوبي','انتاركتيكا','ماكموردو','antarctica','south pole','mcmurdo']},
+          {id:'alaska',labelAr:'ألاسكا',region:'Valley of 10,000 Smokes, Katmai, Alaska',coords:'58.28° N, 155.16° W',lat:58.28,lon:-155.16,targetZoom:13.1,targetPitch:71,targetBearing:-24,video:'/assets/videos/to_earth_arctic.mp4',temperature:'Sub-arctic NASA Apollo volcanic ash & glacial test site (-8 °C to 6 °C).',keywords:['الاسكا','ألاسكا','كاتماي','alaska','katmai']},
+          {id:'wadi_rum',labelAr:'وادي رم',region:'Wadi Rum Red Silicate Valley, Jordan',coords:'29.58° N, 35.42° E',lat:29.58,lon:35.42,targetZoom:13.6,targetPitch:72,targetBearing:30,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Iron-oxide red sandstone & granite monoliths (~32 °C, Martian valley analog).',keywords:['وادي رم','الاردن','الأردن','wadi rum','jordan']},
+          {id:'atacama',labelAr:'صحراء أتاكاما',region:'Valle de la Luna, Atacama Desert, Chile',coords:'22.92° S, 68.32° W',lat:-22.92,lon:-68.32,targetZoom:13.4,targetPitch:71,targetBearing:-28,video:'/assets/videos/to_earth_sahara.mp4',temperature:'NASA ARADS rover drill testbed (~22 °C, hyper-arid perchlorate regolith).',keywords:['اتاكاما','أتاكاما','تشيلي','atacama','chile','valle de la luna']},
+          {id:'meteor_crater',labelAr:'فوهة بارينجر',region:'Barringer Meteor Crater & Cinder Lake, AZ',coords:'35.03° N, 111.02° W',lat:35.027,lon:-111.022,targetZoom:14.2,targetPitch:68,targetBearing:22,video:'/assets/videos/to_earth_sahara.mp4',temperature:'Official NASA Apollo lunar crater & ejecta training site (~24 °C).',keywords:['فوهة بارينجر','اريزونا','أريزونا','meteor crater','barringer','cinder lake','arizona']}
         ];
-        let activeEarthZone=earthZones[Math.floor(Math.random()*earthZones.length)]||earthZones[0];
 
+        let activeEarthZone=earthZones[0];
+        function syncEarthTelemetry(zone){
+          activeEarthZone=zone;
+          states.mars.portal=zone.video;
+          states.earth.arrival=zone.video;
+          states.earth.facts=[
+            ['Landing Zone:',zone.region+' ('+zone.coords+').'],
+            ['Distance:','149.6 million km from the Sun (365.25-day orbit).'],
+            ['Temperature:',zone.temperature],
+            ['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']
+          ];
+          document.querySelectorAll('.earth-chip').forEach(btn=>{
+            btn.classList.toggle('active',btn.dataset.zoneId===zone.id);
+          });
+        }
         function pickNextEarthZone(){
           const pool=earthZones.filter(z=>z.id!==activeEarthZone.id);
-          activeEarthZone=pool[Math.floor(Math.random()*pool.length)]||earthZones[0];
-          states.mars.portal=activeEarthZone.video;
-          states.earth.arrival=activeEarthZone.video;
-          states.earth.facts=[
-            ['Landing Site:',activeEarthZone.name||activeEarthZone.region],
-            ['Coordinates:',activeEarthZone.coords],
-            ['Elevation:',activeEarthZone.elevation||'Sea level datum'],
-            ['Temperature:',activeEarthZone.temperature]
-          ];
-          return activeEarthZone;
+          const nextZone=pool[Math.floor(Math.random()*pool.length)]||earthZones[0];
+          syncEarthTelemetry(nextZone);
+          return nextZone;
         }
 
         const planets=['Mars','Earth','Moon'];
         const states={
           mars:{name:'Mars',next:'Earth',number:'[03]',portal:activeEarthZone.video,arrival:MARS_ORBIT,background:'mars-background',facts:[['Distance:','About 228 million km (1.5 astronomical units).'],['Year:','One Martian year is equal to 687 Earth days.'],['Temperature:','Around -60 °C, dropping to -125 °C at the poles in winter.'],['Atmosphere:','Very thin, consisting of 95% carbon dioxide, with frequent dust storms.']]},
-          earth:{name:'Earth',next:'Moon',number:'[02]',portal:TO_MOON,image:MOON_ORBIT,arrival:activeEarthZone.video,background:'earth-background',facts:[['Landing Site:',activeEarthZone.name||activeEarthZone.region],['Coordinates:',activeEarthZone.coords],['Elevation:',activeEarthZone.elevation||'Sea level datum'],['Temperature:',activeEarthZone.temperature]]},
-          moon:{name:'Moon',next:'Mars',number:'[01]',portal:MARS_ORBIT,surfaceImage:MOON_SURFACE,arrival:TO_MOON,background:'moon-background',facts:[['Distance:','About 384,400 km from Earth (0.00257 AU).'],['Year:','27.3 Earth days (synchronous orbital period).'],['Temperature:','Around 127 °C by day, dropping to -173 °C at night.'],['Atmosphere:','Extremely thin exosphere, nearly a vacuum with no weather.']]}
+          earth:{name:'Earth',next:'Moon',number:'[02]',portal:TO_MOON,image:MOON_ORBIT,arrival:activeEarthZone.video,background:'earth-background',facts:[['Landing Zone:',activeEarthZone.region+' ('+activeEarthZone.coords+').'],['Distance:','149.6 million km from the Sun (365.25-day orbit).'],['Temperature:',activeEarthZone.temperature],['Atmosphere:','Mostly nitrogen and oxygen, supporting life and liquid water.']]},
+          moon:{name:'Moon',next:'Mars',number:'[01]',portal:MARS_ORBIT,arrival:TO_MOON,background:'moon-background',facts:[['Distance:','About 384,400 km from Earth (0.00257 AU).'],['Year:','27.3 Earth days (synchronous orbital period).'],['Temperature:','Around 127 °C by day, dropping to -173 °C at night.'],['Atmosphere:','Extremely thin exosphere, nearly a vacuum with no weather.']]}
         };
 
         const experience=document.getElementById('experience');
@@ -225,108 +240,234 @@
         const portalVideo=document.getElementById('portal-video');
         const portalImage=document.getElementById('portal-image');
         const transitionVideo=document.getElementById('transition-video');
+        const loadingLabel=document.getElementById('loading-label');
         const canvas=document.getElementById('portal-canvas');
         const sceneCanvas=document.getElementById('scene-canvas');
         const ctx=canvas.getContext('2d');
         const sceneCtx=sceneCanvas.getContext('2d');
         const list=document.querySelector('.planet-list');
-        const mapContainer=document.getElementById('earth-map-container');
-        const telemetryHud=document.getElementById('earth-telemetry-hud');
-        const hudCoords=document.getElementById('hud-coords');
-        const hudAlt=document.getElementById('hud-alt');
-        const hudVel=document.getElementById('hud-vel');
-        const hudZone=document.getElementById('hud-zone');
+        const searchForm=document.getElementById('earth-search-form');
+        const searchInput=document.getElementById('earth-search-input');
+        const quickChipsWrap=document.getElementById('earth-quick-chips');
 
         let current='mars',firstRender=true,busy=false,transitionActive=false,lunarFlightActive=false,lunarProgress=0,frozenScene=false;
+        let earthEngineActive=false,earthFlightActive=false,earthCloudAlpha=0,earthCloudPhase=0,earthStarAlpha=1;
         let expansion=0,maskScale=0,canvasOpacity=1,rotX=0,rotY=0,targetX=0,targetY=0,lastFrame=performance.now();
 
-        /* MapLibre GL Integration for Earth */
-        let earthMap=null,earthMarker=null,mapReady=false;
-        function initEarthMap(){
-          if(typeof maplibregl==='undefined')return;
+        // =====================================================================
+        // REAL-TIME 3D GOOGLE EARTH ORBITAL-TO-SURFACE ENGINE (MapLibre GL v6)
+        // =====================================================================
+        let earthMap=null,earthMapReady=false;
+        const starField=[];
+        for(let i=0;i<220;i++){
+          starField.push({
+            x:Math.random(),
+            y:Math.random()*0.72,
+            r:Math.random()*1.35+0.4,
+            a:Math.random()*0.65+0.25,
+            tw:Math.random()*6.28
+          });
+        }
+
+        function initEarthGlobeEngine(){
+          if(earthMap||!window.maplibregl)return;
           try{
-            earthMap=new maplibregl.Map({
-              container:'earth-map-container',
+            earthMap=new window.maplibregl.Map({
+              container:'earth-globe-stage',
+              interactive:false,
+              attributionControl:false,
+              trackResize:true,
+              canvasContextAttributes:{preserveDrawingBuffer:true,antialias:true},
+              center:[activeEarthZone.lon,activeEarthZone.lat-10],
+              zoom:1.58,
+              pitch:12,
+              bearing:0,
               style:{
                 version:8,
+                projection:{type:'globe'},
+                sky:{
+                  'sky-color':'#040812',
+                  'horizon-color':'#3b86db',
+                  'sky-horizon-blend':0.78,
+                  'atmosphere-blend':['interpolate',['linear'],['zoom'],0,0.92,6,0.78,10,0.35,13,0.08]
+                },
                 sources:{
-                  'satellite':{
+                  'esri-satellite':{
                     type:'raster',
-                    tiles:[
-                      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                    ],
+                    tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                     tileSize:256,
-                    attribution:'Esri World Imagery'
+                    maxzoom:18
+                  },
+                  'terrain-dem':{
+                    type:'raster-dem',
+                    tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+                    tileSize:256,
+                    encoding:'terrarium',
+                    maxzoom:15
                   }
+                },
+                terrain:{
+                  source:'terrain-dem',
+                  exaggeration:1.55
                 },
                 layers:[
                   {
                     id:'satellite-layer',
                     type:'raster',
-                    source:'satellite',
-                    minzoom:0,
-                    maxzoom:19
+                    source:'esri-satellite',
+                    paint:{
+                      'raster-contrast':0.12,
+                      'raster-saturation':0.08,
+                      'raster-fade-duration':0
+                    }
                   }
                 ]
-              },
-              center:[activeEarthZone.lng,activeEarthZone.lat],
-              zoom:2.2,
-              pitch:10,
-              bearing:-15,
-              preserveDrawingBuffer:true,
-              interactive:true,
-              attributionControl:false
+              }
             });
-
             earthMap.on('load',()=>{
-              mapReady=true;
+              earthMapReady=true;
+              parkEarthInOrbit(activeEarthZone);
             });
-          }catch(err){
-            console.warn('[MapLibre GL]',err);
-          }
+          }catch(_){}
+        }
+        if(window.maplibregl)initEarthGlobeEngine();
+        else window.addEventListener('maplibre-ready',initEarthGlobeEngine,{once:true});
+
+        function parkEarthInOrbit(zone){
+          if(!earthMap)return;
+          earthStarAlpha=1;
+          earthCloudAlpha=0;
+          earthMap.jumpTo({
+            center:[zone.lon,Math.max(-65,Math.min(65,zone.lat))],
+            zoom:1.62,
+            pitch:14,
+            bearing:0,
+            padding:{top:Math.round(innerHeight*0.24),bottom:0,left:0,right:0}
+          });
         }
 
-        /* Scalable API for setting target longitude / latitude dynamically */
-        window.setEarthCoordinates=function(lng,lat,name,region){
-          const numLat=Number(lat),numLng=Number(lng);
-          const latDir=numLat>=0?'N':'S',lngDir=numLng>=0?'E':'W';
-          const coords=Math.abs(numLat).toFixed(4)+'° '+latDir+', '+Math.abs(numLng).toFixed(4)+'° '+lngDir;
-          const custom={
-            id:'custom_'+Date.now(),
-            region:region||name||'Target Coordinates',
-            name:name||'Custom Targeted Site',
-            coords:coords,
-            lng:numLng,
-            lat:numLat,
-            zoom:13.0,
-            pitch:60,
-            bearing:25,
-            temperature:'Surface coordinates (~15 °C mean).',
-            elevation:'Planetary surface datum',
-            atmosphere:'Standard Earth atmosphere'
-          };
-          earthZones.unshift(custom);
-          activeEarthZone=custom;
-          states.mars.portal=activeEarthZone.video||TO_EARTH;
-          states.earth.facts=[
-            ['Landing Site:',custom.name],
-            ['Coordinates:',custom.coords],
-            ['Elevation:',custom.elevation],
-            ['Temperature:',custom.temperature]
-          ];
-          if(current==='earth'){
-            render();
-            if(earthMap&&mapReady){
-              earthMap.flyTo({center:[custom.lng,custom.lat],zoom:custom.zoom,pitch:custom.pitch,bearing:custom.bearing,duration:3500});
-              if(earthMarker)earthMarker.remove();
-              const el=document.createElement('div');
-              el.className='earth-landing-marker';
-              el.innerHTML='<div class="marker-dot"></div><div class="marker-ring"></div><div class="marker-badge">TARGET // '+custom.coords+'</div>';
-              earthMarker=new maplibregl.Marker({element:el}).setLngLat([custom.lng,custom.lat]).addTo(earthMap);
+        function drawEarthEngineView(context,now){
+          if(!earthMap)return false;
+          const mapCanvas=earthMap.getCanvas();
+          if(!mapCanvas||!mapCanvas.width)return false;
+
+          if(earthStarAlpha>0.01){
+            context.fillStyle='#020409';
+            context.fillRect(0,0,innerWidth,innerHeight);
+            context.save();
+            for(let i=0;i<starField.length;i++){
+              const s=starField[i];
+              const twinkle=0.7+0.3*Math.sin(now*0.002+s.tw);
+              context.fillStyle='rgba(235,244,255,'+(s.a*twinkle*earthStarAlpha).toFixed(3)+')';
+              context.beginPath();
+              context.arc(s.x*innerWidth,s.y*innerHeight,s.r,0,Math.PI*2);
+              context.fill();
+            }
+            context.restore();
+          }
+
+          context.drawImage(mapCanvas,0,0,innerWidth,innerHeight);
+
+          if(earthCloudAlpha>0.01){
+            context.save();
+            const cx=innerWidth*0.5,cy=innerHeight*0.5;
+            const maxR=Math.hypot(cx,cy);
+            const innerHole=earthCloudPhase>0.55?maxR*((earthCloudPhase-0.55)/0.45)*0.85:0;
+            const grad=context.createRadialGradient(cx,cy,innerHole*0.4,cx,cy,maxR);
+            const cAlpha=Math.min(0.96,earthCloudAlpha);
+            grad.addColorStop(0,'rgba(238,246,255,'+(earthCloudPhase>0.55?cAlpha*0.35:cAlpha).toFixed(3)+')');
+            grad.addColorStop(0.55,'rgba(225,238,252,'+(cAlpha*0.92).toFixed(3)+')');
+            grad.addColorStop(1,'rgba(195,220,248,'+(cAlpha*0.98).toFixed(3)+')');
+            context.fillStyle=grad;
+            context.fillRect(0,0,innerWidth,innerHeight);
+
+            for(let i=0;i<14;i++){
+              const angle=(i/14)*Math.PI*2+earthCloudPhase*1.2;
+              const dist=((earthCloudPhase*2.4+i*0.19)%1)*maxR*0.95;
+              const px=cx+Math.cos(angle)*dist;
+              const py=cy+Math.sin(angle)*dist*0.72;
+              const pr=140+dist*0.42;
+              const pGrad=context.createRadialGradient(px,py,0,px,py,pr);
+              pGrad.addColorStop(0,'rgba(255,255,255,'+(cAlpha*0.55).toFixed(3)+')');
+              pGrad.addColorStop(1,'rgba(255,255,255,0)');
+              context.fillStyle=pGrad;
+              context.beginPath();
+              context.arc(px,py,pr,0,Math.PI*2);
+              context.fill();
+            }
+            context.restore();
+          }
+          return true;
+        }
+
+        function renderQuickChips(){
+          quickChipsWrap.innerHTML=earthZones.map(z=>
+            '<button type="button" class="earth-chip'+(z.id===activeEarthZone.id?' active':'')+'" data-zone-id="'+z.id+'">'+z.labelAr+'</button>'
+          ).join('');
+        }
+        renderQuickChips();
+
+        function formatCoordLabel(lat,lon){
+          const ns=lat>=0?'N':'S';
+          const ew=lon>=0?'E':'W';
+          return Math.abs(lat).toFixed(2)+'° '+ns+', '+Math.abs(lon).toFixed(2)+'° '+ew;
+        }
+
+        async function resolveLocationQuery(rawQuery){
+          const q=(rawQuery||'').trim();
+          if(!q)return activeEarthZone;
+          const qLow=q.toLowerCase();
+
+          const coordMatch=qLow.match(/^(-?\d+(?:\.\d+)?)\s*[,،\s]\s*(-?\d+(?:\.\d+)?)$/);
+          if(coordMatch){
+            const lat=Math.max(-84,Math.min(84,parseFloat(coordMatch[1])));
+            const lon=Math.max(-180,Math.min(180,parseFloat(coordMatch[2])));
+            const coords=formatCoordLabel(lat,lon);
+            return {
+              id:'custom_'+Date.now(),
+              labelAr:coords,
+              region:'Target Coordinates',
+              coords,
+              lat,lon,
+              targetZoom:13.4,targetPitch:70,targetBearing:22,
+              video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
+              temperature:Math.abs(lat)>55?'Polar / sub-polar planetary surface zone.':'Targeted planetary surface test zone.',
+              keywords:[]
+            };
+          }
+
+          for(const z of earthZones){
+            if(z.id===qLow||z.labelAr.includes(q)||z.region.toLowerCase().includes(qLow)||z.keywords.some(k=>k.toLowerCase().includes(qLow)||qLow.includes(k.toLowerCase()))){
+              return z;
             }
           }
-          return custom;
-        };
+
+          try{
+            loadingLabel.textContent='Locating '+q+'…';
+            experience.classList.add('is-loading');
+            const res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=en,ar&q='+encodeURIComponent(q));
+            const data=await res.json();
+            if(Array.isArray(data)&&data.length>0){
+              const hit=data[0];
+              const lat=parseFloat(hit.lat);
+              const lon=parseFloat(hit.lon);
+              const shortName=(hit.display_name||q).split(',').slice(0,2).join(', ');
+              const coords=formatCoordLabel(lat,lon);
+              return {
+                id:'geo_'+Date.now(),
+                labelAr:q,
+                region:shortName,
+                coords,
+                lat,lon,
+                targetZoom:13.4,targetPitch:70,targetBearing:24,
+                video:Math.abs(lat)>55?'/assets/videos/to_earth_arctic.mp4':'/assets/videos/to_earth_sahara.mp4',
+                temperature:Math.abs(lat)>55?'Sub-polar / high-latitude surface zone.':'Live satellite & 3D DEM terrain target.',
+                keywords:[]
+              };
+            }
+          }catch(_){}
+          return activeEarthZone;
+        }
 
         function render(){
           const state=states[current];
@@ -340,13 +481,6 @@
           if(!firstRender){list.classList.remove('is-switching');void list.offsetWidth;list.classList.add('is-switching');}
           firstRender=false;
           document.querySelectorAll('.background').forEach(el=>el.classList.toggle('is-visible',el.classList.contains(state.background)));
-          
-          if(current==='earth'){
-            mapContainer.classList.add('is-active');
-          }else{
-            mapContainer.classList.remove('is-active');
-          }
-
           const targetVideoSrc=state.portal||states.moon.portal;
           if(portalVideo.src!==targetVideoSrc){
             portalVideo.src=targetVideoSrc;
@@ -370,13 +504,13 @@
           const d=Math.min(devicePixelRatio||1,1.35);
           canvas.width=innerWidth*d;canvas.height=innerHeight*d;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(d,0,0,d,0,0);
           if(!frozenScene){sceneCanvas.width=innerWidth*d;sceneCanvas.height=innerHeight*d;sceneCanvas.style.width=innerWidth+'px';sceneCanvas.style.height=innerHeight+'px';sceneCtx.setTransform(d,0,0,d,0,0);}
-          cachedShade=ctx.createLinearGradient(0,innerHeight*.48,0,innerHeight);
+          cachedShade=ctx.createLinearGradient(0,innerHeight*.52,0,innerHeight);
           cachedShade.addColorStop(0,'rgba(0,0,0,0)');
-          cachedShade.addColorStop(1,'rgba(0,0,0,.92)');
-          if(earthMap&&mapReady)earthMap.resize();
+          cachedShade.addColorStop(1,'rgba(0,0,0,.88)');
+          if(earthMap)earthMap.resize();
         }
         function drawCover(context,media,zoom=1,offsetY=0){
-          const mw=media.videoWidth||media.naturalWidth||media.width||0,mh=media.videoHeight||media.naturalHeight||media.height||0;if(!mw||!mh)return;
+          const mw=media.videoWidth||media.naturalWidth||0,mh=media.videoHeight||media.naturalHeight||0;if(!mw||!mh)return;
           const scale=Math.max(innerWidth/mw,innerHeight/mh)*zoom,w=mw*scale,h=mh*scale;
           context.drawImage(media,(innerWidth-w)/2,(innerHeight-h)/2+offsetY,w,h);
         }
@@ -390,24 +524,9 @@
           const w=baseW*zoom,h=baseH*zoom;
           context.drawImage(moonOrbitImg,baseCx-w/2,baseCy-h/2+offsetY,w,h);
         }
-        function drawLunarDescent(context,rect,e,p){
-          if(p<.78){
-            const orbitZoom=1+p*1.35;
-            const orbitOffsetY=p*innerHeight*.12;
-            drawMoonOrbit(context,rect,e,orbitZoom,orbitOffsetY);
-          }
-          if(p>.34){
-            const surfaceAlpha=Math.min(1,(p-.34)/.44);
-            const surfaceZoom=1.36-(1-Math.pow(1-Math.min(1,(p-.34)/.66),2))*.36;
-            context.save();
-            context.globalAlpha*=surfaceAlpha;
-            drawCover(context,moonSurfaceImg,surfaceZoom,0);
-            context.restore();
-          }
-        }
         function drawShade(context){
           context.fillStyle=cachedShade||'rgba(0,0,0,.6)';
-          context.fillRect(0,innerHeight*.48,innerWidth,innerHeight*.52);
+          context.fillRect(0,innerHeight*.52,innerWidth,innerHeight*.48);
         }
         function roundedPoints(w,h,r){
           r=Math.min(r,w/2,h/2);const corners=[[w/2-r,-h/2+r,-Math.PI/2,0],[w/2-r,h/2-r,0,Math.PI/2],[-w/2+r,h/2-r,Math.PI/2,Math.PI],[-w/2+r,-h/2+r,Math.PI,Math.PI*1.5]],points=[];
@@ -416,44 +535,48 @@
         function project(x,y,cx,cy,rx,ry){
           const ax=rx*Math.PI/180,ay=ry*Math.PI/180,xx=x*Math.cos(ay),yy=y*Math.cos(ax),z=x*Math.sin(ay)-y*Math.sin(ax),p=850/(850+z);return[cx+xx*p,cy+yy*p];
         }
+
         function draw(now){
           const dt=Math.min(40,now-lastFrame);lastFrame=now;rotX+=(targetX-rotX)*Math.min(1,dt*.009);rotY+=(targetY-rotY)*Math.min(1,dt*.009);
           const e=expansion;
-          if(transitionActive&&e>=.995&&!lunarFlightActive){
-            if(experience.dataset.earthTransition==='true'){
-              // Earth map handles fullscreen display
-              requestAnimationFrame(draw);
-              return;
+
+          if(current==='earth'&&earthEngineActive&&!transitionActive&&earthMap&&earthMapReady){
+            earthMap.setBearing((earthMap.getBearing()+dt*0.0018)%360);
+          }
+
+          if(transitionActive&&e>=.995){
+            if(earthFlightActive&&earthMapReady){
+              drawEarthEngineView(ctx,now);
+            }else{
+              drawCover(ctx,transitionVideo);
             }
-            drawCover(ctx,transitionVideo);
             drawShade(ctx);
             requestAnimationFrame(draw);
             return;
           }
-          ctx.clearRect(0,0,innerWidth,innerHeight);if(frozenScene){ctx.drawImage(sceneCanvas,0,0,innerWidth,innerHeight);drawShade(ctx);}
+
+          ctx.clearRect(0,0,innerWidth,innerHeight);
+          if(current==='earth'&&earthEngineActive&&earthMapReady){
+            drawEarthEngineView(ctx,now);
+            drawShade(ctx);
+          }else if(frozenScene){
+            ctx.drawImage(sceneCanvas,0,0,innerWidth,innerHeight);
+            drawShade(ctx);
+          }
+
           const rect=portal.getBoundingClientRect(),cx=rect.left+rect.width/2+(innerWidth/2-(rect.left+rect.width/2))*e,cy=rect.top+rect.height/2+(innerHeight/2-(rect.top+rect.height/2))*e;
           const baseW=rect.width+(innerWidth-rect.width)*e,baseH=rect.height+(innerHeight-rect.height)*e,scale=e?1:maskScale,w=baseW*scale,h=baseH*scale,r=90*(1-e)*scale,rx=rotX*(1-e),ry=rotY*(1-e);
           if(w>1&&h>1){
             const points=roundedPoints(w,h,r).map(([x,y])=>project(x,y,cx,cy,rx,ry));
             ctx.save();ctx.globalAlpha=canvasOpacity;ctx.beginPath();points.forEach((point,i)=>i?ctx.lineTo(point[0],point[1]):ctx.moveTo(point[0],point[1]));ctx.closePath();ctx.clip();
             ctx.fillStyle='#030303';ctx.fillRect(0,0,innerWidth,innerHeight);
-            if(transitionActive&&lunarFlightActive){
-              drawLunarDescent(ctx,rect,e,lunarProgress);
+            if(transitionActive&&earthFlightActive&&earthMapReady){
+              drawEarthEngineView(ctx,now);
               drawShade(ctx);
+            }else if(!transitionActive&&current==='mars'&&earthMapReady){
+              drawEarthEngineView(ctx,now);
             }else if(!transitionActive&&states[current].image){
               drawMoonOrbit(ctx,rect,e,1,0);
-            }else if(!transitionActive&&states[current].next==='Earth'&&mapReady&&earthMap){
-              /* Render real-time MapLibre GL satellite Earth inside the portal lens */
-              try{
-                const mapCanvas=earthMap.getCanvas();
-                if(mapCanvas&&mapCanvas.width>0){
-                  drawCover(ctx,mapCanvas);
-                }else{
-                  drawCover(ctx,portalVideo);
-                }
-              }catch(_){
-                drawCover(ctx,portalVideo);
-              }
             }else{
               const media=transitionActive?transitionVideo:portalVideo;
               drawCover(ctx,media);
@@ -463,6 +586,7 @@
           }
           requestAnimationFrame(draw);
         }
+
         const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
         function animateValue(setter,duration){return new Promise(resolve=>{const start=performance.now();function step(now){const raw=Math.min(1,(now-start)/duration);setter(ease(raw));if(raw<1)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});}
         function retrigger(className){experience.classList.remove(className);void experience.offsetWidth;experience.classList.add(className);}
@@ -472,133 +596,140 @@
         async function startExperience(){const state=states[current];await waitForMedia(state.image?portalImage:portalVideo);await revealMask();document.body.classList.add('intro-ready');setTimeout(()=>{revealPlanetContent();preloadNextTransition();},850);}
         function waitForEnd(video,timeout=6000){return new Promise(resolve=>{if(video.ended){resolve();return;}let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);video.removeEventListener('ended',finish);video.removeEventListener('error',finish);resolve();};const timer=setTimeout(finish,timeout);video.addEventListener('ended',finish,{once:true});video.addEventListener('error',finish,{once:true});});}
 
-        async function travel(targetPlanet){
+        function runEarth3DFlight(zone){
+          return new Promise(resolve=>{
+            const duration=5800;
+            const startLon=zone.lon-42;
+            const startLat=Math.max(-55,Math.min(55,zone.lat*0.45));
+            const targetLon=zone.lon;
+            const targetLat=zone.lat;
+            const targetZoom=zone.targetZoom||13.2;
+            const targetPitch=zone.targetPitch||70;
+            const targetBearing=zone.targetBearing||24;
+            const orbitalPadTop=Math.round(innerHeight*0.24);
+            let prewarmedTiles=false;
+            const t0=performance.now();
+
+            function step(now){
+              const elapsed=now-t0;
+              const t=Math.min(5.8,elapsed/1000);
+
+              if(t<1.05){
+                const p1=ease(t/1.05);
+                const lon=startLon+(targetLon-startLon)*p1;
+                const lat=startLat+(targetLat-startLat)*p1;
+                const zoom=1.60+0.65*p1;
+                earthStarAlpha=1;
+                earthCloudAlpha=0;
+                earthMap.jumpTo({
+                  center:[lon,lat],
+                  zoom,
+                  pitch:14+6*p1,
+                  bearing:-18*p1,
+                  padding:{top:Math.round(orbitalPadTop*(1-p1*0.35)),bottom:0,left:0,right:0}
+                });
+              }else if(t<2.65){
+                const p2=(t-1.05)/1.60;
+                const pFast=p2*p2*(3-2*p2);
+                const zoom=2.25+(10.85-2.25)*pFast;
+                const padTop=Math.round(orbitalPadTop*0.65*(1-pFast));
+                earthStarAlpha=Math.max(0,1-p2*2.2);
+                earthCloudPhase=p2;
+                earthCloudAlpha=Math.sin(p2*Math.PI)*0.95;
+
+                if(p2>0.48&&p2<0.66&&!prewarmedTiles){
+                  prewarmedTiles=true;
+                  earthMap.jumpTo({
+                    center:[targetLon,targetLat],
+                    zoom:targetZoom-0.4,
+                    pitch:targetPitch-6,
+                    bearing:targetBearing-8,
+                    padding:{top:0,bottom:0,left:0,right:0}
+                  });
+                }else{
+                  earthMap.jumpTo({
+                    center:[targetLon,targetLat],
+                    zoom,
+                    pitch:20+22*pFast,
+                    bearing:-18+(targetBearing-12+18)*pFast,
+                    padding:{top:padTop,bottom:0,left:0,right:0}
+                  });
+                }
+              }else if(t<4.15){
+                const p3=(t-2.65)/1.50;
+                const easeOut=1-Math.pow(1-p3,3.2);
+                const zoom=10.85+(targetZoom-10.85)*easeOut;
+                const pitch=42+(targetPitch-42)*easeOut;
+                const bearing=(targetBearing-12)+12*easeOut;
+                earthStarAlpha=0;
+                earthCloudPhase=0.65+p3*0.35;
+                earthCloudAlpha=Math.max(0,(1-p3*1.65)*0.45);
+                earthMap.jumpTo({
+                  center:[targetLon,targetLat],
+                  zoom,
+                  pitch,
+                  bearing,
+                  padding:{top:0,bottom:0,left:0,right:0}
+                });
+              }else{
+                const p4=(t-4.15)/1.65;
+                earthStarAlpha=0;
+                earthCloudAlpha=0;
+                earthMap.jumpTo({
+                  center:[targetLon,targetLat],
+                  zoom:targetZoom+p4*0.10,
+                  pitch:targetPitch,
+                  bearing:targetBearing+p4*3.5,
+                  padding:{top:0,bottom:0,left:0,right:0}
+                });
+              }
+
+              if(elapsed<duration){
+                requestAnimationFrame(step);
+              }else{
+                earthCloudAlpha=0;
+                earthStarAlpha=0;
+                resolve();
+              }
+            }
+            requestAnimationFrame(step);
+          });
+        }
+
+        async function travel(targetPlanet,customZone){
           const next=typeof targetPlanet==='string'&&states[targetPlanet]?targetPlanet:states[current].next.toLowerCase();
           if(busy||!states[next]||(next===current&&next!=='earth'))return;
           busy=true;targetX=targetY=0;
           try{
-            /* 1. MapLibre GL Orbital Descent & Landing for Earth */
             if(next==='earth'){
+              const zone=customZone||(current==='earth'?pickNextEarthZone():activeEarthZone);
+              syncEarthTelemetry(zone);
+
+              if(earthMap&&earthMapReady){
+                portalVideo.pause();
+                experience.classList.remove('is-loading','content-revealing','mask-revealing');
+                experience.classList.add('is-transitioning');
+                canvasOpacity=1;transitionActive=true;earthFlightActive=true;lunarFlightActive=false;
+                await Promise.all([
+                  animateValue(value=>expansion=value,950),
+                  runEarth3DFlight(zone)
+                ]);
+                sceneCtx.clearRect(0,0,innerWidth,innerHeight);
+                drawEarthEngineView(sceneCtx,performance.now());
+                frozenScene=true;earthEngineActive=true;current='earth';
+                experience.classList.add('is-committing');render();
+                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+                transitionActive=false;earthFlightActive=false;expansion=0;maskScale=0;canvasOpacity=1;
+                experience.classList.remove('is-transitioning','is-committing');
+                const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
+                setTimeout(()=>{preloadNextTransition();busy=false;},400);
+                return;
+              }
+            }else if(current==='earth'){
+              earthEngineActive=false;
               pickNextEarthZone();
-              portalVideo.pause();
-              experience.classList.add('is-loading');
-
-              if(earthMap&&mapReady){
-                earthMap.jumpTo({
-                  center:[activeEarthZone.lng,activeEarthZone.lat],
-                  zoom:2.3,
-                  pitch:12,
-                  bearing:-22
-                });
-              }
-
-              hudCoords.textContent='TARGET: '+activeEarthZone.coords;
-              hudZone.textContent=activeEarthZone.region.toUpperCase();
-              hudAlt.textContent='420 KM';
-              hudVel.textContent='MACH 24.2';
-              telemetryHud.classList.add('is-active');
-
-              experience.classList.remove('is-loading','content-revealing','mask-revealing');
-              experience.classList.add('is-transitioning');
-              experience.dataset.earthTransition='true';
-              canvasOpacity=1;transitionActive=true;lunarFlightActive=false;
-              mapContainer.classList.add('is-active');
-
-              const expansionPromise=animateValue(value=>expansion=value,1100);
-
-              const telemetryPromise=new Promise(resolve=>{
-                const startTime=performance.now(),duration=4300;
-                function updateTelemetry(now){
-                  const p=Math.min(1,(now-startTime)/duration);
-                  if(p<0.32){
-                    const alt=Math.round(420-(p/0.32)*310);
-                    hudAlt.textContent=alt+' KM';
-                    hudVel.textContent='MACH '+(24.2-p*28).toFixed(1);
-                  }else if(p<0.76){
-                    const alt=Math.round(110-((p-0.32)/0.44)*98);
-                    hudAlt.textContent=alt+' KM';
-                    hudVel.textContent='MACH '+(15.2-((p-0.32)/0.44)*12.4).toFixed(1);
-                  }else{
-                    const alt=Math.round(12000-((p-0.76)/0.24)*11550);
-                    hudAlt.textContent=alt>1000?(alt/1000).toFixed(1)+' KM':alt+' M';
-                    hudVel.textContent=p>0.96?'SUBSONIC (120 KT)':'MACH 1.3';
-                  }
-                  if(p<1)requestAnimationFrame(updateTelemetry);
-                  else resolve();
-                }
-                requestAnimationFrame(updateTelemetry);
-              });
-
-              const flightPromise=new Promise(resolve=>{
-                if(earthMap&&mapReady){
-                  earthMap.flyTo({
-                    center:[activeEarthZone.lng,activeEarthZone.lat],
-                    zoom:activeEarthZone.zoom||12.8,
-                    pitch:activeEarthZone.pitch||60,
-                    bearing:activeEarthZone.bearing||25,
-                    duration:4300,
-                    curve:1.42,
-                    essential:true
-                  });
-                  earthMap.once('moveend',resolve);
-                  setTimeout(resolve,4700);
-                }else{
-                  setTimeout(resolve,3200);
-                }
-              });
-
-              await Promise.all([expansionPromise,telemetryPromise,flightPromise]);
-              telemetryHud.classList.remove('is-active');
-
-              if(earthMap&&mapReady){
-                if(earthMarker)earthMarker.remove();
-                const el=document.createElement('div');
-                el.className='earth-landing-marker';
-                el.innerHTML='<div class="marker-dot"></div><div class="marker-ring"></div><div class="marker-badge">TOUCHDOWN // '+activeEarthZone.coords+'</div>';
-                earthMarker=new maplibregl.Marker({element:el}).setLngLat([activeEarthZone.lng,activeEarthZone.lat]).addTo(earthMap);
-              }
-
-              current='earth';
-              experience.classList.add('is-committing');
-              render();
-              await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-              delete experience.dataset.earthTransition;
-              transitionActive=false;expansion=0;maskScale=0;canvasOpacity=1;
-              experience.classList.remove('is-transitioning','is-committing');
-              const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-              setTimeout(()=>{preloadNextTransition();busy=false;},450);
-              return;
             }
 
-            /* 2. Lunar Descent Transition */
-            if(states[next].isLunarDescent||next==='moon'){
-              mapContainer.classList.remove('is-active');
-              if(states[next].portal&&portalVideo.src!==states[next].portal){
-                portalVideo.src=states[next].portal;
-                portalVideo.load();
-              }
-              experience.classList.add('is-loading');
-              await Promise.all([waitForMedia(moonOrbitImg,1600),waitForMedia(moonSurfaceImg,1600)]);
-              experience.classList.remove('is-loading','content-revealing','mask-revealing');
-              experience.classList.add('is-transitioning');
-              canvasOpacity=1;transitionActive=true;lunarFlightActive=true;lunarProgress=0;
-              await Promise.all([
-                animateValue(value=>expansion=value,1100),
-                animateValue(value=>lunarProgress=value,2600)
-              ]);
-              sceneCtx.clearRect(0,0,innerWidth,innerHeight);
-              drawCover(sceneCtx,moonSurfaceImg);
-              frozenScene=true;current=next;experience.classList.add('is-committing');render();
-              await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-              transitionActive=false;lunarFlightActive=false;lunarProgress=0;expansion=0;maskScale=0;canvasOpacity=1;
-              experience.classList.remove('is-transitioning','is-committing');
-              const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
-              setTimeout(()=>{preloadNextTransition();busy=false;},450);
-              return;
-            }
-
-            /* 3. Mars Transition */
-            mapContainer.classList.remove('is-active');
             const transitionSrc=states[next].arrival||states[current].portal;
             const startTime=states[next].arrivalStart||0;
             portalVideo.pause();
@@ -606,17 +737,36 @@
               transitionVideo.src=transitionSrc;transitionVideo.load();
             }
             experience.classList.add('is-loading');await waitForMedia(transitionVideo,1800);
-            experience.classList.remove('is-loading','content-revealing','mask-revealing');experience.classList.add('is-transitioning');transitionVideo.currentTime=startTime;transitionVideo.playbackRate=1.5;canvasOpacity=1;transitionActive=true;lunarFlightActive=false;
+            experience.classList.remove('is-loading','content-revealing','mask-revealing');experience.classList.add('is-transitioning');transitionVideo.currentTime=startTime;transitionVideo.playbackRate=1.5;canvasOpacity=1;transitionActive=true;earthFlightActive=false;lunarFlightActive=false;
             const playback=transitionVideo.play();if(playback)await playback;await animateValue(value=>expansion=value,1100);await waitForEnd(transitionVideo);
-            sceneCtx.clearRect(0,0,innerWidth,innerHeight);drawCover(sceneCtx,transitionVideo);frozenScene=true;current=next;experience.classList.add('is-committing');render();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+            sceneCtx.clearRect(0,0,innerWidth,innerHeight);drawCover(sceneCtx,transitionVideo);frozenScene=true;current=next;
+            if(current==='mars'&&earthMapReady)parkEarthInOrbit(activeEarthZone);
+            experience.classList.add('is-committing');render();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
             transitionActive=false;expansion=0;maskScale=0;canvasOpacity=1;experience.classList.remove('is-transitioning','is-committing');const maskReveal=revealMask();setTimeout(revealPlanetContent,100);await maskReveal;
             setTimeout(()=>{preloadNextTransition();busy=false;},450);
           }catch(error){
-            delete experience.dataset.earthTransition;
-            telemetryHud.classList.remove('is-active');
-            transitionActive=false;lunarFlightActive=false;expansion=0;maskScale=1;canvasOpacity=1;experience.classList.remove('is-loading','is-transitioning','is-committing');busy=false;
+            transitionActive=false;earthFlightActive=false;lunarFlightActive=false;expansion=0;maskScale=1;canvasOpacity=1;experience.classList.remove('is-loading','is-transitioning','is-committing');busy=false;
           }
         }
+
+        searchForm.addEventListener('submit',async event=>{
+          event.preventDefault();
+          if(busy)return;
+          const q=searchInput.value.trim();
+          const zone=await resolveLocationQuery(q);
+          experience.classList.remove('is-loading');
+          loadingLabel.textContent='Preparing orbit…';
+          travel('earth',zone);
+        });
+        quickChipsWrap.addEventListener('click',event=>{
+          const chip=event.target.closest('.earth-chip');
+          if(!chip||busy)return;
+          const zone=earthZones.find(z=>z.id===chip.dataset.zoneId);
+          if(zone){
+            searchInput.value=zone.labelAr;
+            travel('earth',zone);
+          }
+        });
 
         portal.addEventListener('click',()=>travel());
         list.addEventListener('click',event=>{
@@ -658,7 +808,7 @@
         }
         window.addEventListener('resize',resizeCanvas);
         document.querySelectorAll('.background').forEach(parkBackgroundAtEnd);
-        resizeCanvas();initEarthMap();render();requestAnimationFrame(draw);requestAnimationFrame(cursorLoop);runPreloader();
+        resizeCanvas();render();requestAnimationFrame(draw);requestAnimationFrame(cursorLoop);runPreloader();
       })();
     </script>
   </body>

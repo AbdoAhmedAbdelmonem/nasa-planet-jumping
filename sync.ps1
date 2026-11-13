@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Fast GitHub Sync Script for NASA Planet Jumping Project
 .DESCRIPTION
