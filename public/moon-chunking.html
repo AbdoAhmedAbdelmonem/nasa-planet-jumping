@@ -1766,136 +1766,6 @@
         earthMap.on('load', () => {
           earthMapReady = true;
         });
-
-        // User map interaction detection to pause/resume auto-rotation gracefully
-        const pauseEvents = ['dragstart', 'rotatestart', 'pitchstart', 'zoomstart', 'mousedown', 'touchstart', 'wheel'];
-        pauseEvents.forEach(evt => {
-          earthMap.on(evt, () => {
-            pauseOrbitTemporarily();
-          });
-        });
-
-        const resumeEvents = ['dragend', 'rotateend', 'pitchend', 'zoomend', 'mouseup', 'touchend'];
-        resumeEvents.forEach(evt => {
-          earthMap.on(evt, () => {
-            scheduleResumeOrbit();
-          });
-        });
-      }
-
-      // TARGET MARKER PIN CREATION & HUD BEACON
-      function setEarthTargetMarker(lng, lat, title) {
-        if (!window.maplibregl || !earthMap) return;
-        currentTargetCoords = { lng, lat, title, zoom: 12.0, pitch: 62 };
-
-        if (earthTargetMarker) {
-          earthTargetMarker.remove();
-          earthTargetMarker = null;
-        }
-
-        const el = document.createElement('div');
-        el.className = 'analog-target-marker';
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
-        el.setAttribute('title', `Exact Target: ${title} — Click to re-center`);
-
-        el.innerHTML = `
-          <div class="marker-laser-beam"></div>
-          <div class="marker-pulse-ring"></div>
-          <div class="marker-pulse-ring-outer"></div>
-          <div class="marker-pin-wrap">
-            <div class="marker-hud-card">
-              <span class="marker-hud-badge mono">Target Ground Zero</span>
-              <span class="marker-hud-name">${title}</span>
-              <span class="marker-hud-recenter mono">Click to Re-Center ⌖</span>
-            </div>
-            <div class="marker-pin-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9b8cff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
-              </svg>
-            </div>
-          </div>
-        `;
-
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          recenterOnTarget();
-        });
-
-        earthTargetMarker = new window.maplibregl.Marker({
-          element: el,
-          anchor: 'bottom'
-        })
-          .setLngLat([lng, lat])
-          .addTo(earthMap);
-
-        if (recenterBtn) {
-          recenterBtn.classList.add('is-active');
-        }
-      }
-
-      // CLOCKWISE MAP ROTATION LOOP (~2.2 DEG/SEC SMOOTH CINEMATIC ORBIT)
-      function startClockwiseMapOrbit() {
-        if (isClockwiseOrbiting) return;
-        isClockwiseOrbiting = true;
-
-        function orbitLoop() {
-          if (!isClockwiseOrbiting) return;
-          if (earthMap && !userIsInteractingWithMap) {
-            const currentBearing = earthMap.getBearing();
-            earthMap.setBearing((currentBearing + 0.038) % 360);
-          }
-          orbitAnimationFrameId = requestAnimationFrame(orbitLoop);
-        }
-        orbitAnimationFrameId = requestAnimationFrame(orbitLoop);
-      }
-
-      function stopClockwiseMapOrbit() {
-        isClockwiseOrbiting = false;
-        if (orbitAnimationFrameId) {
-          cancelAnimationFrame(orbitAnimationFrameId);
-          orbitAnimationFrameId = null;
-        }
-        if (resumeOrbitTimer) {
-          clearTimeout(resumeOrbitTimer);
-          resumeOrbitTimer = null;
-        }
-      }
-
-      function pauseOrbitTemporarily() {
-        userIsInteractingWithMap = true;
-        if (resumeOrbitTimer) {
-          clearTimeout(resumeOrbitTimer);
-          resumeOrbitTimer = null;
-        }
-      }
-
-      function scheduleResumeOrbit() {
-        if (resumeOrbitTimer) clearTimeout(resumeOrbitTimer);
-        resumeOrbitTimer = setTimeout(() => {
-          userIsInteractingWithMap = false;
-        }, 2200);
-      }
-
-      function recenterOnTarget() {
-        if (!earthMap || !currentTargetCoords) return;
-        pauseOrbitTemporarily();
-        earthMap.flyTo({
-          center: [currentTargetCoords.lng, currentTargetCoords.lat],
-          zoom: currentTargetCoords.zoom || 12.0,
-          pitch: currentTargetCoords.pitch || 62,
-          speed: 1.2,
-          curve: 1.42,
-          essential: true
-        });
-        scheduleResumeOrbit();
-      }
-
-      if (recenterBtn) {
-        recenterBtn.addEventListener('click', () => {
-          recenterOnTarget();
-        });
       }
 
       if (window.maplibregl) {
@@ -2409,12 +2279,6 @@
                 filmTitle.textContent = primaryMatch.name;
                 filmCoords.textContent = `LAT: ${Math.abs(primaryMatch.lat).toFixed(4)}° ${primaryMatch.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(primaryMatch.lng).toFixed(4)}° ${primaryMatch.lng >= 0 ? 'E' : 'W'} · ELEV: ${primaryMatch.elev}M · MATCH: ${primaryMatch.similarity}%`;
 
-                // Set exact 3D beacon marker on the targeted terrain
-                setEarthTargetMarker(primaryMatch.lng, primaryMatch.lat, primaryMatch.name);
-
-                // Start gentle clockwise cinematic orbit around the terrain
-                startClockwiseMapOrbit();
-
                 if (filmScrim) filmScrim.classList.add('is-active');
                 filmOverlay.className = 'cinematic-film-overlay stage-center';
 
@@ -2497,20 +2361,16 @@
 
       // GLOBAL HELPER TO FLY CAMERA TO ANY OF THE 5 ANALOG SITES
       window.flyToEarthLocation = function(lng, lat, zoom, title, coords) {
-        setEarthTargetMarker(lng, lat, title);
-        pauseOrbitTemporarily();
         if (earthMap) {
           earthMap.flyTo({
             center: [lng, lat],
             zoom: zoom || 12.0,
             pitch: 62,
-            bearing: (earthMap.getBearing() + 15) % 360,
+            bearing: 28,
             speed: 1.0,
-            curve: 1.4,
-            essential: true
+            curve: 1.4
           });
         }
-        scheduleResumeOrbit();
         filmTitle.textContent = title;
         filmCoords.textContent = coords;
       };
@@ -2529,15 +2389,6 @@
 
       // RE-ORBIT BUTTON CLICK: RETURN TO 3D MOON GLOBE
       reOrbitBtn.addEventListener('click', () => {
-        stopClockwiseMapOrbit();
-        if (earthTargetMarker) {
-          earthTargetMarker.remove();
-          earthTargetMarker = null;
-        }
-        if (recenterBtn) {
-          recenterBtn.classList.remove('is-active');
-        }
-
         compPanel.classList.remove('is-active', 'is-collapsed');
         if (filmScrim) filmScrim.classList.remove('is-active');
         filmOverlay.className = 'cinematic-film-overlay';
