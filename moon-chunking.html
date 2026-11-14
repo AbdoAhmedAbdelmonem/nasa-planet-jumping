@@ -2262,6 +2262,9 @@
           try {
             earthMap.setProjection({ type: 'globe' });
           } catch (e) {}
+          if (currentTargetCoords && typeof currentTargetCoords.lng === 'number' && typeof currentTargetCoords.lat === 'number') {
+            updateMapLibreChunkGrid(currentTargetCoords.lng, currentTargetCoords.lat);
+          }
         });
 
         // User map interaction detection to pause/resume auto-rotation gracefully
@@ -2300,10 +2303,85 @@
         }
       }
 
+      // 3D CHUNK BOUNDARY LAYER (0.25° x 0.25° CELL POLYGON HIGHLIGHT ON EARTH TERRAIN)
+      function updateMapLibreChunkGrid(lng, lat) {
+        if (!window.maplibregl || !earthMap) return;
+        const half = 0.125;
+        const minLng = Number((lng - half).toFixed(4));
+        const maxLng = Number((lng + half).toFixed(4));
+        const minLat = Number((lat - half).toFixed(4));
+        const maxLat = Number((lat + half).toFixed(4));
+
+        const chunkGeoJson = {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [minLng, minLat],
+                [maxLng, minLat],
+                [maxLng, maxLat],
+                [minLng, maxLat],
+                [minLng, minLat]
+              ]]
+            },
+            properties: {
+              centerLat: lat,
+              centerLng: lng,
+              resolution: '0.25° x 0.25° (~25km)'
+            }
+          }]
+        };
+
+        const applyLayers = () => {
+          try {
+            const src = earthMap.getSource('analog-chunk-boundary-src');
+            if (src) {
+              src.setData(chunkGeoJson);
+            } else {
+              earthMap.addSource('analog-chunk-boundary-src', {
+                type: 'geojson',
+                data: chunkGeoJson
+              });
+              earthMap.addLayer({
+                id: 'analog-chunk-boundary-fill',
+                type: 'fill',
+                source: 'analog-chunk-boundary-src',
+                paint: {
+                  'fill-color': '#00e5ff',
+                  'fill-opacity': 0.14
+                }
+              });
+              earthMap.addLayer({
+                id: 'analog-chunk-boundary-line',
+                type: 'line',
+                source: 'analog-chunk-boundary-src',
+                paint: {
+                  'line-color': '#00e5ff',
+                  'line-width': 2.5,
+                  'line-opacity': 0.85,
+                  'line-dasharray': [3, 2]
+                }
+              });
+            }
+          } catch (e) {
+            console.warn('MapLibre chunk grid error:', e);
+          }
+        };
+
+        if (earthMap.isStyleLoaded()) {
+          applyLayers();
+        } else {
+          earthMap.once('load', applyLayers);
+        }
+      }
+
       // TARGET MARKER PIN CREATION & HUD BEACON
       function setEarthTargetMarker(lng, lat, title) {
         if (!window.maplibregl || !earthMap) return;
         currentTargetCoords = { lng, lat, title, zoom: 12.0, pitch: 62 };
+        updateMapLibreChunkGrid(lng, lat);
 
         if (earthTargetMarker) {
           earthTargetMarker.remove();
@@ -3092,50 +3170,104 @@
       // LIVE PLANETARY ANALOG API INTEGRATION (FASTAPI & NEON POSTGRESQL)
       const PLANETARY_API_BASE = 'https://web-production-32144f36.up.railway.app';
 
-      // REVERSE GEOCODING HELPER: RESOLVES EXACT HUMAN-READABLE GEOGRAPHIC PLACE NAME FROM COORDINATES
-      async function resolveExactPlaceName(lat, lng, fallbackRegion) {
+      // REVERSE GEOCODING HELPER: HIGH-PRECISION MICRO-TOPONYM RESOLVER
+      async function resolveExactPlaceName(lat, lng, fallbackRegion, meta = {}) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2800);
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
           const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`, {
             signal: controller.signal
           });
           clearTimeout(timeoutId);
           if (res.ok) {
             const data = await res.json();
-            const country = data.countryName || '';
-            const province = data.principalSubdivision || data.city || '';
+            const rawCountry = data.countryName || '';
+            const country = rawCountry === 'Russian Federation' ? 'Russia' : rawCountry;
+            const province = (data.principalSubdivision || '')
+              .replace(', Respublika', '')
+              .replace(' Oblast', '')
+              .replace(' Krai', '')
+              .replace('skij kraj', '');
+            const city = (data.city || '')
+              .replace(' District', '')
+              .replace(' Rayon', '')
+              .replace(' Ulus', '');
+            const locality = data.locality || '';
+
+            // Extract landform / nature landmarks (plateau, mountain, basin, glacier, etc.)
             let landmark = '';
             if (data.localityInfo && data.localityInfo.informative) {
-              const lm = data.localityInfo.informative.find(i => 
-                i.description && (
-                  i.description.includes('peninsula') || 
-                  i.description.includes('park') || 
-                  i.description.includes('volcano') || 
-                  i.description.includes('island') || 
-                  i.description.includes('mountain') || 
-                  i.description.includes('crater') || 
-                  i.description.includes('desert') ||
-                  i.description.includes('tundra') ||
-                  i.description.includes('plateau')
-                )
-              );
-              if (lm) landmark = lm.name;
+              const priorityKeywords = ['ice cap', 'glacier', 'plateau', 'range', 'mountains', 'mountain', 'crater', 'island', 'peninsula', 'basin', 'canyon', 'valley', 'desert', 'tundra', 'shield'];
+              for (const kw of priorityKeywords) {
+                const found = data.localityInfo.informative.find(i => 
+                  (i.name && i.description && i.description.toLowerCase().includes(kw)) ||
+                  (i.name && i.name.toLowerCase().includes(kw))
+                );
+                if (found && found.name && !['asia', 'europe', 'north america', 'siberia'].includes(found.name.toLowerCase())) {
+                  landmark = found.name;
+                  break;
+                }
+              }
             }
-            const mainName = landmark || data.locality || province;
-            const sub = country || province;
-            if (mainName && sub && !mainName.toLowerCase().includes(sub.toLowerCase())) {
-              return `${mainName}, ${sub}`;
-            } else if (mainName) {
-              return mainName;
+
+            // Extract fine administrative settlement / sub-district if available
+            let adminDetail = '';
+            if (data.localityInfo && data.localityInfo.administrative) {
+              const localAdmin = data.localityInfo.administrative.find(a => 
+                (a.adminLevel === 6 || a.adminLevel === 8 || a.adminLevel === 7) && 
+                a.name && 
+                !a.name.includes('Federal') && 
+                !a.name.includes('Economic') &&
+                !a.name.includes('District') &&
+                !a.name.includes('Rayon')
+              );
+              if (localAdmin) adminDetail = localAdmin.name;
+            }
+
+            // Physics-based terrain descriptor for the 0.25° grid chunk
+            const elev = meta.elev != null ? meta.elev : (meta.elevation_m || 0);
+            const slope = meta.slope != null ? meta.slope : (meta.slope_deg || 0);
+            const roughness = meta.roughness != null ? meta.roughness : (meta.roughness_m || 0);
+            const albedo = meta.albedo != null ? meta.albedo : 0.18;
+
+            let terrain = 'Basin';
+            if (elev > 1800) terrain = 'Highlands';
+            else if (slope > 4.5) terrain = 'Ridge';
+            else if (roughness > 45) terrain = 'Rugged Terrain';
+            else if (elev > 600) terrain = 'Plateau';
+            else if (albedo > 0.28) terrain = 'Tundra Steppe';
+
+            // Pick the most specific local name
+            let specific = '';
+            if (landmark && locality && !landmark.toLowerCase().includes(locality.toLowerCase())) {
+              specific = `${landmark} (${locality})`;
+            } else if (landmark) {
+              specific = `${landmark}`;
+            } else if (locality) {
+              specific = `${locality} ${terrain}`;
+            } else if (adminDetail) {
+              specific = `${adminDetail} ${terrain}`;
+            } else if (city) {
+              specific = `${city} ${terrain}`;
+            }
+
+            const contextParts = [province, country].filter(Boolean);
+            const context = contextParts.join(', ');
+
+            if (specific && context) {
+              return `${specific}, ${context}`;
+            } else if (specific) {
+              return specific;
+            } else if (context) {
+              return `${terrain}, ${context}`;
             }
           }
         } catch (e) {
-          // secondary OSM fallback if BigDataCloud is unreachable
+          // OSM Nominatim fallback with zoom=11
           try {
             const controller2 = new AbortController();
             const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
-            const res2 = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=8&accept-language=en`, {
+            const res2 = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=11&accept-language=en`, {
               headers: { 'User-Agent': 'NASA-Planetary-Analog-Sim/1.0' },
               signal: controller2.signal
             });
@@ -3144,8 +3276,11 @@
               const data2 = await res2.json();
               if (data2 && data2.address) {
                 const a = data2.address;
-                const nameParts = [a.state || a.county || a.region, a.country].filter(Boolean);
-                if (nameParts.length) return nameParts.join(', ');
+                const local = a.village || a.town || a.hamlet || a.suburb || a.city || a.county || a.natural;
+                const prov = a.state || a.region;
+                const c = a.country === 'Russian Federation' ? 'Russia' : a.country;
+                const parts = [local, prov, c].filter(Boolean);
+                if (parts.length >= 2) return parts.slice(0, 2).join(', ');
               }
             }
           } catch (e2) {}
@@ -3153,6 +3288,33 @@
 
         if (fallbackRegion && !fallbackRegion.startsWith('Land area')) return fallbackRegion;
         return `Earth Analog [${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(2)}° ${lng >= 0 ? 'E' : 'W'}]`;
+      }
+
+      // SPATIAL DIVERSITY FILTER: PREVENT 5 ADJACENT 0.25° CELLS FROM OVER-REPRESENTING ONE DISTRICT
+      function filterDiverseAnalogs(rawAnalogs, targetCount = 5, minDistanceDeg = 0.8) {
+        if (!Array.isArray(rawAnalogs)) return [];
+        const chosen = [];
+        for (const item of rawAnalogs) {
+          const isFarEnough = chosen.every(c => {
+            const dLat = c.latitude - item.latitude;
+            const dLng = (c.longitude - item.longitude) * Math.cos(((c.latitude + item.latitude) * Math.PI) / 360);
+            const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+            return dist >= minDistanceDeg;
+          });
+          if (isFarEnough) {
+            chosen.push(item);
+            if (chosen.length === targetCount) break;
+          }
+        }
+        if (chosen.length < targetCount) {
+          for (const item of rawAnalogs) {
+            if (!chosen.includes(item)) {
+              chosen.push(item);
+              if (chosen.length === targetCount) break;
+            }
+          }
+        }
+        return chosen;
       }
 
       async function fetchLivePlanetaryAnalogs(planet, lat, lon) {
@@ -3171,7 +3333,7 @@
                 planet: planet.toLowerCase(),
                 latitude: Number(lat.toFixed(4)),
                 longitude: Number(lon.toFixed(4)),
-                top_k: 5
+                top_k: 12
               }),
               signal: controller.signal
             });
@@ -3183,7 +3345,7 @@
                 return data;
               }
             } else {
-              const getRes = await fetch(`${PLANETARY_API_BASE}/api/analogs?planet=${planet.toLowerCase()}&latitude=${encodeURIComponent(lat.toFixed(4))}&longitude=${encodeURIComponent(lon.toFixed(4))}&top_k=5`);
+              const getRes = await fetch(`${PLANETARY_API_BASE}/api/analogs?planet=${planet.toLowerCase()}&latitude=${encodeURIComponent(lat.toFixed(4))}&longitude=${encodeURIComponent(lon.toFixed(4))}&top_k=12`);
               if (getRes.ok) {
                 const getData = await getRes.json();
                 if (getData && getData.top_analogs && getData.top_analogs.length) {
@@ -3204,7 +3366,9 @@
 
       function applyLiveAnalogsToSpot(spot, apiData) {
         if (!apiData || !apiData.top_analogs || !apiData.top_analogs.length) return false;
-        const analogs = apiData.top_analogs;
+        const rawAnalogs = apiData.top_analogs;
+        // Select top 5 spatially distinct geographic locations
+        const analogs = filterDiverseAnalogs(rawAnalogs, 5, 0.8);
         const target = apiData.target || {};
         const feat = target.features || {};
         const minMetric = analogs[0].distance_metric || 2.5;
@@ -3228,7 +3392,7 @@
         if (feat.atm_dust_opacity != null) spot.dustOpacity = Math.round(feat.atm_dust_opacity * 1000) / 1000;
 
         spot.top5 = analogs.map((item, idx) => {
-          const rank = item.rank || (idx + 1);
+          const rank = idx + 1;
           const tempDayC = item.temperature_day_C != null ? item.temperature_day_C : (item.temperature_day_K ? item.temperature_day_K - 273.15 : 12);
           const tempNightC = item.temperature_night_C != null ? item.temperature_night_C : (item.temperature_night_K ? item.temperature_night_K - 273.15 : 2);
 
@@ -3261,17 +3425,48 @@
           };
         });
 
-        // Background resolve exact place names for all alternatives
+        // Background resolve exact micro-toponyms for all alternatives and actively update DOM
+        const seenCleanNames = new Set();
         analogs.forEach(async (item, idx) => {
           try {
-            const clean = await resolveExactPlaceName(item.latitude, item.longitude, item.region);
+            let clean = await resolveExactPlaceName(item.latitude, item.longitude, item.region, item);
+            if (seenCleanNames.has(clean)) {
+              clean = `${clean} (${item.latitude > 0 ? item.latitude.toFixed(1) + '°N' : Math.abs(item.latitude).toFixed(1) + '°S'}, ${item.longitude > 0 ? item.longitude.toFixed(1) + '°E' : Math.abs(item.longitude).toFixed(1) + '°W'})`;
+            }
+            seenCleanNames.add(clean);
+
             if (spot.top5 && spot.top5[idx]) {
               spot.top5[idx].name = clean;
+              const rankNum = idx + 1;
+
+              // 1. Update Rank 1 Primary Header
               if (idx === 0) {
                 if (primaryName) primaryName.textContent = clean;
-                if (filmTitle && currentTargetCoords && Math.abs(currentTargetCoords.lng - item.longitude) < 0.01) {
-                  filmTitle.textContent = clean;
+              }
+
+              // 2. Update Accordion row header for this rank
+              const altTitleEl = document.querySelector(`.alt-item[data-rank="${rankNum}"] .alt-left span:nth-child(2)`);
+              if (altTitleEl) {
+                altTitleEl.textContent = clean;
+              }
+
+              // 3. Update floating sidebar button tooltip
+              const squareBtn = document.querySelector(`.rank-square-btn[data-rank="${rankNum}"]`);
+              if (squareBtn) {
+                squareBtn.setAttribute('title', `Rank #${rankNum}: ${clean} (${spot.top5[idx].similarity}%)`);
+                const ttText = squareBtn.querySelector('.square-tooltip');
+                if (ttText) {
+                  ttText.innerHTML = `<span style="color:var(--accent-soft);font-weight:700;">#${rankNum}</span> ${clean} (${spot.top5[idx].similarity}%)`;
                 }
+              }
+
+              // 4. Update Film Title & Marker HUD if this rank is currently active
+              if (currentActiveRank === rankNum && filmTitle) {
+                filmTitle.textContent = clean;
+              }
+              if (currentTargetCoords && Math.abs(currentTargetCoords.lng - item.longitude) < 0.01 && Math.abs(currentTargetCoords.lat - item.latitude) < 0.01) {
+                const markerHudEl = document.querySelector('.marker-hud-name');
+                if (markerHudEl) markerHudEl.textContent = clean;
               }
             }
           } catch(e) {}
@@ -3307,12 +3502,19 @@
         // ASYNC LIVE API FETCH: Query Railway Neon Postgres backend immediately in background
         spot.apiPromise = fetchLivePlanetaryAnalogs('moon', spot.lat, spot.lng).then(async data => {
           if (data && applyLiveAnalogsToSpot(spot, data)) {
-            // Await exact reverse geocoding for rank 1 before resolving promise
-            if (spot.top5 && spot.top5[0]) {
-              try {
-                const exactName = await resolveExactPlaceName(spot.top5[0].lat, spot.top5[0].lng, spot.top5[0].name);
-                spot.top5[0].name = exactName;
-              } catch(e) {}
+            // Await exact micro-toponym reverse geocoding for all 5 ranks in parallel before resolving
+            if (spot.top5 && spot.top5.length) {
+              const seen = new Set();
+              await Promise.allSettled(spot.top5.map(async (item, idx) => {
+                try {
+                  let exactName = await resolveExactPlaceName(item.lat, item.lng, item.name, item);
+                  if (seen.has(exactName)) {
+                    exactName = `${exactName} (${item.lat > 0 ? item.lat.toFixed(1) + '°N' : Math.abs(item.lat).toFixed(1) + '°S'}, ${item.lng > 0 ? item.lng.toFixed(1) + '°E' : Math.abs(item.lng).toFixed(1) + '°W'})`;
+                  }
+                  seen.add(exactName);
+                  item.name = exactName;
+                } catch(e) {}
+              }));
             }
             if (elevEl) elevEl.textContent = `${spot.elev.toLocaleString()} m`;
             if (earthMap && spot.top5 && spot.top5[0]) {
