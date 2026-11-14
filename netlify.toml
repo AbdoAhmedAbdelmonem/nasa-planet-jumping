@@ -1,0 +1,31 @@
+[build]
+  command = "bun run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/identify-twin"
+  to = "/identify-twin.html"
+  status = 200
+
+[[redirects]]
+  from = "/moon-chunking"
+  to = "/moon-chunking.html"
+  status = 200
+
+[[redirects]]
+  from = "/mars-chunking"
+  to = "/mars-chunking.html"
+  status = 200
+
+[[redirects]]
+  from = "/planet-jumping"
+  to = "/planet-jumping.html"
+  status = 200
