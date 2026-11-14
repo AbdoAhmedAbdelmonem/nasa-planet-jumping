@@ -480,11 +480,37 @@
       color:rgba(255,255,255,.50);
     }
 
+    .hero-partner{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      top:calc(334 * var(--u));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:3;
+    }
+    .hero-partner img.partner-logo{
+      height:calc(32 * var(--u));
+      width:auto;
+      max-width:calc(110 * var(--u));
+      display:block;
+      object-fit:contain;
+      filter:drop-shadow(0 0 14px rgba(255,255,255,0.45));
+      opacity:0.95;
+      transition:all .22s ease;
+    }
+    .hero-partner img.partner-logo:hover{
+      opacity:1;
+      transform:scale(1.06);
+      filter:drop-shadow(0 0 20px rgba(255,255,255,0.7));
+    }
+
     .cta{
       position:absolute;
       left:50%;
       transform:translateX(-50%);
-      top:calc(342.8 * var(--u));
+      top:calc(382 * var(--u));
       display:flex;
       align-items:center;
       gap:calc(9.9 * var(--u));
@@ -755,6 +781,8 @@
       :root{ --u: calc(100vw / 486); }
       .bar{ left:5.2vw; width:89.6vw; }
       .hero p{ width:min(calc(440 * var(--u)), 88vw); line-height:calc(23 * var(--u)); }
+      .hero-partner{ top:calc(356 * var(--u)); }
+      .cta{ top:calc(404 * var(--u)); }
       .pill{ padding-right:calc(8 * var(--u)); }
       .hero-hud{ display:none; }
       .section{ padding:64px 20px; }
@@ -785,6 +813,7 @@
       .intro .actions > .menu,
       .intro .pill,
       .intro .hero p,
+      .intro .hero-partner,
       .intro .cta .btn{
         opacity:0;
       }
@@ -794,6 +823,7 @@
       .intro .brand,
       .intro .pill,
       .intro .hero p,
+      .intro .hero-partner,
       .intro .ln-i,
       .intro .cta .btn{
         will-change:transform,opacity;
@@ -835,6 +865,7 @@
       .intro-play .hero h1 .ln:nth-child(1) .ln-i{ animation:i-line .95s var(--e-reveal) .34s both; }
       .intro-play .hero h1 .ln:nth-child(2) .ln-i{ animation:i-line .95s var(--e-reveal) .48s both; }
       .intro-play .hero p{ animation:i-sub .70s var(--e-soft) .86s both; }
+      .intro-play .hero-partner{ animation:i-sub .70s var(--e-soft) .93s both; }
       .intro-play .cta .btn:nth-child(1){ animation:i-btn .62s var(--e-soft) 1.00s both; }
       .intro-play .cta .btn:nth-child(2){ animation:i-btn .62s var(--e-soft) 1.07s both; }
     }
@@ -887,6 +918,9 @@
           <span class="ln"><span class="ln-i">for <span class="accent-word">Moon and Mars</span></span></span>
         </h1>
         <p>Finding Earth’s closest environmental matches to selected locations on the Moon and Mars.</p>
+        <div class="hero-partner">
+          <img src="/assets/images/x.png" alt="NASA Space Apps Challenge" class="partner-logo" width="148" height="58" />
+        </div>
         <div class="cta">
           <a class="btn ghost" href="#missions">Field campaigns</a>
           <a class="btn solid" href="/identify-twin.html">Launch 3D Journey</a>
@@ -902,10 +936,6 @@
       <div class="hud-cell">
         <span class="hud-label">TERRESTRIAL ANALOG DATASET</span>
         <span class="hud-val mono">268,252 <span>0.25° Neon DB Sites</span></span>
-      </div>
-      <div class="hud-cell">
-        <span class="hud-label">PHYSICAL FEATURE MATRIX</span>
-        <span class="hud-val mono">8 Vectors <span>Euclidean L2 KNN</span></span>
       </div>
       <div class="hud-cell">
         <span class="hud-label">REVERSE GEOCODING REACH</span>
