@@ -4,7 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "sync:vendor": "node -e \"const fs=require('fs');const d='public/assets/vendor';fs.mkdirSync(d,{recursive:true});for(const f of ['maplibre-gl.mjs','maplibre-gl-shared.mjs','maplibre-gl-worker.mjs','maplibre-gl.css']){const src='node_modules/maplibre-gl/dist/'+f;if(fs.existsSync(src))fs.copyFileSync(src,d+'/'+f);}\"",
+    "sync:vendor": "node -e \"const fs=require('fs');const d='public/assets/vendor';fs.mkdirSync(d,{recursive:true});for(const f of ['maplibre-gl.mjs','maplibre-gl-shared.mjs','maplibre-gl-worker.mjs','maplibre-gl.css']){const src='node_modules/maplibre-gl/dist/'+f;if(fs.existsSync(src))fs.copyFileSync(src,d+'/'+f);}for(const h of ['index.html','identify-twin.html','mars-chunking.html','moon-chunking.html']){if(fs.existsSync(h))fs.copyFileSync(h,'public/'+h);}\"",
     "predev": "npm run sync:vendor",
     "dev": "vite dev --host 0.0.0.0 --port 3000",
     "prebuild": "npm run sync:vendor",
