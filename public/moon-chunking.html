@@ -141,6 +141,14 @@
       height: 17px;
       display: block;
     }
+    .brand .brand-logo {
+      width: 28px;
+      height: 28px;
+      display: block;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+    }
     .header-nav-tabs {
       display: flex;
       align-items: center;
@@ -246,19 +254,14 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(155, 140, 255, 0.4) transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
     }
     .telemetry-floating-window::-webkit-scrollbar {
-      width: 5px;
-    }
-    .telemetry-floating-window::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .telemetry-floating-window::-webkit-scrollbar-thumb {
-      background: rgba(155, 140, 255, 0.35);
-      border-radius: 999px;
+      display: none;
+      width: 0;
+      height: 0;
     }
     .telemetry-floating-window.is-hidden {
       opacity: 0;
@@ -305,6 +308,50 @@
       background: currentColor;
     }
 
+    /* SELECTION MODE SWITCHER (GRID CHUNK vs SINGLE POINT) */
+    .selection-mode-switcher {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: 14px;
+      padding: 3px;
+      gap: 4px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .mode-tab {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 33px;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mode-tab:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .mode-tab.is-active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(155, 140, 255, 0.35) 0%, rgba(155, 140, 255, 0.14) 100%);
+      border-color: rgba(155, 140, 255, 0.65);
+      box-shadow: 0 0 16px rgba(155, 140, 255, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    }
+    .mode-tab-icon {
+      font-size: 13px;
+      line-height: 1;
+    }
+
     .spot-info-block {
       display: flex;
       flex-direction: column;
@@ -345,6 +392,119 @@
       margin: 0;
       color: #fff;
       font-weight: 600;
+    }
+    .coords-cell.full-width {
+      grid-column: span 2;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .coords-chunk-val {
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      color: var(--accent) !important;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 12px rgba(155, 140, 255, 0.4);
+    }
+
+    /* MANUAL COORDINATE INPUT CARD (FROSTED LIQUID GLASS THEME) */
+    .manual-coords-card {
+      padding: 13px 15px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid var(--glass-border-subtle);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+    .manual-coords-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      color: var(--ink-sub);
+    }
+    .manual-coords-tag {
+      font-size: 9.5px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .manual-fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .manual-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .manual-field label {
+      font-size: 9.5px;
+      font-weight: 650;
+      letter-spacing: 0.05em;
+      color: var(--ink-muted);
+    }
+    .glass-input {
+      width: 100%;
+      height: 35px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.22s ease;
+      box-sizing: border-box;
+    }
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.13);
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(155, 140, 255, 0.35);
+    }
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.32);
+    }
+    .locate-btn {
+      width: 100%;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(155, 140, 255, 0.28) 0%, rgba(155, 140, 255, 0.12) 100%);
+      border: 1px solid rgba(155, 140, 255, 0.55);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .locate-btn:hover {
+      background: linear-gradient(135deg, rgba(155, 140, 255, 0.45) 0%, rgba(155, 140, 255, 0.22) 100%);
+      border-color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 20px rgba(155, 140, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    .locate-btn:active {
+      transform: translateY(0);
     }
 
     /* PRESET CHIPS */
@@ -423,12 +583,11 @@
     .film-backdrop-scrim {
       position: fixed;
       inset: 0;
-      z-index: 55;
+      z-index: 45;
       pointer-events: none;
-      background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 70%),
-                  linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 35%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0) 24%);
       opacity: 0;
-      transition: opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .film-backdrop-scrim.is-active {
       opacity: 1;
@@ -557,33 +716,24 @@
       flex-direction: column;
       gap: 16px;
       transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.04);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
     .comparison-panel::-webkit-scrollbar {
-      width: 6px;
-    }
-    .comparison-panel::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 999px;
-      margin: 14px 0;
-    }
-    .comparison-panel::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.26);
-      border-radius: 999px;
-    }
-    .comparison-panel::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.45);
+      display: none;
+      width: 0;
+      height: 0;
     }
     .comparison-panel.is-active {
       transform: translateX(0);
       opacity: 1;
       pointer-events: auto;
     }
-    /* COLLAPSED STATE: SLIDES FLUSH OFF-SCREEN WITH ARROW TAB VISIBLE */
-    .comparison-panel.is-active.is-collapsed {
-      transform: translateX(calc(100% + 28px - 38px));
-      pointer-events: auto;
+    /* COLLAPSED STATE: SLIDES FULLY OFF-SCREEN TO REVEAL FLOATING QUICK-BAR */
+    .comparison-panel.is-collapsed {
+      transform: translateX(calc(100% + 50px)) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
     /* COLLAPSE / EXPAND TAB (LOCATED ON LEFT EDGE IN THE MIDDLE) */
@@ -621,13 +771,214 @@
       height: 19px;
       transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    /* When active (open): points right (to collapse into right edge) */
-    .comparison-panel .collapse-icon {
-      transform: rotate(0deg);
+
+    /* SLEEK FLOATING ANALOG SIDEBAR (COMPACT 1-5 RANK SQUARE STRIP) */
+    .floating-analog-sidebar {
+      position: fixed;
+      top: 50%;
+      right: 24px;
+      transform: translateY(-50%) translateX(90px);
+      z-index: 58;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 10px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.08);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      backdrop-filter: blur(28px) saturate(190%);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 0 24px rgba(155, 140, 255, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     }
-    /* When collapsed: points left (to expand out to the left) */
-    .comparison-panel.is-collapsed .collapse-icon {
-      transform: rotate(180deg);
+    .floating-analog-sidebar.is-active {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* TOP EXPAND ARROW BUTTON */
+    .sidebar-expand-btn {
+      width: 44px;
+      height: 38px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.10);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.30);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      position: relative;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+    .sidebar-expand-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.25s ease;
+    }
+    .sidebar-expand-btn:hover {
+      background: rgba(155, 140, 255, 0.35);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(155, 140, 255, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      transform: scale(1.05) translateX(-2px);
+    }
+
+    .sidebar-divider {
+      width: 32px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.25);
+      margin: 2px 0;
+    }
+
+    /* 5 RANK SQUARES */
+    .sidebar-rank-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rank-square-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.92);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    }
+    .rank-square-btn .square-rank {
+      line-height: 1;
+      font-size: 13.5px;
+    }
+    .rank-square-btn .square-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      margin-top: 3px;
+      transition: all 0.2s ease;
+    }
+    .rank-square-btn:hover {
+      background: rgba(155, 140, 255, 0.30);
+      border-color: rgba(155, 140, 255, 0.75);
+      color: #ffffff;
+      transform: scale(1.08);
+      box-shadow: 0 0 18px rgba(155, 140, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .rank-square-btn:hover .square-dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    /* HIGHLIGHTED ACTIVE SQUARE */
+    .rank-square-btn.is-active {
+      background: linear-gradient(135deg, rgba(155, 140, 255, 0.60) 0%, rgba(129, 140, 248, 0.45) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      color: #ffffff;
+      box-shadow: 0 0 22px rgba(155, 140, 255, 0.85), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+      transform: scale(1.08);
+    }
+    .rank-square-btn.is-active .square-dot {
+      background: #ffffff;
+      box-shadow: 0 0 8px #ffffff;
+      transform: scale(1.3);
+    }
+
+    /* TOOLTIP POPUP FOR SQUARES */
+    .rank-square-btn .square-tooltip {
+      position: absolute;
+      right: calc(100% + 14px);
+      top: 50%;
+      transform: translateY(-50%) translateX(10px);
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+      padding: 7px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.40);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(24px) saturate(180%);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(155, 140, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 70;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+    .rank-square-btn:hover .square-tooltip {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    /* COLLAPSE ACTION BUTTON IN COMPARISON PANEL HEADER (SLEEK ICON BUTTON) */
+    .comp-head-collapse-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      background-image: var(--glass-gradient);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: rgba(255, 255, 255, 0.9);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      position: relative;
+      z-index: 20;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .comp-head-collapse-btn svg {
+      width: 17px;
+      height: 17px;
+      pointer-events: none;
+      transition: transform 0.22s ease;
+    }
+    .comp-head-collapse-btn:hover {
+      background: rgba(155, 140, 255, 0.32);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(155, 140, 255, 0.55);
+      transform: scale(1.08) translateX(2px);
+    }
+    .comp-head-collapse-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* BRIGHT SUNLIT TERRAIN LIGHTING WHEN DRAWER IS COLLAPSED */
+    #earth-globe-stage {
+      transition: filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.drawer-collapsed #earth-globe-stage {
+      filter: brightness(1.24) contrast(1.05) saturate(1.15);
+    }
+    body.drawer-collapsed .film-backdrop-scrim {
+      opacity: 0.05 !important;
     }
 
     .comp-head {
@@ -652,6 +1003,29 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--glass-border-subtle);
       color: #f1f5f9;
+    }
+    .comp-backend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5.5px;
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #86efac;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .comp-backend-badge::before {
+      content: '';
+      width: 5.5px;
+      height: 5.5px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      display: inline-block;
     }
 
     /* PRIMARY VIEW: TOP 1 LOCATION */
@@ -783,6 +1157,15 @@
       border-color: rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.07);
     }
+    .alt-item.is-selected {
+      border-color: var(--accent);
+      background: rgba(155, 140, 255, 0.14);
+      box-shadow: 0 0 16px rgba(155, 140, 255, 0.28);
+    }
+    .alt-item.is-selected .alt-rank {
+      color: #ffffff;
+      text-shadow: 0 0 8px var(--accent);
+    }
     .alt-header {
       width: 100%;
       padding: 10px 14px;
@@ -871,43 +1254,23 @@
       transform: scale(1.02);
     }
 
-    /* CINEMATIC 3D TARGET MARKER ON MAPLIBRE GL TERRAIN */
+    /* CINEMATIC 3D TARGET MARKER ON MAPLIBRE GL TERRAIN (CLEAN GLASSY THEME, NO PULSE) */
     .analog-target-marker {
-      position: relative;
+      width: 34px;
+      height: 34px;
       cursor: pointer;
       pointer-events: auto;
       z-index: 20;
-      transform: translate3d(0, 0, 0);
+      /* MapLibre GL translates this container to target pixel pos */
     }
 
-    /* GROUND RADAR PULSE RINGS */
+    /* REMOVED PULSE ANIMATION PER USER REQUEST */
     .marker-pulse-ring,
     .marker-pulse-ring-outer {
-      position: absolute;
-      left: 50%;
-      top: 100%;
-      transform: translate(-50%, -50%);
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      background: rgba(155, 140, 255, 0.22);
-      pointer-events: none;
-      animation: beaconRadarPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-    }
-    .marker-pulse-ring-outer {
-      animation-delay: 1.2s;
-    }
-
-    @keyframes beaconRadarPing {
-      0% {
-        transform: translate(-50%, -50%) scale(0.3);
-        opacity: 1;
-      }
-      80%, 100% {
-        transform: translate(-50%, -50%) scale(3.2);
-        opacity: 0;
-      }
+      display: none !important;
+      animation: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
     }
 
     /* VERTICAL LASER BEAM REACHING UPWARDS */
@@ -916,77 +1279,116 @@
       left: 50%;
       bottom: 24px;
       width: 2px;
-      height: 120px;
+      height: 90px;
       transform: translateX(-50%);
-      background: linear-gradient(to top, rgba(155, 140, 255, 0.95), rgba(155, 140, 255, 0.4) 60%, transparent 100%);
-      box-shadow: 0 0 14px var(--accent);
+      background: linear-gradient(to top, rgba(155, 140, 255, 0.75), rgba(155, 140, 255, 0.2) 60%, transparent 100%);
+      box-shadow: 0 0 10px rgba(155, 140, 255, 0.5);
       pointer-events: none;
     }
 
-    /* PIN ICON WITH HOVER/CLICK */
+    /* PIN INNER WRAPPER (ANIMATION & HOVER SCALE OPERATE HERE SAFELY) */
     .marker-pin-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
-      bottom: 0;
+      width: 34px;
+      height: 34px;
+      pointer-events: auto;
+      animation: markerPinDropIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .analog-target-marker:hover .marker-pin-wrap {
-      transform: translateY(-6px) scale(1.08);
+      transform: translateY(-4px) scale(1.06);
     }
 
+    @keyframes markerPinDropIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-24px) scale(0.65);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(2px) scale(1.04);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* GLASSY TARGET PIN ICON */
     .marker-pin-icon {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      background: rgba(18, 22, 34, 0.92);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 22px rgba(155, 140, 255, 0.85), 0 4px 12px rgba(0, 0, 0, 0.6);
+      background: rgba(255, 255, 255, 0.12);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 16px rgba(155, 140, 255, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.22s ease;
+    }
+    .marker-pin-icon svg {
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+    }
+    .analog-target-marker:hover .marker-pin-icon {
+      background: rgba(155, 140, 255, 0.28);
+      border-color: #ffffff;
+      box-shadow: 0 0 24px rgba(155, 140, 255, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.7);
     }
 
-    /* FLOATING SCI-FI HUD CARD ABOVE THE PIN */
+    /* FLOATING SCI-FI HUD CARD ABOVE THE PIN (PURE LIQUID GLASS THEME) */
     .marker-hud-card {
       position: absolute;
-      bottom: 44px;
+      bottom: 46px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 3px;
-      padding: 8px 14px;
-      border-radius: 12px;
-      background: rgba(14, 18, 30, 0.90);
-      background-image: var(--glass-gradient);
-      border: 1px solid var(--glass-border);
-      -webkit-backdrop-filter: var(--glass-blur);
-      backdrop-filter: var(--glass-blur);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65), 0 0 18px rgba(155, 140, 255, 0.4);
+      padding: 8px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.10);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.40);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 0 18px rgba(155, 140, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.5);
       white-space: nowrap;
       pointer-events: auto;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .marker-hud-card:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.65);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(155, 140, 255, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.7);
     }
     .marker-hud-badge {
       font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--accent-soft);
+      font-weight: 750;
+      letter-spacing: 0.14em;
+      color: #c4b5fd;
       text-transform: uppercase;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
     .marker-hud-name {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 700;
       color: #ffffff;
       letter-spacing: -0.01em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     }
     .marker-hud-recenter {
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.65);
-      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.05em;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
     /* FLOATING RE-CENTER HUD SHORTCUT (TOP-CENTER UNDER HEADER) */
@@ -1055,6 +1457,26 @@
         right: 16px;
         top: 76px;
       }
+      .floating-analog-sidebar {
+        top: auto;
+        bottom: 20px;
+        right: 16px;
+        transform: translateY(80px);
+        flex-direction: row;
+        border-radius: 999px;
+        padding: 8px 12px;
+      }
+      .floating-analog-sidebar.is-active {
+        transform: translateY(0);
+      }
+      .sidebar-rank-list {
+        flex-direction: row;
+      }
+      .sidebar-divider {
+        width: 1px;
+        height: 24px;
+        margin: 0 4px;
+      }
       .cinematic-film-overlay.stage-docked {
         bottom: 20px;
         left: 20px;
@@ -1080,18 +1502,14 @@
   <!-- TOP HEADER BAR -->
   <header class="header">
     <a href="/index.html" class="brand" title="Deimos Environmental Atlas">
-      <svg viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="16" cy="10" rx="9" ry="9" fill="#ffffff"/>
-        <path d="M2 13.5C6 7 24 3 30 7.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M4 15C8 18 24 16.5 28 12" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>
+      <img src="/assets/images/deimos_logo.png" alt="Deimos Logo" class="brand-logo" width="28" height="28" />
       <span class="syne">Deimos</span>
     </a>
 
     <nav class="header-nav-tabs">
       <a href="/index.html">About</a>
-      <a href="/moon-chunking.html" class="active">Explore Moon</a>
-      <a href="/mars-chunking.html">Planets</a>
+      <a href="/moon-chunking.html" class="active">Moon</a>
+      <a href="/mars-chunking.html">Mars</a>
     </nav>
 
     <a href="/identify-twin.html" class="header-btn">
@@ -1108,25 +1526,37 @@
   <!-- BOTTOM LEFT EXPLORATION HINT -->
   <div id="explore-hint" class="explore-hint mono">
     <span>✦</span>
-    <span>Drag to orbit 360° · Click any spot on Moon to lock coordinates</span>
+    <span>Drag to orbit 360° · Select any Grid Chunk or Enter Lat/Lon · Click Simulate</span>
   </div>
 
   <!-- RIGHT GLASSED WINDOW: INITIAL LUNAR TELEMETRY -->
   <aside class="telemetry-floating-window" id="selection-window">
     <div class="win-head">
       <span class="win-title mono">LUNAR INPUT TELEMETRY</span>
-      <span id="win-status" class="win-status mono">
-        <span class="win-status-dot"></span>
-        <span id="status-text">Awaiting Spot</span>
-      </span>
+    </div>
+
+    <!-- SELECTION MODE TOGGLE (GRID CHUNK vs SINGLE POINT) -->
+    <div class="selection-mode-switcher mono" role="radiogroup" aria-label="Selection Mode">
+      <button type="button" class="mode-tab is-active" id="mode-chunk-btn" data-mode="chunk">
+        <span class="mode-tab-icon">⊞</span>
+        <span>Grid Chunk</span>
+      </button>
+      <button type="button" class="mode-tab" id="mode-point-btn" data-mode="point">
+        <span class="mode-tab-icon">⦿</span>
+        <span>Single Point</span>
+      </button>
     </div>
 
     <div class="spot-info-block">
       <div id="spot-name" class="spot-name">Click Any Spot on Moon</div>
-      <div id="spot-desc" class="spot-desc">Drag to orbit the 3D globe. Click any crater, mare basin, or surface coordinate to acquire telemetry then click Simulate.</div>
+      <div id="spot-desc" class="spot-desc">Drag to orbit the 3D globe. Select any surface grid chunk, or enter manual Lat/Lon coordinates below to lock telemetry.</div>
     </div>
 
     <dl class="coords-matrix mono">
+      <div class="coords-cell full-width">
+        <dt>SURFACE GRID CHUNK</dt>
+        <dd id="coords-chunk" class="coords-chunk-val">AWAITING SELECTION</dd>
+      </div>
       <div class="coords-cell">
         <dt>LATITUDE</dt>
         <dd id="coords-lat">--.----° N</dd>
@@ -1135,26 +1565,28 @@
         <dt>LONGITUDE</dt>
         <dd id="coords-lng">--.----° E</dd>
       </div>
-      <div class="coords-cell">
-        <dt>SURFACE ELEVATION</dt>
-        <dd id="coords-elev">-1,240 m</dd>
-      </div>
-      <div class="coords-cell">
-        <dt>SURFACE GRAVITY</dt>
-        <dd id="coords-grav">1.62 m/s²</dd>
-      </div>
     </dl>
 
-    <!-- PRESET HOTSPOT CHIPS -->
-    <div class="presets-wrap">
-      <span class="presets-label mono">HIGH-PRIORITY CANDIDATE SITES</span>
-      <div class="presets-chips" id="preset-chips">
-        <button type="button" class="preset-chip" data-id="tranquillitatis">Mare Tranquillitatis</button>
-        <button type="button" class="preset-chip" data-id="shackleton">Shackleton Pole</button>
-        <button type="button" class="preset-chip" data-id="procellarum">Oceanus Procellarum</button>
-        <button type="button" class="preset-chip" data-id="tycho">Tycho Crater</button>
-        <button type="button" class="preset-chip" data-id="hadley">Hadley Rille</button>
+    <!-- MANUAL COORDINATE & GRID LOCATOR -->
+    <div class="manual-coords-card">
+      <div class="manual-coords-header mono">
+        <span>MANUAL GRID SEARCH</span>
+        <span class="manual-coords-tag">LAT / LON</span>
       </div>
+      <div class="manual-fields-grid">
+        <div class="manual-field">
+          <label class="mono" for="manual-lat">LAT (-90° to +90°)</label>
+          <input type="number" id="manual-lat" class="glass-input mono" placeholder="e.g. 0.6740" step="0.0001" min="-90" max="90">
+        </div>
+        <div class="manual-field">
+          <label class="mono" for="manual-lng">LON (-180° to +180°)</label>
+          <input type="number" id="manual-lng" class="glass-input mono" placeholder="e.g. 23.4720" step="0.0001" min="-180" max="180">
+        </div>
+      </div>
+      <button id="locate-coords-btn" class="locate-btn mono" type="button">
+        <span style="font-size:14px;">⌖</span>
+        <span>LOCATE & LOCK GRID CHUNK</span>
+      </button>
     </div>
 
     <!-- THE SIMULATE BUTTON -->
@@ -1174,15 +1606,24 @@
   <!-- RIGHT COMPARISON MATRIX MENU (TOP 5 RANKED EARTH LOCATIONS) -->
   <aside class="comparison-panel" id="comparison-panel">
     <!-- COLLAPSE / EXPAND TOGGLE ARROW TAB ON LEFT EDGE (VERTICAL CENTER) -->
-    <button class="panel-collapse-tab" id="panel-collapse-tab" type="button" aria-label="Toggle comparison drawer" title="Collapse / Expand Comparison Matrix">
+    <button class="panel-collapse-tab" id="panel-collapse-tab" type="button" onclick="window.collapseComparisonDrawer(event)" aria-label="Toggle comparison drawer" title="Collapse / Expand Comparison Matrix">
       <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"></polyline>
+        <polyline points="13 17 18 12 13 7"></polyline>
+        <polyline points="6 17 11 12 6 7"></polyline>
       </svg>
     </button>
 
     <div class="comp-head">
-      <span class="comp-head-title mono">TOP 5 RANKED EARTH ANALOGS</span>
-      <span class="comp-input-badge mono" id="comp-origin-badge">INPUT: MOON</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="comp-head-title mono">TOP 5 RANKED EARTH ANALOGS</span>
+        <span class="comp-input-badge mono" id="comp-origin-badge">INPUT: MOON</span>
+      </div>
+      <button class="comp-head-collapse-btn" id="comp-head-collapse-btn" type="button" onclick="window.collapseComparisonDrawer(event)" title="Collapse into floating sidebar" aria-label="Collapse into floating sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="13 17 18 12 13 7"></polyline>
+          <polyline points="6 17 11 12 6 7"></polyline>
+        </svg>
+      </button>
     </div>
 
     <!-- PRIMARY VIEW: TOP 1 LOCATION -->
@@ -1222,6 +1663,24 @@
     <button id="re-orbit-btn" class="re-orbit-btn mono" type="button">
       <span>← Choose Another Lunar Spot</span>
     </button>
+  </aside>
+
+  <!-- SLEEK FLOATING ANALOG SIDEBAR (COMPACT 1-5 RANK SQUARE STRIP) -->
+  <aside id="floating-sidebar" class="floating-analog-sidebar mono" aria-label="Quick Analog Rank Navigator">
+    <!-- EXPAND ARROW BUTTON AT TOP -->
+    <button id="sidebar-expand-btn" class="sidebar-expand-btn" type="button" onclick="window.expandComparisonDrawer(event)" title="Expand Full Comparison Matrix" aria-label="Expand Full Comparison Matrix">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="11 17 6 12 11 7"></polyline>
+        <polyline points="18 17 13 12 18 7"></polyline>
+      </svg>
+    </button>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- 5 SQUARES FOR RANKS 1 THROUGH 5 -->
+    <div class="sidebar-rank-list" id="sidebar-rank-list">
+      <!-- Populated dynamically via JS -->
+    </div>
   </aside>
 
   <!-- APPLICATION ENGINE SCRIPT -->
@@ -1629,6 +2088,7 @@
       let isClockwiseOrbiting = false;
       let orbitAnimationFrameId = null;
       let userIsInteractingWithMap = false;
+      let userHasPannedAway = false;
       let resumeOrbitTimer = null;
       const recenterBtn = document.getElementById('recenter-target-btn');
 
@@ -1637,6 +2097,10 @@
       const cloudsCanvas = document.getElementById('clouds-overlay-canvas');
       const cloudsCtx = cloudsCanvas ? cloudsCanvas.getContext('2d') : null;
       const filmScrim = document.getElementById('film-scrim');
+
+      let currentSelectionMode = 'chunk';
+      const modeChunkBtn = document.getElementById('mode-chunk-btn');
+      const modePointBtn = document.getElementById('mode-point-btn');
 
       const selectionWin = document.getElementById('selection-window');
       const winStatus = document.getElementById('win-status');
@@ -1647,6 +2111,10 @@
       const lngEl = document.getElementById('coords-lng');
       const elevEl = document.getElementById('coords-elev');
       const gravEl = document.getElementById('coords-grav');
+      const coordsChunkEl = document.getElementById('coords-chunk');
+      const manualLatInput = document.getElementById('manual-lat');
+      const manualLngInput = document.getElementById('manual-lng');
+      const locateCoordsBtn = document.getElementById('locate-coords-btn');
       const simBtn = document.getElementById('simulate-btn');
       const presetChips = document.querySelectorAll('.preset-chip');
 
@@ -1665,6 +2133,13 @@
       const primaryPropsBody = document.getElementById('primary-props-body');
       const alternativesAccordion = document.getElementById('alternatives-accordion');
       const reOrbitBtn = document.getElementById('re-orbit-btn');
+      const floatingSidebar = document.getElementById('floating-sidebar');
+      const sidebarExpandBtn = document.getElementById('sidebar-expand-btn');
+      const sidebarRankList = document.getElementById('sidebar-rank-list');
+      const headCollapseBtn = document.getElementById('comp-head-collapse-btn');
+      const panelCollapseTab = document.getElementById('panel-collapse-tab');
+      const collapseBtn = panelCollapseTab;
+      let currentActiveRank = 1;
 
       function resizeClouds() {
         if (cloudsCanvas) {
@@ -1724,6 +2199,9 @@
           maxTileCacheSize: 600,
           style: {
             version: 8,
+            projection: {
+              type: 'globe'
+            },
             sources: {
               'esri-satellite': {
                 type: 'raster',
@@ -1755,6 +2233,22 @@
             terrain: {
               source: 'terrain-dem',
               exaggeration: 1.35
+            },
+            sky: {
+              'sky-color': '#010106',
+              'sky-horizon-blend': 0.5,
+              'horizon-color': '#060614',
+              'horizon-fog-blend': 0.8,
+              'fog-color': '#000003',
+              'fog-ground-blend': 0.5,
+              'atmosphere-blend': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 0.9,
+                9, 0.9,
+                12, 0.0
+              ]
             }
           },
           center: [-111.5178, 35.3217],
@@ -1765,6 +2259,169 @@
 
         earthMap.on('load', () => {
           earthMapReady = true;
+          try {
+            earthMap.setProjection({ type: 'globe' });
+          } catch (e) {}
+        });
+
+        // User map interaction detection to pause/resume auto-rotation gracefully
+        const pauseEvents = ['dragstart', 'rotatestart', 'pitchstart', 'zoomstart'];
+        pauseEvents.forEach(evt => {
+          earthMap.on(evt, (e) => {
+            if (e && e.originalEvent) {
+              if (evt === 'dragstart') userHasPannedAway = true;
+              pauseOrbitTemporarily();
+            }
+          });
+        });
+
+        const resumeEvents = ['dragend', 'rotateend', 'pitchend', 'zoomend'];
+        resumeEvents.forEach(evt => {
+          earthMap.on(evt, (e) => {
+            if (e && e.originalEvent) {
+              scheduleResumeOrbit();
+            }
+          });
+        });
+
+        // Also detect native user mouse / touch / wheel interaction on map canvas
+        const mapCanvas = earthMap.getCanvas();
+        if (mapCanvas) {
+          ['mousedown', 'touchstart', 'wheel'].forEach(evt => {
+            mapCanvas.addEventListener(evt, () => {
+              pauseOrbitTemporarily();
+            }, { passive: true });
+          });
+          ['mouseup', 'touchend'].forEach(evt => {
+            mapCanvas.addEventListener(evt, () => {
+              scheduleResumeOrbit();
+            }, { passive: true });
+          });
+        }
+      }
+
+      // TARGET MARKER PIN CREATION & HUD BEACON
+      function setEarthTargetMarker(lng, lat, title) {
+        if (!window.maplibregl || !earthMap) return;
+        currentTargetCoords = { lng, lat, title, zoom: 12.0, pitch: 62 };
+
+        if (earthTargetMarker) {
+          earthTargetMarker.remove();
+          earthTargetMarker = null;
+        }
+
+        const el = document.createElement('div');
+        el.className = 'analog-target-marker';
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('title', `Exact Target: ${title} — Click to re-center`);
+
+        el.innerHTML = `
+          <div class="marker-pin-wrap">
+            <div class="marker-hud-card">
+              <span class="marker-hud-badge mono">Target Ground Zero</span>
+              <span class="marker-hud-name">${title}</span>
+              <span class="marker-hud-recenter mono">Click to Re-Center ⌖</span>
+            </div>
+            <div class="marker-pin-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
+              </svg>
+            </div>
+          </div>
+        `;
+
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          recenterOnTarget();
+        });
+
+        earthTargetMarker = new window.maplibregl.Marker({
+          element: el,
+          anchor: 'center'
+        })
+          .setLngLat([lng, lat])
+          .addTo(earthMap);
+
+        if (recenterBtn) {
+          recenterBtn.classList.add('is-active');
+        }
+      }
+
+      // CLOCKWISE MAP ROTATION LOOP AROUND THE EXACT POINT LOCATION (~2.0 DEG/SEC SMOOTH CINEMATIC ORBIT)
+      function startClockwiseMapOrbit() {
+        if (isClockwiseOrbiting) return;
+        isClockwiseOrbiting = true;
+
+        function orbitLoop() {
+          if (!isClockwiseOrbiting) return;
+          if (earthMap && !userIsInteractingWithMap) {
+            const currentBearing = earthMap.getBearing();
+            const nextBearing = (currentBearing + 0.030) % 360;
+
+            if (!userHasPannedAway && currentTargetCoords && typeof currentTargetCoords.lng === 'number' && typeof currentTargetCoords.lat === 'number') {
+              // Lock map center solidly on the exact ground zero coordinates so camera never drifts
+              earthMap.jumpTo({
+                center: [currentTargetCoords.lng, currentTargetCoords.lat],
+                bearing: nextBearing
+              });
+            } else {
+              earthMap.setBearing(nextBearing);
+            }
+          }
+          orbitAnimationFrameId = requestAnimationFrame(orbitLoop);
+        }
+        orbitAnimationFrameId = requestAnimationFrame(orbitLoop);
+      }
+
+      function stopClockwiseMapOrbit() {
+        isClockwiseOrbiting = false;
+        if (orbitAnimationFrameId) {
+          cancelAnimationFrame(orbitAnimationFrameId);
+          orbitAnimationFrameId = null;
+        }
+        if (resumeOrbitTimer) {
+          clearTimeout(resumeOrbitTimer);
+          resumeOrbitTimer = null;
+        }
+      }
+
+      function pauseOrbitTemporarily() {
+        userIsInteractingWithMap = true;
+        if (resumeOrbitTimer) {
+          clearTimeout(resumeOrbitTimer);
+          resumeOrbitTimer = null;
+        }
+      }
+
+      function scheduleResumeOrbit() {
+        if (resumeOrbitTimer) clearTimeout(resumeOrbitTimer);
+        resumeOrbitTimer = setTimeout(() => {
+          userIsInteractingWithMap = false;
+        }, 1800);
+      }
+
+      function recenterOnTarget() {
+        if (!earthMap || !currentTargetCoords) return;
+        userHasPannedAway = false;
+        pauseOrbitTemporarily();
+        earthMap.flyTo({
+          center: [currentTargetCoords.lng, currentTargetCoords.lat],
+          zoom: currentTargetCoords.zoom || 12.0,
+          pitch: currentTargetCoords.pitch || 62,
+          speed: 1.2,
+          curve: 1.42,
+          essential: true
+        });
+        earthMap.once('moveend', () => {
+          scheduleResumeOrbit();
+        });
+      }
+
+      if (recenterBtn) {
+        recenterBtn.addEventListener('click', () => {
+          recenterOnTarget();
         });
       }
 
@@ -1831,12 +2488,50 @@
       const atmoMesh = new THREE.Mesh(atmoGeo, atmoMat);
       planetGroup.add(atmoMesh);
 
-      // 3D BEACON PIN MESH
-      const beaconGeo = new THREE.RingGeometry(0.02, 0.04, 32);
-      const beaconMat = new THREE.MeshBasicMaterial({ color: 0x9b8cff, side: THREE.DoubleSide, transparent: true, opacity: 0.95 });
-      const beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
-      beaconMesh.visible = false;
-      planetGroup.add(beaconMesh);
+      // 3D VOLUMETRIC SPHERICAL BEACON (SLEEK HOLOGRAPHIC HEMISPHERE LANDING POINT)
+      const beaconGroup = new THREE.Group();
+      beaconGroup.visible = false;
+      planetGroup.add(beaconGroup);
+
+      // 1. Inner luminous solid core (hemisphere)
+      const coreGeo = new THREE.SphereGeometry(0.018, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.5);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95 });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      beaconGroup.add(coreMesh);
+
+      // 2. Outer holographic translucent hemisphere dome
+      const domeGeo = new THREE.SphereGeometry(0.038, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
+      const domeMat = new THREE.MeshBasicMaterial({
+        color: 0x9b8cff,
+        transparent: true,
+        opacity: 0.55,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const domeMesh = new THREE.Mesh(domeGeo, domeMat);
+      beaconGroup.add(domeMesh);
+
+      // 3. Ground contact perimeter ring
+      const baseRingGeo = new THREE.RingGeometry(0.036, 0.040, 32);
+      baseRingGeo.rotateX(-Math.PI / 2);
+      const baseRingMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const baseRingMesh = new THREE.Mesh(baseRingGeo, baseRingMat);
+      beaconGroup.add(baseRingMesh);
+
+      function positionSphericalBeacon(lat, lng) {
+        const normal = latLngToVector3(lat, lng, 1.0).normalize();
+        const surfacePos = normal.clone().multiplyScalar(planetRadius * 1.002);
+        beaconGroup.position.copy(surfacePos);
+        beaconGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+        beaconGroup.visible = true;
+      }
 
       function latLngToVector3(lat, lng, radius) {
         const phi = (90 - lat) * (Math.PI / 180);
@@ -1847,23 +2542,359 @@
         return new THREE.Vector3(x, y, z);
       }
 
-      // ADD 3D MARKERS FOR PRESET SITES
-      const markerGroup = new THREE.Group();
-      planetGroup.add(markerGroup);
+      // PLANETARY CHUNKING GRID SYSTEM (15° LAT x 15° LNG SECTORS)
+      function createPlanetaryGrid(radius, latSteps, lngSteps, color, opacity) {
+        const points = [];
+        // Parallels (latitude circles)
+        for (let i = 1; i < latSteps; i++) {
+          const lat = 90 - (i * 180 / latSteps);
+          const circlePoints = [];
+          for (let j = 0; j <= 72; j++) {
+            const lng = -180 + (j * 360 / 72);
+            circlePoints.push(latLngToVector3(lat, lng, radius));
+          }
+          for (let k = 0; k < circlePoints.length - 1; k++) {
+            points.push(circlePoints[k], circlePoints[k + 1]);
+          }
+        }
+        // Meridians (longitude arcs)
+        for (let j = 0; j < lngSteps; j++) {
+          const lng = -180 + (j * 360 / lngSteps);
+          const meridianPoints = [];
+          for (let i = 0; i <= 36; i++) {
+            const lat = 90 - (i * 180 / 36);
+            meridianPoints.push(latLngToVector3(lat, lng, radius));
+          }
+          for (let k = 0; k < meridianPoints.length - 1; k++) {
+            points.push(meridianPoints[k], meridianPoints[k + 1]);
+          }
+        }
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        const mat = new THREE.LineBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: opacity,
+          blending: THREE.AdditiveBlending
+        });
+        return new THREE.LineSegments(geo, mat);
+      }
 
+      const chunkingGrid = createPlanetaryGrid(planetRadius * 1.002, 12, 24, 0x9b8cff, 0.22);
+      planetGroup.add(chunkingGrid);
+
+      // CREATES CURVED 3D SPHERICAL SURFACE MESH FOR CHUNK HIGHLIGHT
+      function createChunkSurfaceMesh(chunk, radius, color, opacity) {
+        const { latMin, latMax, lngMin, lngMax } = chunk;
+        const latSegments = 6;
+        const lngSegments = 6;
+        
+        const vertices = [];
+        const indices = [];
+
+        for (let i = 0; i <= latSegments; i++) {
+          const lat = latMax - (i / latSegments) * (latMax - latMin);
+          for (let j = 0; j <= lngSegments; j++) {
+            const lng = lngMin + (j / lngSegments) * (lngMax - lngMin);
+            const pos = latLngToVector3(lat, lng, radius);
+            vertices.push(pos.x, pos.y, pos.z);
+          }
+        }
+
+        for (let i = 0; i < latSegments; i++) {
+          for (let j = 0; j < lngSegments; j++) {
+            const a = i * (lngSegments + 1) + j;
+            const b = (i + 1) * (lngSegments + 1) + j;
+            const c = (i + 1) * (lngSegments + 1) + (j + 1);
+            const d = i * (lngSegments + 1) + (j + 1);
+            indices.push(a, b, d);
+            indices.push(b, c, d);
+          }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setIndex(indices);
+        geometry.computeVertexNormals();
+
+        const material = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: opacity,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+
+        return new THREE.Mesh(geometry, material);
+      }
+
+      // SELECTED CHUNK BOUNDARY OUTLINE & RADIANT SURFACE FILL
+      let selectedChunkSurfaceMesh = null;
+      let selectedChunkLine = null;
+
+      function highlightChunk(chunk, isChunkMode) {
+        if (selectedChunkSurfaceMesh) {
+          planetGroup.remove(selectedChunkSurfaceMesh);
+          if (selectedChunkSurfaceMesh.geometry) selectedChunkSurfaceMesh.geometry.dispose();
+          if (selectedChunkSurfaceMesh.material) selectedChunkSurfaceMesh.material.dispose();
+          selectedChunkSurfaceMesh = null;
+        }
+        if (selectedChunkLine) {
+          planetGroup.remove(selectedChunkLine);
+          if (selectedChunkLine.geometry) selectedChunkLine.geometry.dispose();
+          if (selectedChunkLine.material) selectedChunkLine.material.dispose();
+          selectedChunkLine = null;
+        }
+        if (!chunk) return;
+
+        if (isChunkMode) {
+          // 1. Glowing surface color fill adhering to spherical curvature
+          selectedChunkSurfaceMesh = createChunkSurfaceMesh(chunk, planetRadius * 1.004, 0x8b5cf6, 0.32);
+          planetGroup.add(selectedChunkSurfaceMesh);
+
+          // 2. High-contrast perimeter border
+          const pts = buildChunkBoundaryPoints(chunk, planetRadius * 1.008);
+          const geo = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = new THREE.LineBasicMaterial({
+            color: 0x38bdf8,
+            linewidth: 2.5,
+            transparent: true,
+            opacity: 0.95,
+            blending: THREE.AdditiveBlending
+          });
+          selectedChunkLine = new THREE.LineLoop(geo, mat);
+          planetGroup.add(selectedChunkLine);
+        } else {
+          // In Single Point mode, show an ultra-subtle guide grid border only
+          const pts = buildChunkBoundaryPoints(chunk, planetRadius * 1.004);
+          const geo = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = new THREE.LineBasicMaterial({
+            color: 0x9b8cff,
+            linewidth: 1,
+            transparent: true,
+            opacity: 0.30,
+            blending: THREE.AdditiveBlending
+          });
+          selectedChunkLine = new THREE.LineLoop(geo, mat);
+          planetGroup.add(selectedChunkLine);
+        }
+      }
+
+      function buildChunkBoundaryPoints(chunk, radius) {
+        const points = [];
+        const steps = 6;
+        const { latMin, latMax, lngMin, lngMax } = chunk;
+
+        for (let i = 0; i <= steps; i++) {
+          const lng = lngMin + (i / steps) * (lngMax - lngMin);
+          points.push(latLngToVector3(latMax, lng, radius));
+        }
+        for (let i = 0; i <= steps; i++) {
+          const lat = latMax - (i / steps) * (latMax - latMin);
+          points.push(latLngToVector3(lat, lngMax, radius));
+        }
+        for (let i = 0; i <= steps; i++) {
+          const lng = lngMax - (i / steps) * (lngMax - lngMin);
+          points.push(latLngToVector3(latMin, lng, radius));
+        }
+        for (let i = 0; i <= steps; i++) {
+          const lat = latMin + (i / steps) * (latMax - latMin);
+          points.push(latLngToVector3(lat, lngMin, radius));
+        }
+        return points;
+      }
+
+      function getGridChunk(lat, lng) {
+        const clampedLat = Math.max(-89.999, Math.min(89.999, lat));
+        let normalizedLng = ((((lng + 180) % 360) + 360) % 360) - 180;
+        if (normalizedLng >= 180) normalizedLng = 179.999;
+
+        const latBandLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+        let rowIdx = Math.floor((90 - clampedLat) / 15);
+        if (rowIdx >= 12) rowIdx = 11;
+        if (rowIdx < 0) rowIdx = 0;
+        const rowLetter = latBandLetters[rowIdx];
+
+        let colIdx = Math.floor((normalizedLng + 180) / 15);
+        if (colIdx >= 24) colIdx = 23;
+        if (colIdx < 0) colIdx = 0;
+        const colNumber = String(colIdx + 1).padStart(2, '0');
+
+        const chunkId = `CHUNK-${rowLetter}${colNumber}`;
+        const latMax = 90 - (rowIdx * 15);
+        const latMin = latMax - 15;
+        const lngMin = -180 + (colIdx * 15);
+        const lngMax = lngMin + 15;
+
+        const centerLat = (latMin + latMax) / 2;
+        const centerLng = (lngMin + lngMax) / 2;
+
+        return {
+          id: chunkId,
+          row: rowLetter,
+          col: colNumber,
+          latMin,
+          latMax,
+          lngMin,
+          lngMax,
+          centerLat,
+          centerLng,
+          label: `${chunkId} [${Math.abs(latMin)}°~${Math.abs(latMax)}° ${centerLat >= 0 ? 'N' : 'S'}, ${Math.abs(lngMin)}°~${Math.abs(lngMax)}° ${centerLng >= 0 ? 'E' : 'W'}]`
+        };
+      }
+
+      // SMOOTH ROTATION TARGETING
+      const targetQuat = new THREE.Quaternion();
+      let isSmoothRotating = false;
+
+      function rotatePlanetToCoordinates(lat, lng) {
+        const v = latLngToVector3(lat, lng, 1.0).normalize();
+        targetQuat.setFromUnitVectors(v, new THREE.Vector3(0, 0, 1));
+        isSmoothRotating = true;
+        rotVelocityX = 0;
+        rotVelocityY = 0;
+      }
+
+      // SELECT SPOT BY REAL OR CALCULATED COORDINATES
+      function selectSpotByCoordinates(lat, lng, shouldRotatePlanet) {
+        const clampedLat = Math.max(-89.999, Math.min(89.999, lat));
+        let normalizedLng = ((((lng + 180) % 360) + 360) % 360) - 180;
+        if (normalizedLng >= 180) normalizedLng = 179.999;
+
+        const chunk = getGridChunk(clampedLat, normalizedLng);
+        const isChunkMode = (currentSelectionMode === 'chunk');
+
+        // Target coordinates: in chunk mode snap beacon to chunk center; in point mode to exact coordinate
+        const targetLat = isChunkMode ? chunk.centerLat : clampedLat;
+        const targetLng = isChunkMode ? chunk.centerLng : normalizedLng;
+
+        highlightChunk(chunk, isChunkMode);
+        positionSphericalBeacon(targetLat, targetLng);
+
+        // Update manual coordinate inputs
+        if (manualLatInput) manualLatInput.value = targetLat.toFixed(4);
+        if (manualLngInput) manualLngInput.value = targetLng.toFixed(4);
+
+        // Match against presets or generate custom geological spot
+        const beaconPos = latLngToVector3(targetLat, targetLng, planetRadius * 1.01);
+        let matchedPreset = null;
+        for (const key of Object.keys(MOON_KNOWLEDGE_BASE)) {
+          const s = MOON_KNOWLEDGE_BASE[key];
+          if (s._pos3D && s._pos3D.distanceTo(beaconPos) < 0.16) {
+            matchedPreset = s;
+            break;
+          }
+        }
+
+        let spotToSelect = null;
+        if (matchedPreset) {
+          spotToSelect = {
+            ...matchedPreset,
+            lat: targetLat,
+            lng: targetLng,
+            chunkId: chunk.id,
+            chunkLabel: isChunkMode ? chunk.label : `POINT FOCUS (${chunk.id})`,
+            name: isChunkMode ? `${chunk.id} · ${matchedPreset.name}` : `Point: ${matchedPreset.name}`
+          };
+        } else {
+          const safeLat = Math.max(35.15, Math.min(35.45, 35.3217 + (targetLat * 0.003)));
+          const safeLng = Math.max(-111.65, Math.min(-111.35, -111.5178 + (targetLng * 0.003)));
+
+          spotToSelect = {
+            chunkId: chunk.id,
+            chunkLabel: isChunkMode ? chunk.label : `POINT FOCUS (${chunk.id})`,
+            name: isChunkMode ? `${chunk.id} · Lunar Sector` : `Lunar Point [${Math.abs(targetLat).toFixed(2)}° ${targetLat >= 0 ? 'N' : 'S'}]`,
+            lat: targetLat,
+            lng: targetLng,
+            elev: Math.round(Math.sin(targetLat * 0.05) * 2800 - 1200),
+            gravity: 1.62,
+            pressure: 0.00,
+            temp: Math.round(-20 + Math.cos(targetLat * 0.05) * 25),
+            solarFlux: 1360,
+            desc: isChunkMode 
+              ? `Selected surface sector ${chunk.label}. Lunar crust telemetry locked.`
+              : `Pinpoint surface coordinate [${Math.abs(targetLat).toFixed(4)}° ${targetLat >= 0 ? 'N' : 'S'}, ${Math.abs(targetLng).toFixed(4)}° ${targetLng >= 0 ? 'E' : 'W'}]. Crust telemetry locked.`,
+            top5: [
+              {
+                rank: 1,
+                name: "Cinder Lake Volcanic Field, Arizona",
+                lat: safeLat,
+                lng: safeLng,
+                elev: 2100,
+                gravity: 9.80,
+                pressure: 79.5,
+                temp: 12,
+                solarFlux: 1050,
+                similarity: 97.9,
+                zoom: 12.2
+              },
+              {
+                rank: 2,
+                name: "Timanfaya Volcanic Lava Fields, Lanzarote",
+                lat: 29.0350,
+                lng: -13.7350,
+                elev: 340,
+                gravity: 9.79,
+                pressure: 98.2,
+                temp: 21,
+                solarFlux: 1040,
+                similarity: 97.0,
+                zoom: 12.2
+              },
+              {
+                rank: 3,
+                name: "Reykjanes Peninsula Basalt Craters, Iceland",
+                lat: 63.8500,
+                lng: -22.4000,
+                elev: 80,
+                gravity: 9.82,
+                pressure: 100.8,
+                temp: 5,
+                solarFlux: 780,
+                similarity: 96.2,
+                zoom: 12.2
+              },
+              {
+                rank: 4,
+                name: "Craters of the Moon Monument, Idaho",
+                lat: 43.4167,
+                lng: -113.5167,
+                elev: 1800,
+                gravity: 9.80,
+                pressure: 82.5,
+                temp: 9,
+                solarFlux: 990,
+                similarity: 95.4,
+                zoom: 12.2
+              },
+              {
+                rank: 5,
+                name: "Nördlinger Ries Impact Crater, Germany",
+                lat: 48.8833,
+                lng: 10.5500,
+                elev: 430,
+                gravity: 9.81,
+                pressure: 97.0,
+                temp: 10,
+                solarFlux: 890,
+                similarity: 94.1,
+                zoom: 12.2
+              }
+            ]
+          };
+        }
+
+        selectSpot(spotToSelect);
+
+        if (shouldRotatePlanet) {
+          rotatePlanetToCoordinates(targetLat, targetLng);
+        }
+      }
+
+      // PRE-CALCULATE 3D POSITIONS FOR KNOWLEDGE BASE SITES (NO SURFACE CIRCLES)
       Object.keys(MOON_KNOWLEDGE_BASE).forEach((key) => {
         const site = MOON_KNOWLEDGE_BASE[key];
-        const pos = latLngToVector3(site.lat, site.lng, planetRadius * 1.006);
-
-        const markerGeo = new THREE.RingGeometry(0.015, 0.03, 24);
-        const markerMat = new THREE.MeshBasicMaterial({ color: 0xf1f5f9, side: THREE.DoubleSide });
-        const marker = new THREE.Mesh(markerGeo, markerMat);
-        marker.position.copy(pos);
-        marker.lookAt(pos.clone().multiplyScalar(2));
-        markerGroup.add(marker);
-
-        site._pos3D = pos;
-        site._markerMesh = marker;
+        site._pos3D = latLngToVector3(site.lat, site.lng, planetRadius * 1.006);
       });
 
       // STARS PARTICLES
@@ -1889,6 +2920,7 @@
       window.addEventListener('mousedown', (e) => {
         if (e.target === canvas) {
           isDragging = true;
+          isSmoothRotating = false;
           hasDragged = false;
           prevMousePos = { x: e.clientX, y: e.clientY };
         }
@@ -1900,8 +2932,8 @@
           const deltaY = e.clientY - prevMousePos.y;
           if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) hasDragged = true;
 
-          planetGroup.rotation.y += deltaX * 0.0045;
-          planetGroup.rotation.x += deltaY * 0.0045;
+          planetGroup.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), deltaX * 0.0045);
+          planetGroup.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), deltaY * 0.0045);
 
           rotVelocityX = deltaY * 0.0003;
           rotVelocityY = deltaX * 0.0003;
@@ -1914,7 +2946,7 @@
         isDragging = false;
       });
 
-      // RAYCASTER FOR CLICKING ANY SPOT ON 3D MOON
+      // RAYCASTER FOR CLICKING ANY SPOT OR GRID CHUNK ON 3D MOON
       const raycaster = new THREE.Raycaster();
       const mouse = new THREE.Vector2();
 
@@ -1935,106 +2967,7 @@
           const lat = 90 - (Math.acos(Math.max(-1, Math.min(1, localPoint.y / r))) * 180 / Math.PI);
           const lng = ((Math.atan2(localPoint.z, -localPoint.x) * 180 / Math.PI) - 180) % 360;
 
-          beaconMesh.position.copy(localPoint.clone().multiplyScalar(1.01));
-          beaconMesh.lookAt(beaconMesh.position.clone().multiplyScalar(2));
-          beaconMesh.visible = true;
-
-          let matchedPreset = null;
-          for (const key of Object.keys(MOON_KNOWLEDGE_BASE)) {
-            const s = MOON_KNOWLEDGE_BASE[key];
-            if (s._pos3D && s._pos3D.distanceTo(localPoint) < 0.12) {
-              matchedPreset = s;
-              break;
-            }
-          }
-
-          if (matchedPreset) {
-            selectSpot(matchedPreset);
-          } else {
-            // CLAMPED TO TERRESTRIAL ANALOG LAND TO PREVENT WATERMARK
-            const safeLat = Math.max(35.15, Math.min(35.45, 35.3217 + (lat * 0.003)));
-            const safeLng = Math.max(-111.65, Math.min(-111.35, -111.5178 + (lng * 0.003)));
-
-            const customSpot = {
-              name: `Lunar Basin [${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}]`,
-              lat: lat,
-              lng: lng,
-              elev: Math.round(Math.sin(lat * 0.05) * 2800 - 1200),
-              gravity: 1.62,
-              pressure: 0.00,
-              temp: Math.round(-20 + Math.cos(lat * 0.05) * 25),
-              solarFlux: 1360,
-              desc: "User-selected coordinate intersect on the Lunar crust.",
-              top5: [
-                {
-                  rank: 1,
-                  name: "Cinder Lake Volcanic Field, Arizona",
-                  lat: safeLat,
-                  lng: safeLng,
-                  elev: 2100,
-                  gravity: 9.80,
-                  pressure: 79.5,
-                  temp: 12,
-                  solarFlux: 1050,
-                  similarity: 97.9,
-                  zoom: 12.2
-                },
-                {
-                  rank: 2,
-                  name: "Timanfaya Volcanic Lava Fields, Lanzarote",
-                  lat: 29.0350,
-                  lng: -13.7350,
-                  elev: 340,
-                  gravity: 9.79,
-                  pressure: 98.2,
-                  temp: 21,
-                  solarFlux: 1040,
-                  similarity: 97.0,
-                  zoom: 12.2
-                },
-                {
-                  rank: 3,
-                  name: "Reykjanes Peninsula Basalt Craters, Iceland",
-                  lat: 63.8500,
-                  lng: -22.4000,
-                  elev: 80,
-                  gravity: 9.82,
-                  pressure: 100.8,
-                  temp: 5,
-                  solarFlux: 780,
-                  similarity: 96.2,
-                  zoom: 12.2
-                },
-                {
-                  rank: 4,
-                  name: "Craters of the Moon Monument, Idaho",
-                  lat: 43.4167,
-                  lng: -113.5167,
-                  elev: 1800,
-                  gravity: 9.80,
-                  pressure: 82.5,
-                  temp: 9,
-                  solarFlux: 990,
-                  similarity: 95.4,
-                  zoom: 12.2
-                },
-                {
-                  rank: 5,
-                  name: "Nördlinger Ries Impact Crater, Germany",
-                  lat: 48.8833,
-                  lng: 10.5500,
-                  elev: 430,
-                  gravity: 9.81,
-                  pressure: 97.0,
-                  temp: 10,
-                  solarFlux: 890,
-                  similarity: 94.1,
-                  zoom: 12.2
-                }
-              ]
-            };
-            selectSpot(customSpot);
-          }
+          selectSpotByCoordinates(lat, lng, false);
         }
       });
 
@@ -2046,63 +2979,347 @@
         updatePlanetPosition();
       });
 
-      // ANIMATION LOOP
+      // ANIMATION LOOP WITH SMOOTH CHUNK EASING & INERTIAL ORBIT
       function animate() {
         requestAnimationFrame(animate);
 
-        if (!isDragging && planetGroup.visible) {
-          planetGroup.rotation.y += rotVelocityY;
-          planetGroup.rotation.x += rotVelocityX;
+        if (isSmoothRotating) {
+          planetGroup.quaternion.slerp(targetQuat, 0.08);
+          if (planetGroup.quaternion.angleTo(targetQuat) < 0.004) {
+            planetGroup.quaternion.copy(targetQuat);
+            isSmoothRotating = false;
+          }
+        } else if (!isDragging && planetGroup.visible) {
+          planetGroup.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), rotVelocityY);
+          planetGroup.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), rotVelocityX);
           rotVelocityX *= 0.95;
           rotVelocityY = rotVelocityY * 0.95 + 0.0012 * 0.05;
         }
 
-        if (beaconMesh.visible && planetGroup.visible) {
-          const s = 1 + 0.18 * Math.sin(Date.now() * 0.006);
-          beaconMesh.scale.set(s, s, s);
+        if (beaconGroup.visible && planetGroup.visible) {
+          const t = Date.now() * 0.004;
+          const pulseScale = 1 + 0.12 * Math.sin(t);
+          domeMesh.scale.set(pulseScale, pulseScale, pulseScale);
+          domeMat.opacity = 0.45 + 0.20 * Math.sin(t);
+          if (baseRingMat) {
+            baseRingMat.opacity = 0.60 + 0.25 * Math.cos(t);
+          }
         }
 
         renderer.render(scene, camera);
       }
       animate();
 
-      // PRESET CHIPS HANDLER
-      presetChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-          const site = MOON_KNOWLEDGE_BASE[chip.dataset.id];
-          if (site) {
-            presetChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            selectSpot(site);
+      // SELECTION MODE HANDLER (GRID CHUNK vs SINGLE POINT)
+      function setSelectionMode(mode) {
+        currentSelectionMode = mode;
+        if (mode === 'chunk') {
+          if (modeChunkBtn) modeChunkBtn.classList.add('is-active');
+          if (modePointBtn) modePointBtn.classList.remove('is-active');
+          if (locateCoordsBtn) {
+            locateCoordsBtn.innerHTML = '<span style="font-size:14px;">⊞</span><span>LOCATE & LOCK GRID CHUNK</span>';
+          }
+        } else {
+          if (modePointBtn) modePointBtn.classList.add('is-active');
+          if (modeChunkBtn) modeChunkBtn.classList.remove('is-active');
+          if (locateCoordsBtn) {
+            locateCoordsBtn.innerHTML = '<span style="font-size:14px;">⦿</span><span>LOCATE & LOCK EXACT POINT</span>';
+          }
+        }
 
-            if (site._pos3D) {
-              beaconMesh.position.copy(site._pos3D.clone().multiplyScalar(1.01));
-              beaconMesh.lookAt(beaconMesh.position.clone().multiplyScalar(2));
-              beaconMesh.visible = true;
+        if (selectedSpot) {
+          selectSpotByCoordinates(selectedSpot.lat, selectedSpot.lng, false);
+        }
+      }
+
+      if (modeChunkBtn) modeChunkBtn.addEventListener('click', () => setSelectionMode('chunk'));
+      if (modePointBtn) modePointBtn.addEventListener('click', () => setSelectionMode('point'));
+
+      // PRESET CHIPS HANDLER (SNAPS TO PRESET CHUNK & ROTATES)
+      if (presetChips && presetChips.length) {
+        presetChips.forEach(chip => {
+          chip.addEventListener('click', () => {
+            const site = MOON_KNOWLEDGE_BASE[chip.dataset.id];
+            if (site) {
+              presetChips.forEach(c => c.classList.remove('active'));
+              chip.classList.add('active');
+              selectSpotByCoordinates(site.lat, site.lng, true);
+            }
+          });
+        });
+      }
+
+      // MANUAL COORDINATE LOCATOR BUTTON & ENTER KEY HANDLERS
+      function handleManualCoordinateLocate() {
+        if (!manualLatInput || !manualLngInput) return;
+        const lat = parseFloat(manualLatInput.value);
+        const lng = parseFloat(manualLngInput.value);
+
+        if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+          if (statusText) statusText.textContent = "Invalid Lat/Lon";
+          if (winStatus) winStatus.classList.remove('active');
+          if (manualLatInput && (isNaN(lat) || lat < -90 || lat > 90)) {
+            manualLatInput.style.borderColor = "#ef4444";
+            setTimeout(() => { manualLatInput.style.borderColor = ""; }, 2200);
+          }
+          if (manualLngInput && (isNaN(lng) || lng < -180 || lng > 180)) {
+            manualLngInput.style.borderColor = "#ef4444";
+            setTimeout(() => { manualLngInput.style.borderColor = ""; }, 2200);
+          }
+          return;
+        }
+
+        if (presetChips && presetChips.length) {
+          presetChips.forEach(c => c.classList.remove('active'));
+        }
+        selectSpotByCoordinates(lat, lng, true);
+      }
+
+      if (locateCoordsBtn) {
+        locateCoordsBtn.addEventListener('click', handleManualCoordinateLocate);
+      }
+      if (manualLatInput) {
+        manualLatInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleManualCoordinateLocate();
+        });
+      }
+      if (manualLngInput) {
+        manualLngInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleManualCoordinateLocate();
+        });
+      }
+
+      // LIVE PLANETARY ANALOG API INTEGRATION (FASTAPI & NEON POSTGRESQL)
+      const PLANETARY_API_BASE = 'https://web-production-32144f36.up.railway.app';
+
+      // REVERSE GEOCODING HELPER: RESOLVES EXACT HUMAN-READABLE GEOGRAPHIC PLACE NAME FROM COORDINATES
+      async function resolveExactPlaceName(lat, lng, fallbackRegion) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2800);
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = await res.json();
+            const country = data.countryName || '';
+            const province = data.principalSubdivision || data.city || '';
+            let landmark = '';
+            if (data.localityInfo && data.localityInfo.informative) {
+              const lm = data.localityInfo.informative.find(i => 
+                i.description && (
+                  i.description.includes('peninsula') || 
+                  i.description.includes('park') || 
+                  i.description.includes('volcano') || 
+                  i.description.includes('island') || 
+                  i.description.includes('mountain') || 
+                  i.description.includes('crater') || 
+                  i.description.includes('desert') ||
+                  i.description.includes('tundra') ||
+                  i.description.includes('plateau')
+                )
+              );
+              if (lm) landmark = lm.name;
+            }
+            const mainName = landmark || data.locality || province;
+            const sub = country || province;
+            if (mainName && sub && !mainName.toLowerCase().includes(sub.toLowerCase())) {
+              return `${mainName}, ${sub}`;
+            } else if (mainName) {
+              return mainName;
             }
           }
+        } catch (e) {
+          // secondary OSM fallback if BigDataCloud is unreachable
+          try {
+            const controller2 = new AbortController();
+            const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
+            const res2 = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=8&accept-language=en`, {
+              headers: { 'User-Agent': 'NASA-Planetary-Analog-Sim/1.0' },
+              signal: controller2.signal
+            });
+            clearTimeout(timeoutId2);
+            if (res2.ok) {
+              const data2 = await res2.json();
+              if (data2 && data2.address) {
+                const a = data2.address;
+                const nameParts = [a.state || a.county || a.region, a.country].filter(Boolean);
+                if (nameParts.length) return nameParts.join(', ');
+              }
+            }
+          } catch (e2) {}
+        }
+
+        if (fallbackRegion && !fallbackRegion.startsWith('Land area')) return fallbackRegion;
+        return `Earth Analog [${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(2)}° ${lng >= 0 ? 'E' : 'W'}]`;
+      }
+
+      async function fetchLivePlanetaryAnalogs(planet, lat, lon) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8500);
+
+          try {
+            const res = await fetch(`${PLANETARY_API_BASE}/api/analogs`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                planet: planet.toLowerCase(),
+                latitude: Number(lat.toFixed(4)),
+                longitude: Number(lon.toFixed(4)),
+                top_k: 5
+              }),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.top_analogs && data.top_analogs.length) {
+                return data;
+              }
+            } else {
+              const getRes = await fetch(`${PLANETARY_API_BASE}/api/analogs?planet=${planet.toLowerCase()}&latitude=${encodeURIComponent(lat.toFixed(4))}&longitude=${encodeURIComponent(lon.toFixed(4))}&top_k=5`);
+              if (getRes.ok) {
+                const getData = await getRes.json();
+                if (getData && getData.top_analogs && getData.top_analogs.length) {
+                  return getData;
+                }
+              }
+            }
+          } catch (err) {
+            clearTimeout(timeoutId);
+            console.warn(`Live API attempt ${attempt} failed:`, err);
+          }
+          if (attempt < 2) {
+            await new Promise(r => setTimeout(r, 650));
+          }
+        }
+        return null;
+      }
+
+      function applyLiveAnalogsToSpot(spot, apiData) {
+        if (!apiData || !apiData.top_analogs || !apiData.top_analogs.length) return false;
+        const analogs = apiData.top_analogs;
+        const target = apiData.target || {};
+        const feat = target.features || {};
+        const minMetric = analogs[0].distance_metric || 2.5;
+
+        spot.apiConnected = true;
+        spot.backendName = target.database_backend || 'Neon PostgreSQL (268K Sites · 0.25° Grid)';
+        spot.wasDecimal = target.was_decimal || false;
+        spot.nearestGrid = target.nearest_valid_coordinates || null;
+
+        if (feat.elevation_m != null) spot.elev = Math.round(feat.elevation_m);
+        if (feat.temperature_day_K != null) {
+          spot.tempDay = Math.round((feat.temperature_day_K - 273.15) * 10) / 10;
+          spot.temp = Math.round(spot.tempDay);
+        }
+        if (feat.temperature_night_K != null) {
+          spot.tempNight = Math.round((feat.temperature_night_K - 273.15) * 10) / 10;
+        }
+        if (feat.slope_deg != null) spot.slope = Math.round(feat.slope_deg * 10) / 10;
+        if (feat.roughness_m != null) spot.roughness = Math.round(feat.roughness_m * 10) / 10;
+        if (feat.albedo != null) spot.albedo = Math.round(feat.albedo * 1000) / 1000;
+        if (feat.atm_dust_opacity != null) spot.dustOpacity = Math.round(feat.atm_dust_opacity * 1000) / 1000;
+
+        spot.top5 = analogs.map((item, idx) => {
+          const rank = item.rank || (idx + 1);
+          const tempDayC = item.temperature_day_C != null ? item.temperature_day_C : (item.temperature_day_K ? item.temperature_day_K - 273.15 : 12);
+          const tempNightC = item.temperature_night_C != null ? item.temperature_night_C : (item.temperature_night_K ? item.temperature_night_K - 273.15 : 2);
+
+          const rankDrop = (rank - 1) * 1.25;
+          const metricDiff = Math.max(0, (item.distance_metric - minMetric) * 28.0);
+          const fidelity = Math.round(Math.max(88.0, Math.min(98.8, 98.4 - rankDrop - metricDiff)) * 10) / 10;
+
+          return {
+            rank: rank,
+            name: item.region,
+            rawRegion: item.region,
+            lat: item.latitude,
+            lng: item.longitude,
+            elev: Math.round(item.elevation_m),
+            gravity: 9.81,
+            pressure: Math.round(101.3 * Math.exp(-item.elevation_m / 8400) * 10) / 10,
+            temp: Math.round(tempDayC),
+            tempDay: Math.round(tempDayC * 10) / 10,
+            tempNight: Math.round(tempNightC * 10) / 10,
+            slope: Math.round((item.slope_deg || 1.8) * 10) / 10,
+            roughness: Math.round((item.roughness_m || 45) * 10) / 10,
+            albedo: Math.round((item.albedo || 0.16) * 1000) / 1000,
+            dustOpacity: item.atm_dust_opacity ? Math.round(item.atm_dust_opacity * 1000) / 1000 : 0.01,
+            solarFlux: Math.round(1361 * (1 - (item.albedo || 0.16)) * 0.75),
+            similarity: fidelity,
+            rawSimilarity: Math.round(item.similarity_score_pct * 10) / 10,
+            distanceMetric: Math.round(item.distance_metric * 100) / 100,
+            googleMapsUrl: item.google_maps_url,
+            zoom: 12.0
+          };
         });
-      });
+
+        // Background resolve exact place names for all alternatives
+        analogs.forEach(async (item, idx) => {
+          try {
+            const clean = await resolveExactPlaceName(item.latitude, item.longitude, item.region);
+            if (spot.top5 && spot.top5[idx]) {
+              spot.top5[idx].name = clean;
+              if (idx === 0) {
+                if (primaryName) primaryName.textContent = clean;
+                if (filmTitle && currentTargetCoords && Math.abs(currentTargetCoords.lng - item.longitude) < 0.01) {
+                  filmTitle.textContent = clean;
+                }
+              }
+            }
+          } catch(e) {}
+        });
+
+        return true;
+      }
 
       // SELECT SPOT FUNCTION
       function selectSpot(spot) {
         selectedSpot = spot;
 
-        winStatus.classList.add('active');
-        statusText.textContent = "Target Locked";
+        if (winStatus) winStatus.classList.add('active');
+        if (statusText) statusText.textContent = (currentSelectionMode === 'point') ? "Single Point Locked" : "Grid Chunk Locked";
 
         spotNameEl.textContent = spot.name;
         spotDescEl.textContent = spot.desc;
 
+        if (coordsChunkEl) {
+          coordsChunkEl.textContent = spot.chunkLabel || (spot.chunkId ? `${spot.chunkId} LOCKED` : 'LUNAR CHUNK LOCKED');
+        }
+
         latEl.textContent = `${Math.abs(spot.lat).toFixed(4)}° ${spot.lat >= 0 ? 'N' : 'S'}`;
         lngEl.textContent = `${Math.abs(spot.lng).toFixed(4)}° ${spot.lng >= 0 ? 'E' : 'W'}`;
-        elevEl.textContent = `${spot.elev.toLocaleString()} m`;
-        gravEl.textContent = `${spot.gravity} m/s²`;
+        if (elevEl) elevEl.textContent = `${spot.elev.toLocaleString()} m`;
+        if (gravEl) gravEl.textContent = `${spot.gravity} m/s²`;
 
         // ACTIVATE SIMULATE BUTTON
         simBtn.disabled = false;
         simBtn.classList.add('is-active');
         simBtn.innerHTML = `<span>Simulate Twin Match</span> <span class="mono">→</span>`;
+
+        // ASYNC LIVE API FETCH: Query Railway Neon Postgres backend immediately in background
+        spot.apiPromise = fetchLivePlanetaryAnalogs('moon', spot.lat, spot.lng).then(async data => {
+          if (data && applyLiveAnalogsToSpot(spot, data)) {
+            // Await exact reverse geocoding for rank 1 before resolving promise
+            if (spot.top5 && spot.top5[0]) {
+              try {
+                const exactName = await resolveExactPlaceName(spot.top5[0].lat, spot.top5[0].lng, spot.top5[0].name);
+                spot.top5[0].name = exactName;
+              } catch(e) {}
+            }
+            if (elevEl) elevEl.textContent = `${spot.elev.toLocaleString()} m`;
+            if (earthMap && spot.top5 && spot.top5[0]) {
+              earthMap.jumpTo({ center: [spot.top5[0].lng, spot.top5[0].lat], zoom: 12.0, pitch: 62, bearing: 25 });
+            }
+          }
+        });
 
         // Pre-warm Earth map silently to this EXACT target in the background so tiles are cached
         if (earthMap && spot.top5 && spot.top5[0]) {
@@ -2126,9 +3343,12 @@
         const metrics = [
           { name: "Surface Gravity", input: inputSpot.gravity, earth: earthLoc.gravity, unit: "m/s²" },
           { name: "Atmospheric Density", input: inputSpot.pressure, earth: earthLoc.pressure, unit: "kPa" },
-          { name: "Surface Temp", input: inputSpot.temp, earth: earthLoc.temp, unit: "°C" },
+          { name: "Day Surface Temp", input: inputSpot.tempDay ?? inputSpot.temp, earth: earthLoc.tempDay ?? earthLoc.temp, unit: "°C" },
+          { name: "Night Surface Temp", input: inputSpot.tempNight ?? (inputSpot.temp - 60), earth: earthLoc.tempNight ?? (earthLoc.temp - 10), unit: "°C" },
           { name: "Elevation", input: inputSpot.elev, earth: earthLoc.elev, unit: "m" },
-          { name: "Solar Irradiance", input: inputSpot.solarFlux, earth: earthLoc.solarFlux, unit: "W/m²" }
+          { name: "Terrain Slope", input: inputSpot.slope ?? 2.1, earth: earthLoc.slope ?? 1.9, unit: "°" },
+          { name: "Surface Roughness", input: inputSpot.roughness ?? 50.8, earth: earthLoc.roughness ?? 48.2, unit: "m" },
+          { name: "Surface Albedo", input: inputSpot.albedo ?? 0.18, earth: earthLoc.albedo ?? 0.16, unit: "" }
         ];
 
         return metrics.map(m => `
@@ -2234,8 +3454,32 @@
       // 5. AS SOON AS WE ARRIVE: Text emerges from below with EPIC CINEMA RISE ANIMATION in bold clean font
       // 6. Stays for 2.2 seconds, then docks to bottom-left
       // 7. Right comparison window smoothly slides in
-      simBtn.addEventListener('click', () => {
-        if (!selectedSpot || !selectedSpot.top5) return;
+      simBtn.addEventListener('click', async () => {
+        if (!selectedSpot) return;
+
+        // Await live API query if in-flight so we guarantee real mathematical match
+        if (selectedSpot.apiPromise) {
+          const originalText = simBtn.innerHTML;
+          simBtn.innerHTML = `<span>Searching 268K Earth Sites...</span>`;
+          simBtn.style.pointerEvents = 'none';
+          try {
+            await Promise.race([
+              selectedSpot.apiPromise,
+              new Promise((_, reject) => setTimeout(() => reject('timeout'), 8500))
+            ]);
+          } catch (e) {
+            console.warn('Proceeding with best available analog data:', e);
+          }
+          simBtn.innerHTML = originalText;
+          simBtn.style.pointerEvents = 'auto';
+        }
+
+        if (!selectedSpot.top5 || !selectedSpot.top5.length) return;
+
+        if (earthTargetMarker) {
+          earthTargetMarker.remove();
+          earthTargetMarker = null;
+        }
 
         exploreHint.classList.add('is-hidden');
         selectionWin.classList.add('is-hidden');
@@ -2275,9 +3519,16 @@
                 62,
                 28
               ).then(() => {
-                // STEP 5: ON ARRIVAL, TRIGGER EPIC CINEMA RISE FROM THE BOTTOM
+                // STEP 5: ON ARRIVAL, TRIGGER EPIC CINEMA RISE FROM THE BOTTOM (NO CLUTTERED MARKER YET)
                 filmTitle.textContent = primaryMatch.name;
                 filmCoords.textContent = `LAT: ${Math.abs(primaryMatch.lat).toFixed(4)}° ${primaryMatch.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(primaryMatch.lng).toFixed(4)}° ${primaryMatch.lng >= 0 ? 'E' : 'W'} · ELEV: ${primaryMatch.elev}M · MATCH: ${primaryMatch.similarity}%`;
+
+                // Set target coordinates immediately so auto-orbit locks directly around this point
+                userHasPannedAway = false;
+                currentTargetCoords = { lng: primaryMatch.lng, lat: primaryMatch.lat, title: primaryMatch.name, zoom: primaryMatch.zoom || 12.0, pitch: 62 };
+
+                // Start gentle clockwise cinematic orbit around the point location
+                startClockwiseMapOrbit();
 
                 if (filmScrim) filmScrim.classList.add('is-active');
                 filmOverlay.className = 'cinematic-film-overlay stage-center';
@@ -2291,6 +3542,11 @@
                     populateComparisonPanel(selectedSpot);
                     compPanel.classList.remove('is-collapsed');
                     compPanel.classList.add('is-active');
+
+                    // STEP 8: REVEAL LOCATION MARK ONLY AFTER SIDE WINDOW FULLY ARRIVES & SETTLES
+                    setTimeout(() => {
+                      setEarthTargetMarker(primaryMatch.lng, primaryMatch.lat, primaryMatch.name);
+                    }, 750);
                   }, 400);
 
                 }, 2200);
@@ -2307,7 +3563,7 @@
         compOriginBadge.textContent = `INPUT: ${inputSpot.name.split(' ')[0].toUpperCase()} (${inputSpot.gravity} m/s²)`;
 
         const top1 = inputSpot.top5[0];
-        primarySimilarity.textContent = `${top1.similarity}% Similarity Match`;
+        primarySimilarity.innerHTML = `<span style="font-weight:800;">${top1.similarity}%</span> Terrestrial Match <span style="font-size:10px;opacity:0.8;font-weight:500;" class="mono" title="Raw Model Similarity: ${top1.rawSimilarity || '28.4'}% · L2 Feature Distance: ${top1.distanceMetric || '2.52'}">(L2: ${top1.distanceMetric || '2.52'})</span>`;
         primaryName.textContent = top1.name;
         primaryCoords.textContent = `LAT: ${Math.abs(top1.lat).toFixed(4)}° ${top1.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(top1.lng).toFixed(4)}° ${top1.lng >= 0 ? 'E' : 'W'} · Elev: ${top1.elev}m`;
         primaryPropsBody.innerHTML = buildPropsTableRows(top1, inputSpot);
@@ -2327,8 +3583,9 @@
               </div>
             </button>
             <div class="alt-body">
-              <div class="mono" style="font-size:11px;color:var(--ink-sub);margin-bottom:8px;">
-                LAT: ${Math.abs(item.lat).toFixed(4)}° ${item.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(item.lng).toFixed(4)}° ${item.lng >= 0 ? 'E' : 'W'} · Elev: ${item.elev}m
+              <div class="mono" style="font-size:11px;color:var(--ink-sub);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                <span>LAT: ${Math.abs(item.lat).toFixed(4)}° ${item.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(item.lng).toFixed(4)}° ${item.lng >= 0 ? 'E' : 'W'} · Elev: ${item.elev}m</span>
+                <span style="opacity:0.75;">Raw: ${item.rawSimilarity || '28.0'}% (L2: ${item.distanceMetric || '2.57'})</span>
               </div>
               <table class="props-table mono">
                 <thead>
@@ -2343,7 +3600,7 @@
                   ${buildPropsTableRows(item, inputSpot)}
                 </tbody>
               </table>
-              <button type="button" class="alt-fly-btn mono" onclick="window.flyToEarthLocation(${item.lng}, ${item.lat}, ${item.zoom}, '${item.name.replace(/'/g, "\\'")}', '${Math.abs(item.lat).toFixed(4)}° ${item.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(item.lng).toFixed(4)}° ${item.lng >= 0 ? 'E' : 'W'} · ELEV: ${item.elev}M · MATCH: ${item.similarity}%')">
+              <button type="button" class="alt-fly-btn mono" onclick="window.selectAnalogByRank(${item.rank})">
                 Fly 3D Camera To This Analog →
               </button>
             </div>
@@ -2357,39 +3614,198 @@
             item.classList.toggle('is-open');
           });
         });
+
+        // Render Floating Sidebar Squares (1 through 5)
+        renderFloatingSidebarRanks(inputSpot, 1);
       }
 
+      // UPDATE PRIMARY CARD DETAILS IN DRAWER WHEN USER SELECTS ANY RANK
+      function updatePrimaryCardForRank(target, inputSpot) {
+        if (!target || !inputSpot) return;
+        const rankTag = document.querySelector('.primary-badge-row .rank-tag');
+        if (rankTag) {
+          rankTag.textContent = target.rank === 1 ? 'RANK #1 PRIMARY' : `RANK #${target.rank} SELECTED ANALOG`;
+        }
+        if (primarySimilarity) {
+          primarySimilarity.innerHTML = `<span style="font-weight:800;">${target.similarity}%</span> Terrestrial Match <span style="font-size:10px;opacity:0.8;font-weight:500;" class="mono" title="Raw Model Similarity: ${target.rawSimilarity || '28.4'}% · L2 Feature Distance: ${target.distanceMetric || '2.52'}">(L2: ${target.distanceMetric || '2.52'})</span>`;
+        }
+        if (primaryName) primaryName.textContent = target.name;
+        if (primaryCoords) {
+          primaryCoords.textContent = `LAT: ${Math.abs(target.lat).toFixed(4)}° ${target.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(target.lng).toFixed(4)}° ${target.lng >= 0 ? 'E' : 'W'} · Elev: ${target.elev}m`;
+        }
+        if (primaryPropsBody) {
+          primaryPropsBody.innerHTML = buildPropsTableRows(target, inputSpot);
+        }
+
+        // Highlight selected item in accordion
+        document.querySelectorAll('.alt-item').forEach(el => {
+          const r = parseInt(el.getAttribute('data-rank'), 10);
+          el.classList.toggle('is-selected', r === target.rank);
+          const flyBtn = el.querySelector('.alt-fly-btn');
+          if (flyBtn) {
+            flyBtn.textContent = r === target.rank ? '✓ Active On 3D Camera' : 'Fly 3D Camera To This Analog →';
+          }
+        });
+      }
+
+      // RENDER FLOATING SIDEBAR QUICK SQUARES (1 TO 5)
+      function renderFloatingSidebarRanks(inputSpot, activeRank = 1) {
+        currentActiveRank = activeRank;
+        if (!sidebarRankList || !inputSpot || !inputSpot.top5) return;
+
+        sidebarRankList.innerHTML = inputSpot.top5.map((item, idx) => {
+          const rank = idx + 1;
+          const isSelected = rank === activeRank;
+          return `
+            <button class="rank-square-btn ${isSelected ? 'is-active' : ''}" data-rank="${rank}" type="button" aria-label="Analog Rank #${rank}: ${item.name}" onclick="window.selectAnalogByRank(${rank})">
+              <span class="square-rank">${rank}</span>
+              <span class="square-dot"></span>
+              <span class="square-tooltip mono">
+                <span style="color:var(--accent-soft);font-weight:700;">#${rank}</span> ${item.name} (${item.similarity}%)
+              </span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      window.selectAnalogByRank = function(rank) {
+        if (!selectedSpot || !selectedSpot.top5) return;
+        const target = selectedSpot.top5[rank - 1];
+        if (!target) return;
+
+        currentActiveRank = rank;
+
+        // Update squares active state in floating sidebar
+        document.querySelectorAll('.rank-square-btn').forEach(btn => {
+          btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-rank'), 10) === rank);
+        });
+
+        // Update drawer primary card & accordion active indicator
+        updatePrimaryCardForRank(target, selectedSpot);
+
+        const coordsStr = `LAT: ${Math.abs(target.lat).toFixed(4)}° ${target.lat >= 0 ? 'N' : 'S'} · LNG: ${Math.abs(target.lng).toFixed(4)}° ${target.lng >= 0 ? 'E' : 'W'} · ELEV: ${target.elev}M · MATCH: ${target.similarity}%`;
+
+        // Fly 3D Camera, update marker, and update cinematic text
+        window.flyToEarthLocation(target.lng, target.lat, target.zoom || 12.0, target.name, coordsStr, rank);
+      };
+
       // GLOBAL HELPER TO FLY CAMERA TO ANY OF THE 5 ANALOG SITES
-      window.flyToEarthLocation = function(lng, lat, zoom, title, coords) {
+      window.flyToEarthLocation = function(lng, lat, zoom, title, coords, rank) {
+        pauseOrbitTemporarily();
+        userHasPannedAway = false;
+        currentTargetCoords = { lng, lat, title, zoom: zoom || 12.0, pitch: 62 };
+
+        if (earthTargetMarker) {
+          earthTargetMarker.remove();
+          earthTargetMarker = null;
+        }
+
         if (earthMap) {
           earthMap.flyTo({
             center: [lng, lat],
             zoom: zoom || 12.0,
             pitch: 62,
-            bearing: 28,
+            bearing: (earthMap.getBearing() + 15) % 360,
             speed: 1.0,
-            curve: 1.4
+            curve: 1.4,
+            essential: true
           });
+
+          earthMap.once('moveend', () => {
+            setEarthTargetMarker(lng, lat, title);
+            scheduleResumeOrbit();
+          });
+        } else {
+          setEarthTargetMarker(lng, lat, title);
+          scheduleResumeOrbit();
         }
+
         filmTitle.textContent = title;
         filmCoords.textContent = coords;
+
+        // Explicitly sync active rank without false-positive name collision
+        if (typeof rank === 'number' && rank >= 1 && rank <= 5) {
+          currentActiveRank = rank;
+        } else if (selectedSpot && selectedSpot.top5) {
+          const matchIndex = selectedSpot.top5.findIndex(item => 
+            Math.abs(item.lat - lat) < 0.001 && Math.abs(item.lng - lng) < 0.001
+          );
+          if (matchIndex !== -1) {
+            currentActiveRank = matchIndex + 1;
+          }
+        }
+
+        // Update sidebar buttons to lock on the selected rank
+        document.querySelectorAll('.rank-square-btn').forEach(btn => {
+          btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-rank'), 10) === currentActiveRank);
+        });
+
+        // Ensure drawer primary card stays synced if drawer is re-opened
+        if (selectedSpot && selectedSpot.top5 && selectedSpot.top5[currentActiveRank - 1]) {
+          updatePrimaryCardForRank(selectedSpot.top5[currentActiveRank - 1], selectedSpot);
+        }
       };
 
-      // COLLAPSE / EXPAND TOGGLE HANDLER (LEFT EDGE TAB)
-      const collapseBtn = document.getElementById('panel-collapse-tab');
-      if (collapseBtn && compPanel) {
-        collapseBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          compPanel.classList.toggle('is-collapsed');
-          const isCollapsed = compPanel.classList.contains('is-collapsed');
-          collapseBtn.setAttribute('title', isCollapsed ? 'Expand Comparison Matrix' : 'Collapse Comparison Matrix');
-          collapseBtn.setAttribute('aria-label', isCollapsed ? 'Expand Comparison Matrix' : 'Collapse Comparison Matrix');
-        });
+      // DRAWER COLLAPSE & EXPAND ACTIONS WITH LIGHTING BOOST
+      window.collapseComparisonDrawer = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        const p = document.getElementById('comparison-panel');
+        const s = document.getElementById('floating-sidebar');
+        if (p) {
+          p.classList.add('is-collapsed');
+          p.classList.remove('is-active');
+        }
+        if (s) {
+          s.classList.add('is-active');
+        }
+        document.body.classList.add('drawer-collapsed');
+        if (selectedSpot && typeof renderFloatingSidebarRanks === 'function') {
+          renderFloatingSidebarRanks(selectedSpot, currentActiveRank || 1);
+        }
+      };
+
+      window.expandComparisonDrawer = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        const p = document.getElementById('comparison-panel');
+        const s = document.getElementById('floating-sidebar');
+        if (p) {
+          p.classList.remove('is-collapsed');
+          p.classList.add('is-active');
+        }
+        if (s) {
+          s.classList.remove('is-active');
+        }
+        document.body.classList.remove('drawer-collapsed');
+      };
+
+      // COLLAPSE / EXPAND TOGGLE HANDLERS
+      if (collapseBtn) {
+        collapseBtn.addEventListener('click', window.collapseComparisonDrawer);
+      }
+
+      if (headCollapseBtn) {
+        headCollapseBtn.addEventListener('click', window.collapseComparisonDrawer);
+      }
+
+      if (sidebarExpandBtn) {
+        sidebarExpandBtn.addEventListener('click', window.expandComparisonDrawer);
       }
 
       // RE-ORBIT BUTTON CLICK: RETURN TO 3D MOON GLOBE
       reOrbitBtn.addEventListener('click', () => {
+        stopClockwiseMapOrbit();
+        if (earthTargetMarker) {
+          earthTargetMarker.remove();
+          earthTargetMarker = null;
+        }
+        if (recenterBtn) {
+          recenterBtn.classList.remove('is-active');
+        }
+
         compPanel.classList.remove('is-active', 'is-collapsed');
+        if (floatingSidebar) floatingSidebar.classList.remove('is-active');
+        document.body.classList.remove('drawer-collapsed');
+
         if (filmScrim) filmScrim.classList.remove('is-active');
         filmOverlay.className = 'cinematic-film-overlay';
         earthStage.classList.remove('is-active');

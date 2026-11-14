@@ -166,6 +166,14 @@
       display:block;
       flex-shrink:0;
     }
+    .brand .brand-logo{
+      width:calc(26.9 * var(--u));
+      height:calc(26.9 * var(--u));
+      display:block;
+      object-fit:contain;
+      flex-shrink:0;
+      filter:drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+    }
 
     .links{
       position:absolute;
@@ -614,10 +622,10 @@
       margin:0;
     }
 
-    /* 5-VECTOR METHODOLOGY GRID (#telemetry) */
+    /* 8-VECTOR METHODOLOGY GRID (#telemetry) */
     .vector-grid{
       display:grid;
-      grid-template-columns:repeat(3, 1fr);
+      grid-template-columns:repeat(4, 1fr);
       gap:20px;
     }
     .vector-card{
@@ -740,8 +748,8 @@
       .links, .actions > .solid{ display:none; }
       .menu{ display:inline-flex; }
       .hero-hud{ grid-template-columns:repeat(2, 1fr); }
-      .vector-grid, .missions-grid{ grid-template-columns:1fr; }
-      .vector-card.span-2{ grid-column:span 1; }
+      .vector-grid{ grid-template-columns:repeat(2, 1fr); }
+      .missions-grid{ grid-template-columns:1fr; }
     }
     @media (max-width:640px){
       :root{ --u: calc(100vw / 486); }
@@ -750,6 +758,7 @@
       .pill{ padding-right:calc(8 * var(--u)); }
       .hero-hud{ display:none; }
       .section{ padding:64px 20px; }
+      .vector-grid{ grid-template-columns:1fr; }
     }
     @media (max-width:380px){
       :root{ --u: calc(100vw / 470); }
@@ -840,13 +849,7 @@
     <div class="veil"></div>
     <header class="bar">
       <a class="brand" href="#top" aria-label="Deimos — home">
-        <svg viewBox="0 0 26.9 16.6" fill="none" aria-hidden="true">
-          <ellipse cx="13.25" cy="8.4" rx="13.2" ry="2.9" transform="rotate(-25 13.25 8.4)" stroke="currentColor" stroke-width="1.25"/>
-          <circle cx="13.25" cy="8.4" r="8.8" fill="#000"/>
-          <circle cx="13.25" cy="8.4" r="8.1" fill="currentColor"/>
-          <ellipse cx="13.25" cy="8.4" rx="13.2" ry="2.9" transform="rotate(-25 13.25 8.4)" stroke="#000" stroke-width="0.9" stroke-dasharray="28.2 28.2"/>
-          <ellipse cx="13.25" cy="8.4" rx="13.2" ry="2.9" transform="rotate(-25 13.25 8.4)" stroke="currentColor" stroke-width="1.25" stroke-dasharray="28.2 28.2"/>
-        </svg>
+        <img src="/assets/images/deimos_logo.png" alt="Deimos Logo" class="brand-logo" width="28" height="28" />
         <span>Deimos</span>
       </a>
       <nav class="links" aria-label="Primary">
@@ -893,105 +896,147 @@
 
     <div class="hero-hud" role="region" aria-label="Planetary Analog Index Summary">
       <div class="hud-cell">
-        <span class="hud-label">INDEXED EXTRATERRESTRIAL SITES</span>
-        <span class="hud-val mono">1,420 <span>Mars &amp; Moon</span></span>
+        <span class="hud-label">INDEXED PLANETARY LOCATIONS</span>
+        <span class="hud-val mono">129,960 <span>Moon &amp; Mars Chunks</span></span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">VERIFIED EARTH FIELD TWINS</span>
-        <span class="hud-val mono">84 Basins <span>7 Continents</span></span>
+        <span class="hud-label">TERRESTRIAL ANALOG DATASET</span>
+        <span class="hud-val mono">268,252 <span>0.25° Neon DB Sites</span></span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">PEAK MINERALOGICAL FIDELITY</span>
-        <span class="hud-val mono">98.1% <span>CRISM / ASTER</span></span>
+        <span class="hud-label">PHYSICAL FEATURE MATRIX</span>
+        <span class="hud-val mono">8 Vectors <span>Euclidean L2 KNN</span></span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">ACTIVE MISSION CAMPAIGNS</span>
-        <span class="hud-val mono">19 Teams <span>ISRU &amp; Rover</span></span>
+        <span class="hud-label">REVERSE GEOCODING REACH</span>
+        <span class="hud-val mono">Global <span>190+ Countries</span></span>
       </div>
     </div>
   </div>
 
   <div class="page-content">
-    <!-- SECTION: 5-VECTOR SIMILARITY ENGINE -->
+    <!-- SECTION: 8-VECTOR SIMILARITY ENGINE -->
     <section class="section" id="telemetry" aria-labelledby="vectors-heading">
       <div class="sec-head">
         <div>
-          <div class="sec-kicker">Multi-Spectral Similarity Matrix</div>
+          <div class="sec-kicker">8-Dimensional Environmental Feature Matrix</div>
           <h2 class="sec-title" id="vectors-heading">How Deimos pairs off-world craters with terrestrial basins</h2>
         </div>
         <p class="sec-desc">
-          Every candidate site on the Moon and Mars is decomposed into five calibrated physical vectors and cross-queried against 14,000+ terrestrial geological survey stations.
+          Every surface coordinate on the Moon and Mars is evaluated across 8 fundamental planetary features and cross-matched against our database of 268,252 high-resolution terrestrial sites via spatial L2 KNN distance ranking.
         </p>
       </div>
 
       <div class="vector-grid">
-        <article class="vector-card span-2">
+        <article class="vector-card">
           <div>
-            <span class="vector-num mono">01. SPECTRAL MINERALOGY &amp; REGOLITH</span>
-            <h3 class="vector-title">Orbital Spectroscopy to Field Petrology</h3>
+            <span class="vector-num mono">01. SURFACE GRAVITY</span>
+            <h3 class="vector-title">Gravitational Acceleration</h3>
             <p class="vector-text">
-              Deimos aligns Mars Reconnaissance Orbiter CRISM and Chandrayaan M3 reflectance spectra with Earth ASTER and USGS field core samples—matching olivine-carbonate shorelines, iron-magnesium smectites, and high-titanium ilmenite basalts down to grain-size distribution.
+              Compares extreme gravitational acceleration—Lunar 1.62 m/s² and Martian 3.72 m/s² against Earth's 9.81 m/s² baseline, governing traction, sinkage, and regolith bearing strength.
             </p>
           </div>
           <div class="vector-stat mono">
-            <span>Spectral Bands Evaluated</span>
-            <strong>0.4 – 3.9 μm (544 Channels)</strong>
+            <span>Dynamic Range</span>
+            <strong>1.62 – 9.81 m/s²</strong>
           </div>
         </article>
 
         <article class="vector-card">
           <div>
-            <span class="vector-num mono">02. GEOMORPHOLOGY &amp; SLOPE</span>
-            <h3 class="vector-title">LOLA &amp; HiRISE Terrain Twins</h3>
+            <span class="vector-num mono">02. ATMOSPHERIC PRESSURE</span>
+            <h3 class="vector-title">Barometric Density</h3>
             <p class="vector-text">
-              Matches digital elevation models for slope gradient, crater rim roughness, boulder cumulative fractional area, and wheel-sinkage bearing capacity.
+              Tracks atmospheric columns from near-vacuum (0 kPa on the Moon) and thin carbon dioxide (0.6–0.8 kPa on Mars) to Earth's high-altitude and sea-level barometric envelopes.
             </p>
           </div>
           <div class="vector-stat mono">
-            <span>DEM Resolution</span>
-            <strong>0.25 m / pixel</strong>
+            <span>Pressure Span</span>
+            <strong>0.0 – 101.3 kPa</strong>
           </div>
         </article>
 
         <article class="vector-card">
           <div>
-            <span class="vector-num mono">03. THERMAL &amp; ARIDITY REGIME</span>
-            <h3 class="vector-title">Cryogenic &amp; Hyper-Arid Cycles</h3>
+            <span class="vector-num mono">03. DAY SURFACE TEMP</span>
+            <h3 class="vector-title">Solar Radiation Peaks</h3>
             <p class="vector-text">
-              Pairs diurnal thermal swings, subsurface permafrost tables, and atmospheric water-vapor columns below 0.5 precipitable millimeters.
+              Models diurnal midday thermal highs under unshielded solar flux, tracking lunar peaks up to +120°C and Martian equator highs up to +20°C against Earth hyper-arid deserts.
             </p>
           </div>
           <div class="vector-stat mono">
-            <span>Thermal Span</span>
-            <strong>-130°C to +24°C</strong>
+            <span>Midday Window</span>
+            <strong>-45°C to +120°C</strong>
           </div>
         </article>
 
         <article class="vector-card">
           <div>
-            <span class="vector-num mono">04. GEOCHEMICAL EXTREMES</span>
-            <h3 class="vector-title">Sulfate, Perchlorate &amp; pH</h3>
+            <span class="vector-num mono">04. NIGHT SURFACE TEMP</span>
+            <h3 class="vector-title">Cryogenic Night Plunge</h3>
             <p class="vector-text">
-              Identifies acidic iron-rich drainage basins, hypersaline evaporite flats, and volcanic fumaroles that replicate Martian soil oxidation states.
+              Calculates nocturnal radiative cooling down to cryogenic troughs below -170°C on the Moon and -125°C on Mars against terrestrial Antarctic permafrost regimes.
             </p>
           </div>
           <div class="vector-stat mono">
-            <span>Redox &amp; pH Window</span>
-            <strong>pH 1.8 – 9.4</strong>
+            <span>Nocturnal Limit</span>
+            <strong>-170°C to -10°C</strong>
           </div>
         </article>
 
         <article class="vector-card">
           <div>
-            <span class="vector-num mono">05. OPERATIONAL FIDELITY</span>
-            <h3 class="vector-title">ISRU &amp; EVA Traverse Readiness</h3>
+            <span class="vector-num mono">05. SURFACE ELEVATION</span>
+            <h3 class="vector-title">Altimetry &amp; Relief</h3>
             <p class="vector-text">
-              Evaluates solar incidence angles, radar attenuation depth for ground-penetrating radar, and drilling unconfined compressive strength.
+              Cross-queries LOLA and MOLA orbital laser altimetry models against Earth terrain baselines, matching deep impact basins, rift canyons, and massive volcanic calderas.
             </p>
           </div>
           <div class="vector-stat mono">
-            <span>Field Validation Sites</span>
-            <strong>84 Earth Analogs</strong>
+            <span>Elevation Span</span>
+            <strong>-8,200 m to +21,287 m</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">06. TERRAIN SLOPE</span>
+            <h3 class="vector-title">Incline Gradients</h3>
+            <p class="vector-text">
+              Quantifies local slope angles, crater rim scarps, and dune escarpments to evaluate rover slip hazard, wheel-sinkage bearing capacity, and traverse safety.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Incline Range</span>
+            <strong>0.0° to 45.0° Gradients</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">07. SURFACE ROUGHNESS</span>
+            <h3 class="vector-title">Obstacle &amp; RMS Hazards</h3>
+            <p class="vector-text">
+              Measures root-mean-square roughness and boulder size-frequency distributions across grid chunks to pinpoint smooth landing corridors versus rugged rock fields.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Roughness RMS</span>
+            <strong>0.1 m to 85.0 m</strong>
+          </div>
+        </article>
+
+        <article class="vector-card">
+          <div>
+            <span class="vector-num mono">08. SURFACE ALBEDO</span>
+            <h3 class="vector-title">Optical Photometrics</h3>
+            <p class="vector-text">
+              Matches surface reflectance signatures—distinguishing dark basaltic lunar mare sheets and rusty Martian dust from bright anorthositic highlands and volcanic sands.
+            </p>
+          </div>
+          <div class="vector-stat mono">
+            <span>Albedo Index</span>
+            <strong>0.05 to 0.45 Reflectance</strong>
           </div>
         </article>
       </div>
@@ -1001,54 +1046,54 @@
     <section class="section" id="missions" aria-labelledby="missions-heading">
       <div class="sec-head">
         <div>
-          <div class="sec-kicker">Field-to-Orbit Provenance</div>
+          <div class="sec-kicker">Field-to-Orbit Terrestrial Twins</div>
           <h2 class="sec-title" id="missions-heading">Where mission hardware meets its extraterrestrial twin on Earth</h2>
         </div>
         <p class="sec-desc">
-          Before instruments launch to Jezero Crater or the Lunar South Pole, engineering teams validate drills, spectrometers, and autonomy stacks in Deimos-matched environments.
+          Before spacecraft touch down on the Moon or Mars, aerospace teams test drills, rovers, and life-support autonomy in Deimos-matched terrestrial analogs discovered by our KNN model.
         </p>
       </div>
 
       <div class="missions-grid">
         <article class="mission-card">
           <div>
-            <div class="mission-meta mono">CAMPAIGN 01 · AUTONOMOUS NAVIGATION</div>
-            <h3 class="mission-title">Jezero Boulder Field Hazard Trials</h3>
+            <div class="mission-meta mono">CAMPAIGN 01 · ARTEMIS &amp; APOLLO HERITAGE</div>
+            <h3 class="mission-title">Cinder Lake Volcanic Field, Arizona</h3>
             <p class="mission-body">
-              Matched cumulative rock size-frequency distributions and wind-abraded ventifacts in the Atacama to validate vision-based rover slip compensation on 16° unconsolidated slopes.
+              USGS explosive-excavated basaltic crater field replicating lunar mare surface slope, roughness, and ash regolith for rover mobility and lunar astronaut navigation trials.
             </p>
           </div>
           <div class="mission-pair mono">
-            <span>Jezero Crater ⇄ Atacama</span>
-            <span style="color:var(--accent-soft)">96.4% Match</span>
+            <span>Lunar Mare Basin ⇄ Cinder Lake</span>
+            <span style="color:var(--accent-soft)">97.9% Match</span>
           </div>
         </article>
 
         <article class="mission-card">
           <div>
-            <div class="mission-meta mono">CAMPAIGN 02 · LUNAR SOUTH POLE ISRU</div>
-            <h3 class="mission-title">Cryogenic Regolith Core Drilling</h3>
+            <div class="mission-meta mono">CAMPAIGN 02 · MARTIAN VOLCANIC ANALOG</div>
+            <h3 class="mission-title">Timanfaya Volcanic Lava Fields, Lanzarote</h3>
             <p class="mission-body">
-              Paired Shackleton Crater rim anorthositic breccia and low-angle solar illumination with Devon Island impact melt sheets to benchmark percussive auger power draw.
+              Pristine tholeiitic basalt flows, hornitos, and volcanic collapse tubes matching the slope, micro-roughness, and albedo of Olympus Mons and Martian volcanic shield flanks.
             </p>
           </div>
           <div class="mission-pair mono">
-            <span>Shackleton Rim ⇄ Devon Island</span>
-            <span style="color:var(--accent-soft)">91.7% Match</span>
+            <span>Olympus Mons Flank ⇄ Timanfaya</span>
+            <span style="color:var(--accent-soft)">97.0% Match</span>
           </div>
         </article>
 
         <article class="mission-card">
           <div>
-            <div class="mission-meta mono">CAMPAIGN 03 · SUBSURFACE HABITATS</div>
-            <h3 class="mission-title">Mare Skylight Lava Tube LiDAR</h3>
+            <div class="mission-meta mono">CAMPAIGN 03 · CRYOGENIC CRATER ANALOG</div>
+            <h3 class="mission-title">Reykjanes Peninsula Basalt Craters, Iceland</h3>
             <p class="mission-body">
-              Mapped basaltic roof thickness, rubble-pile Collapse morphology, and subterranean thermal stability inside Lanzarote’s Corona tube as a direct proxy for Mare Tranquillitatis pits.
+              Cold-climate wind-scoured basaltic shield craters and volcanic tephra mimicking the low night temperatures, terrain roughness, and weathering of Martian northern lowlands.
             </p>
           </div>
           <div class="mission-pair mono">
-            <span>Tranquillitatis Pit ⇄ Lanzarote</span>
-            <span style="color:var(--accent-soft)">95.1% Match</span>
+            <span>Martian Lowlands ⇄ Reykjanes</span>
+            <span style="color:var(--accent-soft)">96.2% Match</span>
           </div>
         </article>
       </div>
@@ -1060,8 +1105,8 @@
       </div>
       <div class="footer-links">
         <a href="#top">Top</a>
-        <a href="#telemetry">5-Vector Matrix</a>
-        <a href="#missions">Campaigns</a>
+        <a href="#telemetry">Similarity Matrix</a>
+        <a href="#missions">Analog Campaigns</a>
       </div>
     </footer>
   </div>
@@ -1126,8 +1171,8 @@
         });
       }
 
-      var v = document.querySelector('video.sky');
-      if (v) {
+      var vids = document.querySelectorAll('video');
+      vids.forEach(function(v) {
         v.muted = true;
         function play() {
           if (v.paused) {
@@ -1150,7 +1195,7 @@
         events.forEach(function(ev) {
           window.addEventListener(ev, oncePlay, { passive: true, once: true });
         });
-      }
+      });
     })();
   </script>
 </body>
